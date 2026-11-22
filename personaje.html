@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width,initial-scale=1" name="viewport" />
+  <title>
+    EDIT · Creador de mascotas
+  </title>
+  <link href="css/styles.css" rel="stylesheet" />
+</head>
+
+<body>
+
+  <header class="encabezado">
+    <a href="index.html" class="logo">EDIT</a>
+
+    <nav class="navegacion" aria-label="Navegación principal">
+      <a href="index.html">Novedades</a>
+      <a href="personaje.html" class="activo" aria-current="page">Crear personaje</a>
+      <a href="escenario.html">Jugar</a>
+      <a href="ayuda.html">Información y ayuda</a>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <aside class="panel categories">
+      <p class="eyebrow">
+        01 / CREAR
+      </p>
+      <h1>
+        ¡Dale vida a tu mascota!
+      </h1>
+      <p class="muted">
+        Elegí cada detalle y mirá cómo se mueve.
+      </p>
+      <nav aria-label="Partes de la mascota" id="categorias">
+      </nav>
+      <div class="hint">
+        ✦ Todas las piezas se pueden combinar.
+      </div>
+    </aside>
+    <section aria-label="Vista previa de la mascota" class="stage">
+      <div class="stage-top">
+        <span class="live">
+          <i>
+          </i>
+          VISTA EN VIVO
+        </span>
+        <span>
+          Tu mascota, tu estilo ♡
+        </span>
+      </div>
+      <div class="canvas-wrap" id="lienzo">
+      </div>
+      <div class="stage-bottom">
+        <label class="switch">
+          <input checked="" id="animar" type="checkbox" />
+          Animación
+        </label>
+        <button class="ghost" id="sorpresa">
+          ✧ Sorprendeme
+        </button>
+        <button class="ghost" id="saludar">
+          ♡ Saludar
+        </button>
+      </div>
+    </section>
+    <aside class="panel options">
+      <p class="eyebrow">
+        02 / PERSONALIZAR
+      </p>
+      <h2 id="tituloOpciones">
+        Pelucas
+      </h2>
+      <p class="muted" id="descripcionOpciones">
+        Elegí una opción.
+      </p>
+      <div class="choices" id="opciones">
+      </div>
+      <div class="colors-area" id="colores">
+        <h3 id="tituloColores">
+          Colores
+        </h3>
+        <div class="swatches" id="muestras">
+        </div>
+      </div>
+      <div class="save-area">
+        <label for="nombre">
+          Nombre de tu mascota
+        </label>
+        <input id="nombre" maxlength="24" placeholder="Ej. Mishi" value="Mishi" />
+        <button class="primary" id="guardar">
+          ↓ Guardar imagen PNG
+        </button>
+        <button class="ghost full" id="guardarConfig">
+          Copiar configuración
+        </button>
+        <p id="estado" role="status">
+        </p>
+      </div>
+    </aside>
+  </main>
+  <footer>
+    EDIT · Prototipo interactivo desarrollado con HTML, CSS, JavaScript y p5.js
+  </footer>
+  <dialog id="instrucciones">
+    <h2>
+      ¡Bienvenida a EDIT! ✨
+    </h2>
+    <p>
+      Elegí una categoría a la izquierda, seleccioná las piezas y cambiá los colores. La mascota respira y mueve los
+      brazos suavemente. Podés guardar una imagen PNG y copiar tu selección.
+    </p>
+    <button class="primary" id="cerrarAyuda">
+      ¡Entendido!
+    </button>
+  </dialog>
+  <script src="lib/p5.js"></script>
+  <script src="js/assets.js"></script>
+  <script src="js/mascota.js"></script>
+
+  <script>
+    function preload() {
+      preloadMascota();
+    }
+
+    function setup() {
+      setupMascota();
+    }
+
+    function draw() {
+      drawMascota();
+    }
+  </script>
+
+  <script src="js/personalizacion.js"></script>
+</body>
+
+</html>
