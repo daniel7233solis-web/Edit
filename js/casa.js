@@ -93,6 +93,11 @@ function draw() {
         return;
     }
 
+    if (lugarActual === 'universidad') {
+        dibujarInteriorUniversidad();
+        return;
+    }
+
     actualizarMovimiento();
 
 
@@ -694,10 +699,28 @@ function mousePressed() {
             solicitarPantallaCompleta();
         }
 
+        // Clic sobre la Universidad EDIT
+        if (mouseX >= 465 && mouseX <= 836 &&
+            mouseY >= 175 && mouseY <= 354) {
+
+            lugarActual = 'universidad';
+        }
+
         return;
     }
 
     if (lugarActual === 'mapa') {
+
+        if (lugarActual === 'universidad') {
+            if (mouseX >= 20 && mouseX <= 200 &&
+                mouseY >= 20 && mouseY <= 65) {
+
+                lugarActual = 'mapa';
+            }
+
+            return;
+        }
+
         // Clic sobre la Casa de Mishi
         if (mouseX >= 105 && mouseX <= 295 &&
             mouseY >= 148 && mouseY <= 350) {

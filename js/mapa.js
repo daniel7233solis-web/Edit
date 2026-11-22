@@ -225,3 +225,55 @@ function dibujarPuertaDoble(x, y, w, h, cVentana, cBrillo, cBorde, cPared) {
 
 
 
+
+function dibujarInteriorUniversidad() {
+    background('#bcecf5');
+
+    // Título
+    fill('#423451');
+    noStroke();
+    textAlign(CENTER, CENTER);
+    textStyle(BOLD);
+    textSize(36);
+    text('Universidad EDIT', width / 2, 105);
+
+    textStyle(NORMAL);
+    textSize(18);
+    text('¡Elegí qué querés aprender hoy!', width / 2, 155);
+
+    // Materias
+    const materias = [
+        { nombre: 'Teoría y Trivia', x: 130, y: 205 },
+        { nombre: 'Edición', x: 470, y: 205 },
+        { nombre: 'Morfología y Maquetas', x: 130, y: 325 },
+        { nombre: 'Supervivencia Académica', x: 470, y: 325 }
+    ];
+
+    for (let materia of materias) {
+        stroke('#423451');
+        strokeWeight(3);
+        fill('#fff2cf');
+        rect(materia.x, materia.y, 300, 85, 15);
+
+        noStroke();
+        fill('#423451');
+        textStyle(BOLD);
+        textSize(18);
+        text(
+            materia.nombre,
+            materia.x + 150,
+            materia.y + 42
+        );
+    }
+
+    // Botón para regresar al mapa
+    stroke('#423451');
+    strokeWeight(2);
+    fill('#faa4b5');
+    rect(20, 20, 180, 45, 12);
+
+    noStroke();
+    fill('#423451');
+    textSize(17);
+    text('Volver al mapa', 110, 42);
+}
