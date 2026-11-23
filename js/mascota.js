@@ -257,7 +257,7 @@ function dibujarArticulacion(tipo, angulo, intensidad = 0) {
   const brazo = tipo === 'armL' || tipo === 'armR';
   const parte = tipo === 'armL' ? 'brazoL'
     : tipo === 'armR' ? 'brazoR'
-    : tipo === 'legL' ? 'piernaL' : 'piernaR';
+      : tipo === 'legL' ? 'piernaL' : 'piernaR';
 
   push();
   translate(p.pivotX, p.pivotY);
@@ -287,7 +287,7 @@ function dibujarArticulacion(tipo, angulo, intensidad = 0) {
 // con las otras pantallas, pero ahora se llama ANTES de la ropa superior.
 function dibujarPantaloncito() {
   if (estadoMascota.conjunto === 'ninguno' &&
-      estadoMascota.ropaInferior === 'pantaloncito') {
+    estadoMascota.ropaInferior === 'pantaloncito') {
     dibujarPrenda('pantaloncito', 'centro');
   }
 }
@@ -299,7 +299,7 @@ function dibujarUnionCintura() {
   let id = null;
   if (estadoMascota.conjunto === 'enterizo') id = 'enterizo';
   else if (estadoMascota.conjunto === 'ninguno' &&
-      estadoMascota.ropaInferior === 'pantaloncito') id = 'pantaloncito';
+    estadoMascota.ropaInferior === 'pantaloncito') id = 'pantaloncito';
   if (!id) return;
   const recurso = imagenDePrenda(id, 'completa');
   if (!recurso || recurso.width <= 1) return;
@@ -333,9 +333,11 @@ function dibujarMascota(movimiento = false) {
 
   // Pasos suaves y medidos. Los pies permanecen cerca del piso fijo y no
   // hay rebote de cuerpo entero ni escala horizontal dependiente de caminar.
-  const anguloPierna = pisada * .145 * intensidad;
-  const anguloBrazo = pisada * .21 * intensidad;
-  const oscilacionTorso = pisada * 2.0 * intensidad;
+
+  const anguloPierna = pisada * 0.22 * intensidad;
+  const anguloBrazo = pisada * 0.32 * intensidad;
+  const oscilacionTorso = pisada * 3.2 * intensidad;
+
   const prendaSuperior = estadoMascota.conjunto !== 'ninguno'
     ? 'remeraBlanca' : estadoMascota.ropaSuperior;
 

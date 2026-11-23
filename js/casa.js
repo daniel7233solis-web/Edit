@@ -159,23 +159,60 @@ function draw() {
     dibujarTooltipPuerta();
 }
 
+
 function actualizarMovimiento() {
     let direccion = 0;
-    if (keyIsDown(65) || keyIsDown(LEFT_ARROW) || controlTactil.izquierda) direccion--;
-    if (keyIsDown(68) || keyIsDown(RIGHT_ARROW) || controlTactil.derecha) direccion++;
 
-    const velocidadObjetivo = direccion * 2.85;
-    personaje.velocidad = lerp(personaje.velocidad,
-        velocidadObjetivo, direccion ? .15 : .20);
-    if (abs(personaje.velocidad) < .06) personaje.velocidad = 0;
-    personaje.x = constrain(personaje.x + personaje.velocidad, 45, CASA.ancho - 45);
-    const intensidadObjetivo = Math.min(1, Math.abs(personaje.velocidad) / 2.7);
-    personaje.intensidad = lerp(personaje.intensidad, intensidadObjetivo, .18);
-    personaje.caminando = personaje.intensidad > .035;
-    // Cada ciclo corresponde a pasos tranquilos y no a una carrera.
-    if (personaje.intensidad > .025) personaje.fase += .075 + Math.abs(personaje.velocidad) * .039;
-    if (direccion) personaje.mirando = direccion;
+    if (keyIsDown(65) || keyIsDown(LEFT_ARROW) || controlTactil.izquierda) {
+        direccion--;
+    }
+
+    if (keyIsDown(68) || keyIsDown(RIGHT_ARROW) || controlTactil.derecha) {
+        direccion++;
+    }
+
+    // Mishi se desplaza más rápido y acelera suavemente.
+    const velocidadObjetivo = direccion * 4.8;
+
+    personaje.velocidad = lerp(
+        personaje.velocidad,
+        velocidadObjetivo,
+        direccion ? 0.22 : 0.27
+    );
+
+    if (abs(personaje.velocidad) < 0.06) {
+        personaje.velocidad = 0;
+    }
+
+    personaje.x = constrain(
+        personaje.x + personaje.velocidad,
+        45,
+        CASA.ancho - 45
+    );
+
+    const intensidadObjetivo = Math.min(
+        1,
+        Math.abs(personaje.velocidad) / 4.5
+    );
+
+    personaje.intensidad = lerp(
+        personaje.intensidad,
+        intensidadObjetivo,
+        0.22
+    );
+
+    personaje.caminando = personaje.intensidad > 0.035;
+
+    // Ritmo más rápido para brazos y piernas.
+    if (personaje.intensidad > 0.025) {
+        personaje.fase += 0.15 + Math.abs(personaje.velocidad) * 0.045;
+    }
+
+    if (direccion) {
+        personaje.mirando = direccion;
+    }
 }
+
 
 function dibujarCasa() {
     noStroke();
@@ -582,9 +619,17 @@ function dibujarPersonaje() {
         const progreso = 1 - (personaje.saltoHasta - millis()) / 850;
         salto = -19 * Math.sin(Math.PI * Math.max(0, Math.min(1, progreso)));
     }
-    translate(personaje.x, personaje.y + salto);
-    scale(personaje.mirando, 1);
-    const escalaMishi = .28 * Math.min(1, Math.max(.64, width / 750));
+
+    const rebote = personaje.caminando
+        ? Math.abs(Math.sin(personaje.fase)) * 3.5 * personaje.intensidad
+        : 0;
+
+    translate(personaje.x, personaje.y + salto - rebote);
+
+    const escalaMishi = .28 * Math.min(
+        1,
+        Math.max(.64, width / 750)
+    );
     scale(escalaMishi);
     // Los zapatos terminan cerca de Y=1198 y los pies descalzos en Y=1187.
     // Un solapamiento leve con el piso evita la sensación de que flota.
