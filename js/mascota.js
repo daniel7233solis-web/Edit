@@ -320,7 +320,7 @@ function dibujarMascota(movimiento = false) {
   const pisada = Math.sin(fase);
   const t = millis() / 1000;
   const reposo = estadoMascota.animar && intensidad < .05;
-  const respiracion = reposo ? Math.sin(t * 1.25) * 0.9 : 0;
+  const respiracion = reposo ? Math.sin(t * 2.1) * 3.5 : 0;
 
   // Saludo: se anima sólo el brazo, nunca la silueta de la cabeza.
   let saludo = 0;
@@ -388,6 +388,8 @@ function dibujarMascota(movimiento = false) {
 
   // 7. Cabeza + orejas + facciones + peluca: conjunto completamente rígido.
   //    No hereda rebote, rotación, escala ni oscilación del torso al caminar.
+  push();
+  translate(0, -respiracion * 0.8);
   dibujarPieza('ears', estadoMascota.ears, POSICIONES.ears.x, POSICIONES.ears.y);
   dibujarPieza('head', 1, POSICIONES.head.x, POSICIONES.head.y);
   dibujarCentrada('brows', estadoMascota.brows);
@@ -396,6 +398,7 @@ function dibujarMascota(movimiento = false) {
   dibujarCentrada('mouth', estadoMascota.mouth);
   const pelo = POSICIONES.hair[estadoMascota.hair - 1];
   if (pelo) dibujarPieza('hair', estadoMascota.hair, pelo.x, pelo.y);
+  pop();
 }
 
 function drawMascota() {
