@@ -117,29 +117,20 @@ function iniciarParejas() {
     ];
 
     // Elegimos palabras de HTML, CSS y p5.js.
+
     const grupoElegido = [
-        grupos[0][Math.floor(Math.random() * grupos[0].length)],
-        grupos[1][Math.floor(Math.random() * grupos[1].length)],
-        grupos[2][Math.floor(Math.random() * grupos[2].length)]
+        ...[...grupos[0]].sort(() => Math.random() - 0.5).slice(0, 3),
+        ...[...grupos[1]].sort(() => Math.random() - 0.5).slice(0, 3),
+        ...[...grupos[2]].sort(() => Math.random() - 0.5).slice(0, 2)
     ];
 
-    // La cuarta palabra se elige entre las restantes.
-    const restantes = grupos.flat().filter(
-        palabra => !grupoElegido.includes(palabra)
-    );
 
-    grupoElegido.push(
-        restantes[Math.floor(Math.random() * restantes.length)]
+
+    estado.cartas = [...grupoElegido, ...grupoElegido].sort(
+        () => Math.random() - 0.5
     );
 
 
-
-
-    // Duplicamos los símbolos para formar las parejas
-    estado.cartas = [...grupoElegido, ...grupoElegido];
-
-    // Mezclamos las tarjetas
-    estado.cartas.sort(() => Math.random() - 0.5);
 
     estado.vistas = []; estado.acertadas = new Set();
 
@@ -147,8 +138,8 @@ function iniciarParejas() {
     board.className = 'mini-tablero mini-memoria';
     board.replaceChildren();
 
-    mensajeJuego('Encontrá las cuatro parejas iguales.');
-    progresoJuego(0, 4);
+    mensajeJuego('Encontrá las ocho parejas de palabras de HTML, CSS y p5.js.');
+    progresoJuego(0, 8);
 
     // Mostrar al Mishi personalizado.
     const mishi = crearMishiLaboratorio();
@@ -178,8 +169,8 @@ function iniciarParejas() {
 
                     estado.acertadas.add(a); estado.acertadas.add(z);
                     estado.vistas = [];
-                    progresoJuego(estado.acertadas.size / 2, 4);
-                    if (estado.acertadas.size === 8) finalizarJuego();
+                    progresoJuego(estado.acertadas.size / 2, 8);
+                    if (estado.acertadas.size === 16) finalizarJuego();
                 } else {
                     mishi.mensaje.textContent =
                         '¡Ups! Esas palabras no coinciden. ¡Intentá otra vez!';
