@@ -90,6 +90,62 @@ function cargarMascota() {
 }
 
 const imagenes = {};
+
+// Expresiones dibujadas por Iris: únicamente se muestran temporalmente.
+// No reemplazan los ojos/boca elegidos y guardados por el usuario.
+const ARCHIVOS_EXPRESIONES = {
+  felizOjos: 'ojos sonriente.png',
+  tristeOjos: 'ojos tristes.png',
+  llorarOjos: 'ojos llorando.png',
+  dormirOjos: 'ojos dormido.png',
+  fuerteOjos: 'ojos cerrados fuerte.png',
+  felizBoca: 'boca sonriente feliz.png',
+  tristeBoca: 'boca expresion triste.png',
+  sorpresaBoca: 'boca expresion abierta.png',
+  juegoBoca: 'boca expresion.png'
+};
+const imagenesExpresiones = {};
+let expresionActual = { tipo: null, hasta: 0 };
+const RECORTES_EXPRESIONES = {
+  felizOjos: [231, 480, 570, 537, 455],
+  tristeOjos: [228, 479, 574, 533, 455],
+  llorarOjos: [212, 477, 589, 568, 500],
+  dormirOjos: [220, 507, 584, 541, 473],
+  fuerteOjos: [234, 455, 565, 548, 443],
+  felizBoca: [362, 486, 438, 531, 586],
+  tristeBoca: [366, 488, 440, 518, 588],
+  sorpresaBoca: [379, 485, 426, 512, 587],
+  juegoBoca: [311, 488, 490, 517, 588]
+};
+function reaccionarMascota(tipo, duracion = 1700) {
+  expresionActual = { tipo, hasta: millis() + duracion };
+}
+// Combinaciones de los dibujos provistos por Iris. No reemplazan la
+// personalización: al caducar vuelve exactamente la cara guardada.
+const COMBINACIONES_EXPRESIONES = {
+  dormir: { eyes: 'dormirOjos', mouth: 'felizBoca' },
+  feliz: { eyes: 'felizOjos', mouth: 'felizBoca' },
+  comer: { eyes: 'felizOjos', mouth: 'sorpresaBoca' },
+  bano: { eyes: 'fuerteOjos', mouth: 'juegoBoca' },
+  juego: { eyes: 'felizOjos', mouth: 'juegoBoca' },
+  triste: { eyes: 'tristeOjos', mouth: 'tristeBoca' },
+  llorar: { eyes: 'llorarOjos', mouth: 'tristeBoca' },
+  molesto: { eyes: 'fuerteOjos', mouth: 'tristeBoca' },
+  sorpresa: { eyes: 'fuerteOjos', mouth: 'sorpresaBoca' }
+};
+function rasgoDeExpresion(tipo) {
+  if (millis() >= expresionActual.hasta) return null;
+  return COMBINACIONES_EXPRESIONES[expresionActual.tipo]?.[tipo] || null;
+}
+function dibujarExpresion(nombre) {
+  const imagen = imagenesExpresiones[nombre];
+  const marco = RECORTES_EXPRESIONES[nombre];
+  if (!imagen || !marco || imagen.width <= 1) return false;
+  const [izquierda, arriba, derecha, , y] = marco;
+  const centro = (izquierda + derecha) / 2;
+  image(imagen, 422 - centro, y - arriba, imagen.width, imagen.height);
+  return true;
+}
 const coloreadas = {
   skin: {},
   hair: {},
@@ -100,6 +156,10 @@ let erroresDeCarga = [];
 // p5.js espera a que terminen estas cargas antes de ejecutar setup() y draw().
 function cargarRecursosMascota() {
   cargarImagenesRopa();
+  for (const [clave, archivo] of Object.entries(ARCHIVOS_EXPRESIONES)) {
+    imagenesExpresiones[clave] = loadImage('img/expresiones/' + archivo,
+      undefined, () => erroresDeCarga.push(archivo));
+  }
 
   Object.keys(ARCHIVOS).forEach(tipo => {
     imagenes[tipo] = [];
@@ -318,6 +378,7 @@ function dibujarMascota(movimiento = false) {
   const fase = typeof movimiento === 'object' && Number.isFinite(movimiento.fase)
     ? movimiento.fase : frameCount * 0.1;
   const pisada = Math.sin(fase);
+  const sentado = typeof movimiento === 'object' && Boolean(movimiento.sentado);
   const t = millis() / 1000;
   const reposo = estadoMascota.animar && intensidad < .05;
   const respiracion = reposo ? Math.sin(t * 2.1) * 3.5 : 0;
@@ -334,15 +395,26 @@ function dibujarMascota(movimiento = false) {
   // Pasos suaves y medidos. Los pies permanecen cerca del piso fijo y no
   // hay rebote de cuerpo entero ni escala horizontal dependiente de caminar.
   const anguloPierna = pisada * .145 * intensidad;
+  const balanceoReposo = reposo ? Math.sin(t * 1.4) * .028 : 0;
   const anguloBrazo = pisada * .21 * intensidad;
   const oscilacionTorso = pisada * 2.0 * intensidad;
+  const inclinacionSaludo = estadoMascota.saludo > 0
+    ? Math.sin((1 - estadoMascota.saludo) * Math.PI) * .075 : 0;
   const prendaSuperior = estadoMascota.conjunto !== 'ninguno'
     ? 'remeraBlanca' : estadoMascota.ropaSuperior;
 
   // 1. Piernas -> zapatos -> tela de perneras. Las zapatillas no pueden
   //    tapar los ruedos. Los PNG de la pierna rotan junto con su pantalón.
-  dibujarArticulacion('legL', anguloPierna, intensidad);
-  dibujarArticulacion('legR', -anguloPierna, intensidad);
+  dibujarArticulacion('legL', sentado ? -.72 : anguloPierna, intensidad);
+  dibujarArticulacion('legR', sentado ? .72 : -anguloPierna, intensidad);
+
+  // Todo el cuerpo superior se inclina de forma leve al saludar, como en
+  // la primera versión. La peluca sigue pegada a la cabeza; cintura quieta.
+  push();
+  translate(422, 900);
+  rotate(inclinacionSaludo);
+  translate(-422, -900);
+  translate(0, -respiracion * .25);
 
   // 2. Un brazo va por detrás de la silueta cuando camina.
   //    El derecho queda atrás al mirar a la derecha; al espejarse cambia lado.
@@ -357,7 +429,7 @@ function dibujarMascota(movimiento = false) {
   // 3. Piel del torso, DETRÁS de ambas prendas. Dibujar el torso por
   //    encima de la pollera generaba los parches visibles de piel en cintura.
   push();
-  translate(oscilacionTorso, -respiracion);
+  translate(oscilacionTorso, -respiracion * .72);
   dibujarPieza('torso', 1, POSICIONES.torso.x, POSICIONES.torso.y);
   pop();
 
@@ -371,7 +443,7 @@ function dibujarMascota(movimiento = false) {
   // 5. Prenda superior EN PRIMER PLANO sobre la capa inferior. Así el
   //    ruedo tapa el borde de pollera/short y no quedan cortes en la cintura.
   push();
-  translate(oscilacionTorso, -respiracion);
+  translate(oscilacionTorso, -respiracion * .72);
   dibujarPrenda(prendaSuperior, 'torso');
   if (estadoMascota.conjunto === 'enterizo') {
     dibujarPrenda('enterizo', 'torso');
@@ -381,9 +453,9 @@ function dibujarMascota(movimiento = false) {
   pop();
 
   // 6. Brazo delantero, con manga unida al mismo pivote.
-  dibujarArticulacion('armL', -anguloBrazo, intensidad);
+  dibujarArticulacion('armL', -anguloBrazo + balanceoReposo, intensidad);
   if (!caminando || saludo > 0) {
-    dibujarArticulacion('armR', anguloBrazo - saludo, intensidad);
+    dibujarArticulacion('armR', anguloBrazo - balanceoReposo - saludo, intensidad);
   }
 
   // 7. Cabeza + orejas + facciones + peluca: conjunto completamente rígido.
@@ -393,12 +465,24 @@ function dibujarMascota(movimiento = false) {
   dibujarPieza('ears', estadoMascota.ears, POSICIONES.ears.x, POSICIONES.ears.y);
   dibujarPieza('head', 1, POSICIONES.head.x, POSICIONES.head.y);
   dibujarCentrada('brows', estadoMascota.brows);
-  dibujarCentrada('eyes', estadoMascota.eyes);
+  const ojosTemporales = rasgoDeExpresion('eyes');
+  if (ojosTemporales === 'llorarOjos') {
+    // El archivo celeste tiene sólo LÁGRIMAS, no ojos. Se dibujan por
+    // debajo de los párpados cerrados originales de Iris.
+    dibujarExpresion('llorarOjos');
+    dibujarExpresion('dormirOjos');
+  } else if (!ojosTemporales || !dibujarExpresion(ojosTemporales)) {
+    dibujarCentrada('eyes', estadoMascota.eyes);
+  }
   dibujarCentrada('nose', estadoMascota.nose);
-  dibujarCentrada('mouth', estadoMascota.mouth);
+  const bocaTemporal = rasgoDeExpresion('mouth');
+  if (!bocaTemporal || !dibujarExpresion(bocaTemporal)) {
+    dibujarCentrada('mouth', estadoMascota.mouth);
+  }
   const pelo = POSICIONES.hair[estadoMascota.hair - 1];
   if (pelo) dibujarPieza('hair', estadoMascota.hair, pelo.x, pelo.y);
-  pop();
+  pop(); // cabeza completa
+  pop(); // cuerpo superior / saludo
 }
 
 function drawMascota() {

@@ -170,6 +170,7 @@ const ICONOS_CATEGORIAS = {
 document.addEventListener('DOMContentLoaded', () => {
   // Recuperar la configuración antes de mostrar las opciones.
   cargarMascota();
+  elemento('animar').checked = Boolean(estadoMascota.animar);
 
   CATEGORIAS.forEach(categoria => {
     const boton = document.createElement('button');
@@ -208,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   elegirCategoria('hair');
-  elemento('estado').textContent = '✓ Tus cambios se conservan en este navegador';
+  elemento('estado').textContent = '';
   elemento('nombre').addEventListener('input', notificarCambios);
   elemento('animar').addEventListener('change', evento => {
     estadoMascota.animar = evento.target.checked;

@@ -8,17 +8,15 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 
-<body class="pagina-juego">
+<body class="pagina-juego pagina-interior">
 
     <header class="encabezado">
-        <a href="index.html" class="logo">EDIT</a>
-
-        <nav class="navegacion" aria-label="Navegación principal">
-            <a href="index.html">Novedades</a>
-            <a href="personaje.html">Crear personaje</a>
-            <a href="escenario.html" class="activo" aria-current="page">Jugar</a>
-        </nav>
-    </header>
+    <a href="index.html" class="logo" aria-label="EDIT, inicio"><img src="img/portada/capas/edit 1.png" alt="EDIT"></a>
+    <nav class="navegacion" aria-label="Navegación principal">
+      <a href="personaje.html">Crear personaje</a>
+      <a href="escenario.html" class="activo" aria-current="page">Jugar</a>
+    </nav>
+  </header>
 
     <main class="contenido-principal contenido-juego">
         <div class="juego-marco">
@@ -29,6 +27,11 @@
             </div>
         </div>
     </main>
+    <!-- Fuente del video real: se reproduce dentro de la pantalla dibujada en p5. -->
+    <video id="videoTele" hidden playsinline preload="none" muted
+           aria-label="Video de la televisión de EDIT"></video>
+    <button id="volumenTeleAccesible" type="button" class="solo-lectores"
+            aria-label="Activar sonido del televisor">Activar sonido del televisor</button>
     <dialog id="dialogoEdificio" class="modal-edificio" aria-labelledby="nombreEdificio">
         <button id="cerrarModalEdificio" class="cerrar-modal" type="button" aria-label="Cerrar">×</button>
         <p class="eyebrow">UNIVERSIDAD NACIONAL DE MORENO · EDIT</p>
@@ -52,6 +55,8 @@
     <script src="js/mapa.js"></script>
     <script src="js/minijuegos.js"></script>
     <script src="js/casa.js"></script>
+  <script src="js/efectos-ui.js" defer></script>
+  <script src="js/audio-edit.js" defer></script>
 </body>
 
 </html>

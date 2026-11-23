@@ -43,6 +43,7 @@ let jugando = false;
 let lugarActual = 'casa';
 
 let tvEncendida = false;
+let tvConSonido = false;
 let heladeraAbierta = false;
 
 let mensaje = '';
@@ -52,12 +53,17 @@ let botones = {};
 let escalaMundo = 1;
 let objetoArrastrado = null;
 const burbujasCasa = [];
+// Indicadores livianos: las acciones cambian las necesidades de la mascota.
+const NECESIDADES = { hambre: 78, higiene: 84, diversion: 70, sueno: 91 };
+let ultimoCambioNecesidades = 0;
+let ultimoMensaje = '';
 let animacionEstrellasHasta = 0;
 const OBJETO_COORDS = {
     jabon: {x:1167,y:327},
     manzana: {x:1340,y:324},
     cama: {x:370,y:327},
     tele: {x:2219,y:315},
+    sentar: {x:1948,y:340},
     puerta: {x:2590,y:260}
 };
 
@@ -70,8 +76,54 @@ const objetos = [
     { nombre: 'Televisor', x: 2110, y: 260, w: 220, h: 135, accion: 'tele' },
     { nombre: 'Puerta', x: 2520, y: 180, w: 135, h: 305, accion: 'salir' }
 ];
+// Fuente instalada en el equipo; si no está, evitamos el serif por defecto
+// de p5.js usando una alternativa redondeada y legible.
+const FUENTES_EDIT = {};
+const ROTULOS_INTERFAZ = {};
+function precargarRotulos() {
+    const recursos = {
+        logo: 'img/portada/capas/edit 1.png',
+        bienvenida: 'img/interfaz/bienvenida.png',
+        jugar: 'img/interfaz/jugar.png',
+        volver: 'img/interfaz/volver.png',
+        universidad: 'img/interfaz/universidad.png',
+        dorrego: 'img/interfaz/etiqueta_dorrego.png',
+        daract1: 'img/interfaz/etiqueta_daract1.png',
+        daract2: 'img/interfaz/etiqueta_daract2.png',
+        laboratorios: 'img/interfaz/etiqueta_laboratorios.png',
+        historico: 'img/interfaz/etiqueta_historico.png'
+    };
+    for (const [clave, ruta] of Object.entries(recursos)) {
+        ROTULOS_INTERFAZ[clave] = loadImage(ruta);
+    }
+}
+// Dibujo de textos fijos en las fuentes originales, sin depender de las
+// fuentes que tenga instaladas el visitante. El texto accesible permanece
+// en los atributos del botón del HTML y en la documentación del proyecto.
+function dibujarRotulo(rotulo, x, y, anchoMax, altoMax) {
+    const img = ROTULOS_INTERFAZ[rotulo];
+    if (!img || img.width <= 1 || img.height <= 1) return false;
+    const factor = Math.min(anchoMax / img.width, altoMax / img.height);
+    image(img, x - img.width * factor / 2, y - img.height * factor / 2,
+        img.width * factor, img.height * factor);
+    return true;
+}
+function fuenteEDIT(nombre) {
+    if (FUENTES_EDIT[nombre]) return FUENTES_EDIT[nombre];
+    const lienzo = document.createElement('canvas');
+    const contexto = lienzo.getContext('2d');
+    const frase = 'EDIT Mi mascota WW ii';
+    contexto.font = '22px monospace';
+    const base = contexto.measureText(frase).width;
+    contexto.font = '22px "' + nombre + '", monospace';
+    const medida = contexto.measureText(frase).width;
+    FUENTES_EDIT[nombre] = Math.abs(base - medida) > .6 ? nombre : 'sans-serif';
+    return FUENTES_EDIT[nombre];
+}
+
 function preload() {
     preloadMascota();
+    precargarRotulos();
 }
 function setup() {
     cargarMascota();
@@ -84,9 +136,22 @@ function setup() {
     pixelDensity(1);
     strokeCap(ROUND);
     strokeJoin(ROUND);
-    textFont('Arial');
+    textFont(fuenteEDIT('Pulang'));
+    // La fuente local puede terminar de cargarse después de setup().
+    // Actualizar p5 cuando esté lista evita fijar el fallback inicial.
+    if (document.fonts) {
+        document.fonts.ready.then(() => {
+            delete FUENTES_EDIT.Pulang;
+            textFont(fuenteEDIT('Pulang'));
+        });
+    }
     ajustarLienzo();
     configurarControlesTactiles();
+    if (window.ResizeObserver) {
+        const observador = new ResizeObserver(() => ajustarLienzo());
+        observador.observe(destino);
+        window.addEventListener('pagehide', () => observador.disconnect(), { once: true });
+    }
 }
 
 function ajustarLienzo() {
@@ -120,8 +185,15 @@ function configurarControlesTactiles() {
 
 function draw() {
     document.body.classList.toggle('juego-activo', jugando && lugarActual === 'casa');
+    const destino = document.getElementById('escenario');
+    if (destino && (Math.abs(destino.clientWidth-width)>1 ||
+        Math.abs(destino.clientHeight-height)>1)) ajustarLienzo();
     background(C.crema);
     escalaMundo = height / CASA.alto;
+
+    if ((!jugando || lugarActual !== 'casa') && (tvEncendida || tvConSonido)) {
+        apagarTelevisor();
+    }
 
     if (!jugando) {
         dibujarPortada();
@@ -137,6 +209,7 @@ function draw() {
     if (!objetoArrastrado && millis() > (personaje.durmiendoHasta || 0)) {
         actualizarMovimiento();
     }
+    actualizarNecesidades();
 
     // El escenario mantiene proporciones uniformes, sin estirarse ni quedar
     // encerrado en los 900 x 550 px que antes dejaban márgenes enormes.
@@ -152,6 +225,7 @@ function draw() {
     translate(-camaraX, 0);
     dibujarCasa();
     dibujarPersonaje();
+    if (personaje.sentado) dibujarFrenteSillon();
     pop();
 
     dibujarInterfaz();
@@ -164,6 +238,10 @@ function actualizarMovimiento() {
     if (keyIsDown(65) || keyIsDown(LEFT_ARROW) || controlTactil.izquierda) direccion--;
     if (keyIsDown(68) || keyIsDown(RIGHT_ARROW) || controlTactil.derecha) direccion++;
 
+    if (direccion && personaje.sentado) {
+        personaje.sentado = false;
+        personaje.y = CASA.suelo;
+    }
     const velocidadObjetivo = direccion * 2.85;
     personaje.velocidad = lerp(personaje.velocidad,
         velocidadObjetivo, direccion ? .15 : .20);
@@ -258,7 +336,15 @@ function ventana(x, y, w = 210, h = 175) {
     ellipse(x + w * 0.75, y + 45, 80, 38);
 
     fill('#a7d3ac');
+    // Fondo del paisaje dentro del marco: no debe tapar los bordes.
+    push();
+    drawingContext.save();
+    drawingContext.beginPath();
+    drawingContext.rect(x + 2, y + 2, w - 4, h - 4);
+    drawingContext.clip();
     arc(x + w / 2, y + h + 5, w + 50, 110, PI, TWO_PI);
+    drawingContext.restore();
+    pop();
 
     stroke('#fdf9f0');
     strokeWeight(12);
@@ -309,8 +395,7 @@ function lampara(x) {
     fill(C.amarillo);
     arc(x, 72, 95, 65, PI, TWO_PI, CHORD);
 
-    fill('#fff4ae70');
-    ellipse(x, 125, 125, 30);
+    // Sin óvalo de luz flotante: sólo queda la lámpara.
 }
 
 // ==========================================
@@ -334,11 +419,11 @@ function dibujarDormitorio() {
     ellipse(98, 123, 30, 16);
 
     // Repisa
-    caja(330, 110, 175, 12, C.madera);
+    caja(330, 136, 175, 12, C.madera);
 
     for (let i = 0; i < 5; i++) {
         fill([C.azul, C.rosa, C.amarillo, C.verde][i % 4]);
-        rect(346 + i * 24, 72, 20, 38, 3);
+        rect(346 + i * 24, 98, 20, 38, 3);
     }
 
     // Alfombra
@@ -365,37 +450,37 @@ function dibujarDormitorio() {
     fill(C.amarillo);
     arc(582, 333, 80, 65, PI, TWO_PI, CHORD);
 
-    // Reloj
-    fill(C.crema);
-    stroke(C.tinta);
-    strokeWeight(3);
-    circle(750, 72, 65);
-
-    line(750, 72, 750, 53);
-    line(750, 72, 764, 80);
-
     planta(105, 465, 0.8);
 }
 
 // La cama es una pieza independiente de p5.js. Mishi puede acostarse encima.
 function dibujarCama() {
-    caja(225, 290, 285, 175, C.maderaOscura, 12);
-    caja(241, 302, 252, 135, C.rosa, 12);
-
-    caja(253, 313, 90, 53, '#fffdf7', 13);
-    caja(354, 313, 90, 53, '#fffdf7', 13);
-
+    // Cabecero, colchón, almohadas y manta. La pieza continúa siendo p5.js.
+    // El extremo izquierdo es el cabecero y el derecho es el pie de cama.
+    push();
+    stroke('#6b4d61');
+    strokeWeight(3.5);
+    fill('#b9826c');
+    rect(234, 302, 276, 162, 14);
+    fill('#f9d7e3');
+    rect(247, 320, 245, 121, 13);
+    // Almohadas junto al cabecero.
+    fill('#fffdf6');
+    rect(257, 333, 85, 42, 17);
+    rect(351, 333, 84, 42, 17);
+    // Manta transversal: tapa la parte inferior del colchón.
+    fill('#faa4b5');
+    rect(247, 388, 245, 55, 8);
+    stroke('#fffefa');strokeWeight(4);
+    line(249, 391, 491, 391);
+    // Cabecero alto, pie de cama bajo y patas sobre el suelo.
+    stroke('#6b4d61');strokeWeight(3);
+    fill('#f8b77c');
+    rect(222, 280, 27, 191, 9);
+    rect(491, 319, 21, 152, 9);
     noStroke();
-    fill('#ffced8');
-    rect(241, 382, 252, 55, 7);
-
-    stroke('#fff9f0');
-    strokeWeight(4);
-    line(242, 393, 490, 393);
-
-    caja(219, 265, 22, 204, C.madera, 8);
-    caja(492, 265, 22, 204, C.madera, 8);
-
+    fill('#ffefc3');ellipse(234, 281, 17, 12);
+    pop();
 }
 
 // ==========================================
@@ -486,14 +571,8 @@ function dibujarLiving() {
     ventana(1845, 110, 210, 185);
     lampara(2220);
 
-    // Repisa
-    caja(2070, 110, 195, 12, C.madera);
-
-    for (let i = 0; i < 6; i++) {
-        noStroke();
-        fill([C.rosa, C.verde, C.azul, C.amarillo][i % 4]);
-        rect(2090 + i * 25, 76, 19, 34, 3);
-    }
+    // Estante liviano y equilibrado: más bajo, sin libros recargados.
+    caja(2095, 144, 154, 11, C.madera);
 
     // Alfombra
     noStroke();
@@ -510,8 +589,16 @@ function dibujarLiving() {
     caja(1833, 398, 23, 64, C.rosa, 8);
     caja(2042, 398, 23, 64, C.rosa, 8);
 
-    // Televisor y mueble
+    // Televisor y mueble: antenas visibles detrás de la carcasa.
     caja(2080, 393, 290, 82, C.madera);
+    stroke('#594368');
+    strokeWeight(4);
+    line(2190, 260, 2168, 240);
+    line(2250, 260, 2272, 240);
+    noStroke();
+    fill('#FAA4B5');
+    circle(2168, 240, 9);
+    circle(2272, 240, 9);
     caja(2100, 260, 240, 136, C.tinta, 12);
 
     caja(
@@ -521,17 +608,36 @@ function dibujarLiving() {
     );
 
     if (tvEncendida) {
-        noStroke();
-
-        fill(C.amarillo);
-        circle(2208 + sin(frameCount * 0.04) * 28, 324, 30);
-
-        fill(C.rosa);
-        rect(2152, 347, 118, 14, 7);
-
-        fill('#ffffff70');
-        quad(2125, 281, 2145, 281, 2200, 371, 2180, 371);
+        const video = document.getElementById('videoTele');
+        if (video && video.readyState >= 2 && !video.paused) {
+            // El video REAL se dibuja dentro de la pantalla p5 sin un modal.
+            push();
+            drawingContext.save();
+            drawingContext.beginPath();
+            drawingContext.rect(2117, 278, 206, 98);
+            drawingContext.clip();
+            drawingContext.drawImage(video, 2117, 278, 206, 98);
+            drawingContext.restore();
+            pop();
+        } else {
+            noStroke();fill('#ddf0f7');rect(2117,278,206,98,7);
+            fill(C.tinta);textAlign(CENTER,CENTER);textFont(fuenteEDIT('Pulang'));
+            textSize(14);text('Cargando video...',2220,325);
+        }
     }
+    // Ícono de sonido situado EN EL TELEVISOR, no en la barra general.
+    push();
+    noStroke();fill('#fff9eedf');circle(2303,292,27);
+    fill('#594368');rect(2296,289,4,6,2);
+    triangle(2300,288,2305,285,2305,299);
+    if (tvConSonido && tvEncendida) {
+        noFill();stroke('#594368');strokeWeight(2);
+        arc(2305,292,11,13,-HALF_PI,HALF_PI);
+    } else {
+        stroke('#de6787');strokeWeight(3);
+        line(2308,289,2313,297);line(2313,289,2308,297);
+    }
+    pop();
 
     planta(2400, 469, 1.15);
 
@@ -552,13 +658,22 @@ function dibujarLiving() {
     textSize(14);
     textStyle(BOLD);
     textAlign(CENTER, CENTER);
-    text('UNM', 2593, 154);
+
     textStyle(NORMAL);
 }
 
 // ==========================================
 // MISHI · SPRITES ORIGINALES ARTICULADOS
 // ==========================================
+
+// El almohadón frontal queda delante de las piernas mientras está sentado.
+// Se dibuja sólo en esta pose, sin alterar el sillón ni la animación normal.
+function dibujarFrenteSillon() {
+    stroke('#6b4d61');
+    strokeWeight(3);
+    fill('#FAA4B5');
+    rect(1851, 418, 193, 44, 9);
+}
 
 function dibujarPersonaje() {
     if (millis() < (personaje.durmiendoHasta || 0)) {
@@ -582,6 +697,12 @@ function dibujarPersonaje() {
         const progreso = 1 - (personaje.saltoHasta - millis()) / 850;
         salto = -19 * Math.sin(Math.PI * Math.max(0,Math.min(1,progreso)));
     }
+    if (personaje.sentado) {
+        drawingContext.save();
+        drawingContext.beginPath();
+        drawingContext.rect(personaje.x - 170, 0, 340, 435);
+        drawingContext.clip();
+    }
     translate(personaje.x, personaje.y + salto);
     scale(personaje.mirando,1);
     const escalaMishi = .28 * Math.min(1,Math.max(.64,width/750));
@@ -591,8 +712,10 @@ function dibujarPersonaje() {
     const basePies = estadoMascota.calzado === 'ninguno' ? 1182 : 1191;
     translate(-ANCHO / 2,-basePies);
     dibujarMascota({caminando:personaje.caminando,
-        intensidad:personaje.intensidad,fase:personaje.fase});
+        intensidad:personaje.intensidad,fase:personaje.fase,
+        sentado:Boolean(personaje.sentado)});
     pop();
+    if (personaje.sentado) drawingContext.restore();
     if (millis() < (personaje.saltoHasta || 0)) {
         noStroke();fill('#e981a9');textSize(18);textAlign(CENTER,CENTER);
         text('♡',personaje.x+45,personaje.y-230+sin(frameCount*.09)*6);
@@ -602,6 +725,7 @@ function dibujarPersonaje() {
 function dibujarIconosObjetos() {
     const pulso=1+sin(frameCount*.055)*.06;
     for (const [id,p] of Object.entries(OBJETO_COORDS)) {
+        if (id === 'tele' && tvEncendida) continue;
         if (id==='cama' && millis()<(personaje.durmiendoHasta||0)) continue;
         push();translate(p.x,p.y);scale(pulso);
         noStroke();fill('#fff7b0a8');circle(0,0,62);
@@ -615,7 +739,7 @@ function dibujarIconosObjetos() {
             fill('#81b582');ellipse(8,-10,15,8);stroke('#826757');strokeWeight(2);line(0,-7,2,-15);
         } else {
             fill('#725878');textAlign(CENTER,CENTER);textStyle(BOLD);textSize(25);
-            text(id==='cama'?'☾':id==='tele'?'✦':'➜',0,-2);
+            text(id==='cama'?'☾':id==='sentar'?'▤':id==='tele'?'▶':'➜',0,-2);
         }
         pop();
     }
@@ -658,14 +782,18 @@ function objetoEnPunto(p) {
 function dibujarTooltipPuerta() {
     const p=coordenadasMundo();
     const sobrePuerta=p.x>=2515&&p.x<=2670&&p.y>=175&&p.y<=480;
+    const sobreSillon=p.x>=1840&&p.x<=2065&&p.y>=335&&p.y<=466;
     const iconos=Object.values(OBJETO_COORDS).some(o=>Math.hypot(p.x-o.x,p.y-o.y)<37);
-    cursor(sobrePuerta||iconos?HAND:ARROW);
-    if(!sobrePuerta)return;
-    const px=Math.min(width-165,Math.max(12,mouseX-80));
+    cursor(sobrePuerta||sobreSillon||iconos?HAND:ARROW);
+    if(!sobrePuerta && !sobreSillon)return;
+    const texto = sobrePuerta ? 'Ir a la universidad'
+        : personaje.sentado ? 'Levantarse' : 'Sentarse a mirar la tele';
+    const ancho = sobreSillon ? 194 : 164;
+    const px=Math.min(width-ancho-9,Math.max(12,mouseX-ancho/2));
     const py=Math.max(13,mouseY-58);
-    noStroke();fill('#fffaf2f5');rect(px,py,164,38,11);
-    fill(C.tinta);textAlign(CENTER,CENTER);textSize(14);
-    text('Ir a la universidad',px+82,py+19);
+    noStroke();fill('#fffaf2f5');rect(px,py,ancho,38,11);
+    fill(C.tinta);textFont(fuenteEDIT('Pulang'));textAlign(CENTER,CENTER);textSize(14);
+    text(texto,px+ancho/2,py+19);
 }
 
 
@@ -675,40 +803,37 @@ function dibujarTooltipPuerta() {
 // ==========================================
 
 function dibujarPortada() {
-    // Vista previa de la casa al tamaño REAL del escenario.
     push();
     scale(escalaMundo);
     dibujarCasa();
     pop();
 
-    noStroke();
-    fill('#ffffff90');
-    rect(0, 0, width, height);
-
-    const w = Math.min(width - 32, 515);
-    const h = Math.min(height - 32, 325);
-    const x = (width - w) / 2;
-    const y = (height - h) / 2;
-    fill('#fff9efed');
-    stroke(C.rosa);
-    strokeWeight(4);
-    rect(x, y, w, h, 25);
-    noStroke();
-    fill(C.tinta);
-    textAlign(CENTER, CENTER);
-    textStyle(BOLD);
-    textSize(Math.min(61, w * .15));
-    text('EDIT', width / 2, y + h * .26);
-    textStyle(NORMAL);
-    textSize(Math.min(21, w * .054));
-    text('¡Bienvenido a tu casa!', width / 2, y + h * .43);
-    textSize(Math.min(14, w * .033));
-    text('Caminá con A/D o las flechas.', width / 2, y + h * .56);
-    text('Usá el mouse para jugar con los objetos de la casa.', width / 2, y + h * .65);
-
-    botones.play = { x: width / 2 - Math.min(105, w * .25),
-        y: y + h * .76, w: Math.min(210, w * .5), h: Math.min(54, h * .18) };
-    boton(botones.play, '▶  JUGAR', C.azul);
+    // Titulares de la interfaz realizados con los archivos originales de
+    // Butterpop, Pulang y el logo dibujado de EDIT, sin fuentes del sistema.
+    const logoAncho = Math.min(width * .36, 225);
+    dibujarRotulo('logo', width / 2, height * .31, logoAncho, height * .14);
+    if (!dibujarRotulo('bienvenida', width / 2, height * .43,
+        Math.min(width * .80, 440), height * .12)) {
+        textFont(fuenteEDIT('Pulang'));
+        textAlign(CENTER,CENTER);fill('#42304f');textSize(22);
+        text('¡Bienvenido a tu casa!', width/2, height * .43);
+    }
+    const anchoBoton = Math.min(width * .65, 240);
+    botones.play = {x: width / 2 - anchoBoton / 2,
+        y: height * .57, w: anchoBoton, h: Math.min(64, height * .105)};
+    boton(botones.play, '', C.amarillo);
+    if (!dibujarRotulo('jugar', width / 2, botones.play.y + botones.play.h/2,
+        botones.play.w *.49, botones.play.h*.62)) {
+        textFont(fuenteEDIT('Butterpop'));
+        fill(C.tinta);textAlign(CENTER,CENTER);textSize(19);
+        text('▶ JUGAR',width/2, botones.play.y+botones.play.h/2);
+    }
+    // El símbolo de play se dibuja aparte del rótulo.
+    noStroke();fill(C.tinta);
+    triangle(botones.play.x+22,botones.play.y+botones.play.h*.32,
+        botones.play.x+22,botones.play.y+botones.play.h*.68,
+        botones.play.x+39,botones.play.y+botones.play.h*.50);
+    textFont(fuenteEDIT('Pulang'));
 }
 
 function boton(b, t, color) {
@@ -743,31 +868,57 @@ function obtenerNombreMascota() {
         return 'Mishi';
     }
 }
+function actualizarNecesidades() {
+    if (!ultimoCambioNecesidades) ultimoCambioNecesidades = millis();
+    if (millis() - ultimoCambioNecesidades < 6000) return;
+    ultimoCambioNecesidades = millis();
+    for (const clave of Object.keys(NECESIDADES)) {
+        NECESIDADES[clave] = Math.max(8, NECESIDADES[clave] - 1);
+    }
+}
+function mejorarNecesidad(clave, cantidad) {
+    NECESIDADES[clave] = Math.min(100, NECESIDADES[clave] + cantidad);
+}
 function dibujarInterfaz() {
-    noStroke();fill('#fff9efe8');rect(13,13,Math.min(286,width*.62),47,15);
-    fill(C.tinta);textAlign(LEFT,CENTER);textStyle(BOLD);
-    textSize(Math.min(16, width / 25));
-
+    push();
+    noStroke();
     const nombreMascota = obtenerNombreMascota();
+    fill('#fff9efed');
+    rect(12, 12, Math.min(300, width * .36), 49, 14);
+    fill('#42304f');
+    textFont(fuenteEDIT('Butterpop'));
+    textAlign(LEFT, CENTER);
+    textSize(Math.min(19, Math.max(13, width / 48)));
+    text('♡  La casa de ' + nombreMascota, 24, 36);
 
-    text('♡  La casa de ' + nombreMascota, 27, 37);
-    botones.salir={x:width-135,y:15,w:120,h:42};
-    boton(botones.salir,'Inicio',C.amarillo);
-    if(millis()<mensajeHasta){
-        fill('#fff9eff5');noStroke();
-        const ancho=Math.min(width-24,450);
-        rect((width-ancho)/2,74,ancho,45,13);
-        fill(C.tinta);textAlign(CENTER,CENTER);textSize(14);
-        text(mensaje,width/2,96);
+    // Las barras cambian al comer, bañarse, jugar o dormir.
+    const indicadores = [
+        ['Hambre', '♥', 'hambre', C.naranja],
+        ['Limpieza', '✦', 'higiene', C.azul],
+        ['Diversión', '★', 'diversion', C.rosa],
+        ['Sueño', '☾', 'sueno', C.verde]
+    ];
+    const ancho = width > 850 ? 120 : Math.max(56, (width - 20) / 4 - 5);
+    const altura = width > 850 ? 47 : 39;
+    const x0 = width > 850 ? width - (ancho + 7) * 4 - 6 : 8;
+    const y0 = width > 850 ? 14 : 68;
+    indicadores.forEach(([nombre, icono, clave, color], i) => {
+        const x = x0 + i * (ancho + 7);
+        fill('#fffdf9ed'); rect(x, y0, ancho, altura, 11);
+        fill('#5a4566');textFont(fuenteEDIT('Pulang'));textSize(width > 850 ? 12 : 10);
+        textAlign(LEFT, CENTER);text(icono + ' ' + nombre, x + 7, y0 + 13);
+        fill('#eee5ee');rect(x + 7, y0 + altura - 17, ancho - 14, 9, 7);
+        fill(color);rect(x + 7, y0 + altura - 17, (ancho - 14) * NECESIDADES[clave] / 100, 9, 7);
+    });
+    if (millis() < mensajeHasta) {
+        textFont(fuenteEDIT('Pulang'));
+        const anchoMensaje = Math.min(width - 24, 430);
+        noStroke();fill('#fff9efee');
+        rect((width-anchoMensaje)/2, 118, anchoMensaje, 43, 12);
+        fill('#42304f');textAlign(CENTER,CENTER);textSize(15);
+        text(mensaje, width / 2, 140);
     }
-    if(!objetoArrastrado && millis()>(personaje.durmiendoHasta||0)){
-        fill('#fff9efde');noStroke();
-        const ancho=Math.min(width-26,480);
-        rect((width-ancho)/2,height-62,ancho,46,13);
-        fill(C.tinta);textAlign(CENTER,CENTER);
-        textSize(Math.min(14,width/30));
-        text('Arrastrá el jabón o la manzana · Tocá la cama, TV o puerta',width/2,height-39);
-    }
+    pop();
 }
 
 // ==========================================
@@ -783,10 +934,13 @@ function mousePressed() {
         presionarMapa(mouseX,mouseY);
         return;
     }
-    if(enBoton(botones.salir)) {jugando=false;return;}
+    
     const p=coordenadasMundo();
     if(p.x>=2515 && p.x<=2670 && p.y>=175 && p.y<=480) {
+        personaje.sentado = false;
         lugarActual='mapa';
+        apagarTelevisor();
+        window.EDITAudio?.actualizarEscena();
         personaje.velocidad=0;personaje.intensidad=0;
         return;
     }
@@ -796,6 +950,7 @@ function mousePressed() {
             avisar('Acercá a Mishi al objeto para usarlo.');return;
         }
         objetoArrastrado={tipo:objeto,pasadas:0,ultimaPasada:0};
+        if (objeto === 'jabon') reaccionarMascota('sorpresa', 900);
         return false;
     }
     if(p.x>=225&&p.x<=515 && p.y>=265&&p.y<=467){
@@ -803,15 +958,42 @@ function mousePressed() {
             avisar('Acercate a la cama para descansar.');return;
         }
         personaje.durmiendoHasta=millis()+4200;
+        reaccionarMascota('dormir', 4200);
+        mejorarNecesidad('sueno', 34);
         personaje.caminando=false;personaje.velocidad=0;personaje.intensidad=0;
         avisar('Mishi se acurrucó en su cama... Zzz');
         return false;
     }
-    if(p.x>=2090&&p.x<=2345&&p.y>=257&&p.y<=398){
-        tvEncendida=!tvEncendida;
-        avisar(tvEncendida?'¡Mishi encendió la tele!':'Televisor apagado');
+    if (p.x>=2289 && p.x<=2319 && p.y>=277 && p.y<=307) {
+        cambiarSonidoTele();
         return false;
     }
+    // Tocar el sillón hace que Mishi se siente a mirar la televisión.
+    // Las flechas para caminar lo vuelven a levantar.
+    if (p.x >= 1840 && p.x <= 2065 && p.y >= 335 && p.y <= 466) {
+        if (Math.abs(personaje.x - 1950) > 330) {
+            avisar('Acercate al sillón para sentarte.');
+            return false;
+        }
+        personaje.sentado = !personaje.sentado;
+        personaje.velocidad = 0;
+        personaje.intensidad = 0;
+        personaje.caminando = false;
+        if (personaje.sentado) {
+            personaje.x = 1950;
+            personaje.mirando = 1;
+            reaccionarMascota('juego', 2000);
+            avisar('¡Mishi se sentó a mirar la tele! Tocá las flechas para levantarte.');
+        } else {
+            avisar('¡Mishi se levantó!');
+        }
+        return false;
+    }
+    if (p.x>=2090 && p.x<=2345 && p.y>=257 && p.y<=398) {
+        alternarVideoTele();
+        return false;
+    }
+
 }
 function mouseDragged() {
     if(!objetoArrastrado)return;
@@ -825,6 +1007,8 @@ function mouseDragged() {
             if(objetoArrastrado.pasadas>=6){
                 avisar('¡Mishi quedó reluciente! ✦');
                 estadoMascota.saludo=1;
+                reaccionarMascota('bano', 2300);
+                mejorarNecesidad('higiene', 37);
                 objetoArrastrado=null;
             }
         }
@@ -836,6 +1020,8 @@ function mouseReleased() {
     const p=coordenadasMundo();
     if(objetoArrastrado.tipo==='manzana' && estaSobreMishi(p)){
         personaje.saltoHasta=millis()+850;
+        reaccionarMascota('comer', 1750);
+        mejorarNecesidad('hambre', 36);
         estadoMascota.saludo=1;
         avisar('¡Qué rica manzana! ♡');
     }else if(objetoArrastrado.tipo==='jabon' && objetoArrastrado.pasadas>0){
@@ -860,3 +1046,68 @@ function avisar(t) {
 function keyPressed() {
     if ([LEFT_ARROW, RIGHT_ARROW, 32].includes(keyCode)) return false;
 }
+
+// La televisión sólo existe mientras el jugador permanece en la casa.
+// Apagada, no bloquea la pista de los minijuegos ni sigue reproduciendo audio.
+function apagarTelevisor() {
+    const video = document.getElementById('videoTele');
+    if (video) {
+        video.pause();
+        video.muted = true;
+        // La próxima vez que se encienda la TV comienza desde el inicio.
+        if (video.readyState >= 1) video.currentTime = 0;
+    }
+    tvEncendida = false;
+    tvConSonido = false;
+    const boton = document.getElementById('volumenTeleAccesible');
+    if (boton) boton.setAttribute('aria-label', 'Activar sonido del televisor');
+    window.EDITAudio?.televisorConSonido(false);
+}
+
+// Reproduce el archivo entregado por Iris dentro de la pantalla p5.
+// El sonido se activa sólo cuando se pulsa el parlante: en ese momento
+// se pausa la música general, y se restaura al volver a mutear.
+function alternarVideoTele() {
+    const video = document.getElementById('videoTele');
+    if (!video) return;
+    if (tvEncendida) {
+        apagarTelevisor();
+        avisar('Apagaste el televisor.');
+        return;
+    }
+    tvEncendida = true;
+    tvConSonido = false;
+    video.muted = true;
+    window.EDITAudio?.televisorConSonido(false);
+    if (!video.getAttribute('src')) {
+        video.src = 'video/television.mp4';
+    }
+    video.play().catch(error => {
+        console.warn('No se pudo iniciar la reproducción del video:', error);
+        avisar('Tocá la televisión para reintentar el video.');
+        apagarTelevisor();
+    });
+    reaccionarMascota('juego', 1500);
+    mejorarNecesidad('diversion', 24);
+    avisar('¡La tele está encendida! Tocá el parlante para activar el sonido.');
+}
+function cambiarSonidoTele() {
+    const video = document.getElementById('videoTele');
+    if (!video) return;
+    if (!tvEncendida) {
+        alternarVideoTele();
+        return;
+    }
+    tvConSonido = !tvConSonido;
+    video.muted = !tvConSonido;
+    video.volume = .7;
+    window.EDITAudio?.televisorConSonido(tvConSonido);
+    const boton = document.getElementById('volumenTeleAccesible');
+    if (boton) boton.setAttribute('aria-label',
+        tvConSonido ? 'Silenciar televisor' : 'Activar sonido del televisor');
+    avisar(tvConSonido ? 'Sonido de la tele activado. Música pausada.' :
+        'Televisión silenciada.');
+}
+document.getElementById('volumenTeleAccesible')?.addEventListener('click', cambiarSonidoTele);
+document.getElementById('videoTele')?.addEventListener('ended', apagarTelevisor);
+window.addEventListener('pagehide', apagarTelevisor);

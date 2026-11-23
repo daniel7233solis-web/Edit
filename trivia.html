@@ -8,18 +8,15 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 
-<body>
+<body class="pagina-interior">
 
     <header class="encabezado">
-        <a href="index.html" class="logo">EDIT</a>
-
-        <nav class="navegacion" aria-label="Navegación principal">
-            <a href="index.html">Novedades</a>
-            <a href="personaje.html">Crear personaje</a>
-            <a href="escenario.html">Jugar</a>
-            <a href="ayuda.html">Información y ayuda</a>
-        </nav>
-    </header>
+    <a href="index.html" class="logo" aria-label="EDIT, inicio"><img src="img/portada/capas/edit 1.png" alt="EDIT"></a>
+    <nav class="navegacion" aria-label="Navegación principal">
+      <a href="personaje.html">Crear personaje</a>
+      <a href="escenario.html">Jugar</a>
+    </nav>
+  </header>
 
     <div class="trivia-regreso"><a class="boton-accion" href="escenario.html?ir=universidad">← Volver al mapa de la UNM</a></div>
     <main class="contenido-principal">
@@ -112,6 +109,8 @@
 
     <script src="js/trivia.js"></script>
 
+  <script src="js/efectos-ui.js" defer></script>
+  <script src="js/audio-edit.js" defer></script>
 </body>
 
 </html>

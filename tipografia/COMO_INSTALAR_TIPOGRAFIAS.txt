@@ -1,0 +1,19 @@
+EDIT - tipografías originales de Iris
+
+Para que el sitio utilice las familias completas en cualquier PC, extraé
+DIRECTAMENTE desde los ZIP de tipografías que ya compartiste estos archivos:
+
+- Del ZIP butterpop(1).zip: Butterpop.otf
+- Del ZIP pulang(1).zip: Pulang.otf
+- Del ZIP super_unicorn(1).zip: Super Unicorn.ttf
+
+Copiá los tres archivos en esta carpeta: EDIT/tipografia/
+
+Ya están configurados en css/styles.css con @font-face.
+No cambies sus nombres ni crees otra carpeta CSS.
+Super Unicorn: logo textual (el logo principal usa dibujo PNG original).
+Butterpop: títulos, navegación, botones.
+Pulang: textos, instrucciones, respuestas y formularios.
+
+Si no copiás las fuentes o no están instaladas, el navegador usará
+la tipografía de respaldo.

@@ -32,6 +32,7 @@ function botonJuego(label,accion,clase='') {
     b.textContent=label;b.addEventListener('click',accion);return b;
 }
 function finalizarJuego() {
+    window.EDITAudio?.efecto('correcto', .30);
     minijuegoActual.terminado=true;
     tableroJuego().replaceChildren();
     const final=document.createElement('div');final.className='mini-exito';
@@ -91,7 +92,7 @@ function iniciarFormas() {
         const b=botonJuego(forma,()=>{
             if(estado.terminado||b.disabled)return;
             const orden=['●','▲','◆','★'];
-            if(forma!==orden[estado.pasos]){mensajeJuego('Probá con la siguiente figura del orden indicado.');return;}
+            if(forma!==orden[estado.pasos]){window.EDITAudio?.efecto('error', .26);mensajeJuego('Probá con la siguiente figura del orden indicado.');return;}
             estado.pasos++;b.disabled=true;b.classList.add('acertada');
             mensajeJuego('¡Bien! Seguí con la siguiente figura.');progresoJuego(estado.pasos,4);
             if(estado.pasos===4)finalizarJuego();
@@ -105,7 +106,7 @@ function iniciarEstrellas() {
     [4,2,5,1,3].forEach(n=>{
         const b=botonJuego('★ '+n,()=>{
             if(estado.terminado||b.disabled)return;
-            if(n!==estado.pasos+1){mensajeJuego('Buscá primero la estrella '+(estado.pasos+1)+'.');return;}
+            if(n!==estado.pasos+1){window.EDITAudio?.efecto('error', .26);mensajeJuego('Buscá primero la estrella '+(estado.pasos+1)+'.');return;}
             estado.pasos++;b.disabled=true;b.classList.add('acertada');
             progresoJuego(estado.pasos,5);mensajeJuego('¡Estrella encontrada!');
             if(estado.pasos===5)finalizarJuego();
@@ -135,6 +136,7 @@ function iniciarMezclas() {
                         estado.pasos++;progresoJuego(estado.pasos,3);
                         if(estado.pasos===3)finalizarJuego();else ronda();
                     }else{
+                        window.EDITAudio?.efecto('error', .26);
                         mensajeJuego('Esa mezcla no produce '+r.color+'. ¡Probá otra vez!');
                         estado.seleccion=[];
                         board.querySelectorAll('.pieza-mini').forEach(e=>e.classList.remove('acertada'));

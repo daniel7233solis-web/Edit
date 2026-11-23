@@ -1,51 +1,51 @@
-<!DOCTYPE html>
-<html lang="es">
-
+<!doctype html>
+<html lang="es" class="html-portada">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EDIT | Novedades</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#70C1E1">
+  <title>EDIT · Tu mascota UNM</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
-
-<body>
-
-
-  <header class="encabezado">
-    <a href="index.html" class="logo">EDIT</a>
-
+<body class="pagina-portada">
+  <header class="encabezado encabezado-portada">
+    <a href="index.html" class="logo" aria-label="EDIT, inicio"><img src="img/portada/capas/edit 1.png" alt="EDIT"></a>
     <nav class="navegacion" aria-label="Navegación principal">
-      <a href="index.html" class="activo" aria-current="page">Novedades</a>
       <a href="personaje.html">Crear personaje</a>
-      <a href="escenario.html">Jugar</a>
+      <a href="personaje.html" data-ruta-mascota>Jugar</a>
     </nav>
   </header>
-
-
-
-  <main class="contenido-principal">
-    <section class="novedades">
-      <h2>Novedades</h2>
-      <p>¡Descubrí las últimas actualizaciones de EDIT!</p>
-
-      <div class="novedades-lista">
-        <article class="novedad-tarjeta">
-          <span class="novedad-etiqueta">Actualización</span>
-
-          <h3>¡Tu personaje cobra vida!</h3>
-
-          <p>
-            Ahora podés personalizar los colores de tu mascota
-            y verla saludar con una nueva animación.
-          </p>
-
-          <a href="personaje.html">Crear mi personaje</a>
-        </article>
+  <main class="portada" id="inicio">
+    <img class="portada-fondo" src="img/portada/capas/fondo.png" alt="" aria-hidden="true">
+    <img class="portada-mascota capa-entrada" style="--demora:.27s" src="img/portada/capas/mascota portada.png" alt="" draggable="false" aria-hidden="true">
+    <div class="portada-decoraciones" aria-hidden="true">
+      <img class="deco-portada deco-corazon capa-entrada" style="--demora:.24s" src="img/portada/capas/deco 5.png" alt="">
+      <img class="deco-portada deco-amarillo capa-entrada" style="--demora:.39s" src="img/portada/capas/deco 7.png" alt="">
+      <img class="deco-portada deco-celeste capa-entrada" style="--demora:.47s" src="img/portada/capas/deco 9.png" alt="">
+      <img class="deco-portada deco-rosa capa-entrada" style="--demora:.52s" src="img/portada/capas/deco 4.png" alt="">
+      <img class="deco-portada deco-extra-uno capa-entrada" style="--demora:.68s" src="img/portada/capas/deco 1.png" alt="">
+      <img class="deco-portada deco-extra-dos capa-entrada" style="--demora:.75s" src="img/portada/capas/deco 2.png" alt="">
+      <img class="deco-portada deco-extra-tres capa-entrada" style="--demora:.82s" src="img/portada/capas/deco 6.png" alt="">
+      <!-- Más corazones y flores, reutilizando exactamente los PNG de Iris. -->
+      <img class="deco-portada deco-flor-nueva-a capa-entrada" style="--demora:.57s" src="img/portada/capas/deco 2.png" alt="">
+      <img class="deco-portada deco-flor-nueva-b capa-entrada" style="--demora:.69s" src="img/portada/capas/deco 3.png" alt="">
+      <img class="deco-portada deco-corazon-nuevo-a capa-entrada" style="--demora:.86s" src="img/portada/capas/deco 4.png" alt="">
+      <img class="deco-portada deco-corazon-nuevo-b capa-entrada" style="--demora:1s" src="img/portada/capas/deco 8.png" alt="">
+      <img class="deco-portada deco-flor-nueva-c capa-entrada" style="--demora:1.09s" src="img/portada/capas/deco 1.png" alt="">
+    </div>
+    <button class="portada-nariz" id="narizPortada" type="button" aria-label="Hacerle cosquillas en la nariz a Mishi" title="¡Tocá mi naricita!"></button>
+    <section class="portada-contenido" aria-label="Bienvenida a EDIT">
+      <div class="portada-marca capa-entrada" style="--demora:.08s">
+        <h1><img src="img/portada/capas/edit 1.png" alt="EDIT"></h1>
+        <img class="portada-subtitulo" src="img/portada/capas/edit 2.png" alt="Tu mascota UNM">
+      </div>
+      <div class="portada-acciones">
+        <a class="boton-caramelo boton-caramelo-amarillo capa-entrada" style="--demora:.35s" href="personaje.html">Crear mi personaje</a>
+        <a class="boton-caramelo boton-caramelo-verde capa-entrada" style="--demora:.49s" href="personaje.html" data-ruta-mascota>Vamos a jugar</a>
       </div>
     </section>
   </main>
-
-
+  <script src="js/efectos-ui.js" defer></script>
+  <script src="js/audio-edit.js" defer></script>
 </body>
-
 </html>

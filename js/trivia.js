@@ -116,13 +116,17 @@ function comprobarRespuesta(indice) {
 
     if (indice === correcta) {
         puntos++;
+        window.EDITAudio?.efecto('correcto', .33);
         resultado.textContent = '¡Muy bien! Respuesta correcta.';
 
         estadoMascota.saludo = 1;
+        reaccionarMascota('feliz', 1650);
     } else {
+        window.EDITAudio?.efecto('error', .33);
         resultado.textContent = '¡Casi! Seguí intentando.';
 
         sorpresaHasta = millis() + 650;
+        reaccionarMascota(['triste', 'molesto', 'llorar'][preguntaActual % 3], 1750);
     }
 
     botonSiguiente.disabled = false;
@@ -161,6 +165,7 @@ function finalizarTrivia() {
     botonSiguiente.textContent = 'Volver a jugar';
 
     estadoMascota.saludo = 1;
+    reaccionarMascota(puntos === preguntas.length ? 'feliz' : puntos < 2 ? 'llorar' : 'juego', 2700);
 }
 
 
