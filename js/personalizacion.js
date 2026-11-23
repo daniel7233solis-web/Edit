@@ -22,9 +22,8 @@ const PRENDAS_POR_CATEGORIA = {
 const elemento = id => document.getElementById(id);
 let categoriaActual = 'hair';
 
-function notificarAutoguardado() {
-  guardarMascota();
-  elemento('estado').textContent = '✓ Cambios guardados automáticamente';
+function notificarCambios() {
+  elemento('estado').textContent = 'Tenés cambios sin guardar.';
 }
 
 function elegirCategoria(key) {
@@ -86,7 +85,7 @@ function mostrarOpciones() {
       contenedor.append(crearOpcion(etiqueta, null,
         estadoMascota[categoriaActual] === 'ninguno', () => {
           estadoMascota[categoriaActual] = 'ninguno';
-          notificarAutoguardado();
+          notificarCambios();
           mostrarOpciones();
         }));
     }
@@ -98,7 +97,7 @@ function mostrarOpciones() {
           if (categoriaActual === 'ropaSuperior' || categoriaActual === 'ropaInferior') {
             estadoMascota.conjunto = 'ninguno';
           }
-          notificarAutoguardado();
+          notificarCambios();
           mostrarOpciones();
         }));
     });
@@ -112,7 +111,7 @@ function mostrarOpciones() {
       estadoMascota[categoriaActual] === numero,
       () => {
         estadoMascota[categoriaActual] = numero;
-        notificarAutoguardado();
+        notificarCambios();
         mostrarOpciones();
       }));
   });
@@ -143,7 +142,7 @@ function mostrarColores() {
     boton.setAttribute('aria-pressed', String(estadoMascota[tipo] === color));
     boton.addEventListener('click', () => {
       estadoMascota[tipo] = color;
-      notificarAutoguardado();
+      notificarCambios();
       mostrarColores();
     });
     contenedor.append(boton);
@@ -210,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   elegirCategoria('hair');
   elemento('estado').textContent = '✓ Tus cambios se conservan en este navegador';
-  elemento('nombre').addEventListener('input', notificarAutoguardado);
+  elemento('nombre').addEventListener('input', notificarCambios);
   elemento('animar').addEventListener('change', evento => {
     estadoMascota.animar = evento.target.checked;
   });
@@ -225,10 +224,10 @@ document.addEventListener('DOMContentLoaded', () => {
     estadoMascota.ropaInferior = aleatorio(ROPA.inferiores).id;
     estadoMascota.conjunto = Math.random() < 0.3 ? aleatorio(ROPA.conjuntos).id : 'ninguno';
     estadoMascota.calzado = Math.random() < 0.3 ? 'ninguno' : aleatorio(ROPA.calzado).id;
-    notificarAutoguardado();
+    notificarCambios();
     mostrarOpciones();
     mostrarColores();
-    elemento('estado').textContent = '¡Nueva combinación guardada! ✨';
+    elemento('estado').textContent = '¡Nueva combinación! Recordá guardar los cambios. ✨';
   });
   elemento('guardarPersonaje').addEventListener('click', () => {
     guardarMascota();
@@ -236,4 +235,5 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   elemento('guardar').addEventListener('click', exportarMascota);
   elemento('vamosAJugar').addEventListener('click', guardarMascota);
+  document.querySelector('.navegacion a[href="escenario.html"]').addEventListener('click', guardarMascota);
 });
