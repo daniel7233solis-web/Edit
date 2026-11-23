@@ -234,6 +234,9 @@ document.addEventListener('DOMContentLoaded', () => {
     elemento('estado').textContent = '✓ Personaje guardado. ¡Ya podés ir a jugar!';
   });
   elemento('guardar').addEventListener('click', exportarMascota);
-  elemento('vamosAJugar').addEventListener('click', guardarMascota);
-  document.querySelector('.navegacion a[href="escenario.html"]').addEventListener('click', guardarMascota);
+  document.querySelectorAll(
+    '#vamosAJugar, .navegacion a[href="escenario.html"]'
+  ).forEach(enlace => {
+    enlace.addEventListener('click', guardarMascota);
+  });
 });
