@@ -49,7 +49,109 @@ const preguntas = [
             "Un formato de audio"
         ],
         correcta: 0
+    },
+
+    {
+        pregunta: "¿Para qué se utiliza el modelo CMYK?",
+        opciones: [
+            "Para animaciones 3D",
+            "Para impresión a color",
+            "Para editar sonidos",
+            "Para crear páginas web"
+        ],
+        correcta: 1
+    },
+    {
+        pregunta: "¿Qué es la jerarquía visual?",
+        opciones: [
+            "Usar siempre el mismo tamaño",
+            "Eliminar los espacios vacíos",
+            "Organizar los elementos según su importancia",
+            "Colocar todas las imágenes en el centro"
+        ],
+        correcta: 2
+    },
+    {
+        pregunta: "¿Qué formato permite guardar imágenes con transparencia?",
+        opciones: [
+            "JPG",
+            "MP3",
+            "TXT",
+            "PNG"
+        ],
+        correcta: 3
+    },
+    {
+        pregunta: "¿Qué es el espacio negativo en una composición?",
+        opciones: [
+            "El espacio libre que rodea o separa elementos",
+            "Una imagen con colores oscuros",
+            "Un error de impresión",
+            "Una capa eliminada"
+        ],
+        correcta: 0
+    },
+    {
+        pregunta: "¿Para qué sirve una retícula en diseño?",
+        opciones: [
+            "Para modificar el brillo",
+            "Para organizar y alinear elementos",
+            "Para convertir archivos en PDF",
+            "Para dibujar únicamente círculos"
+        ],
+        correcta: 1
+    },
+    {
+        pregunta: "¿Qué es un storyboard?",
+        opciones: [
+            "Una herramienta para mezclar colores",
+            "Un tipo de archivo de audio",
+            "Una secuencia de dibujos para planificar escenas",
+            "Una técnica de impresión"
+        ],
+        correcta: 2
+    },
+    {
+        pregunta: "¿Qué sucede al ampliar demasiado una imagen de mapa de bits?",
+        opciones: [
+            "Puede verse pixelada",
+            "Se convierte automáticamente en vector",
+            "Aumenta su resolución original",
+            "Se transforma en una animación"
+        ],
+        correcta: 0
+    },
+    {
+        pregunta: "¿Qué es la saturación de un color?",
+        opciones: [
+            "La cantidad de píxeles",
+            "El tamaño de una imagen",
+            "La distancia entre letras",
+            "La intensidad o pureza del color"
+        ],
+        correcta: 3
+    },
+    {
+        pregunta: "¿Para qué se utilizan las capas en un programa de diseño?",
+        opciones: [
+            "Para disminuir la resolución",
+            "Para organizar y editar elementos por separado",
+            "Para imprimir sin tinta",
+            "Para agregar sonido a una imagen"
+        ],
+        correcta: 1
+    },
+    {
+        pregunta: "¿Qué es la legibilidad de un texto?",
+        opciones: [
+            "La cantidad de colores que contiene",
+            "El tamaño total del archivo",
+            "La facilidad con la que se pueden distinguir y leer sus letras",
+            "La cantidad de imágenes que lo acompañan"
+        ],
+        correcta: 2
     }
+
 ];
 
 let preguntaActual = 0;
