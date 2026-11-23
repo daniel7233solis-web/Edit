@@ -44,6 +44,7 @@ let lugarActual = 'casa';
 
 
 const carreraNotas = {
+
     salto: 0,
     velocidadVertical: 0,
     suelo: 430,
@@ -51,18 +52,18 @@ const carreraNotas = {
     obstaculos: [],
     tiempoObstaculo: 0,
     velocidadObstaculos: 5,
-    vidas: 3,
+    vidas: 5,
     puntos: 0,
     terminado: false,
     invulnerableHasta: 0
 
 };
-
+let corazonLleno;
 
 function iniciarEsquivarNotas() {
     lugarActual = 'esquivar';
 
-    carreraNotas.vidas = 3;
+    carreraNotas.vidas = 5;
     carreraNotas.puntos = 0;
     carreraNotas.terminado = false;
     carreraNotas.invulnerableHasta = 0;
@@ -101,14 +102,16 @@ function comprobarColisionNota(obstaculo) {
 }
 
 function dibujarNotasMalas() {
-    if (carreraNotas.terminado) {
-        carreraNotas.tiempoObstaculo = 105;
-    } else {
+
+    if (!carreraNotas.terminado) {
         carreraNotas.tiempoObstaculo++;
     }
 
+
     // Generar una nota aproximadamente cada 105 fotogramas.
-    if (carreraNotas.tiempoObstaculo >= 105) {
+
+    if (!carreraNotas.terminado && carreraNotas.tiempoObstaculo >= 105) {
+
         const nota = Math.floor(Math.random() * 4) + 1;
 
         carreraNotas.obstaculos.push({
@@ -223,9 +226,12 @@ const objetos = [
     { nombre: 'Televisor', x: 2110, y: 260, w: 220, h: 135, accion: 'tele' },
     { nombre: 'Puerta', x: 2520, y: 180, w: 135, h: 305, accion: 'salir' }
 ];
+
 function preload() {
     preloadMascota();
+    corazonLleno = loadImage('img/minijuegos/corazon-lleno.png');
 }
+
 function setup() {
     cargarMascota();
     const destino = document.getElementById('escenario');
@@ -829,24 +835,22 @@ function dibujarEsquivarNotas() {
 
     pop();
 
-    // Corazones restantes.
+
+    // Mostrar solamente los corazones de las vidas disponibles.
+
+    // Mostrar los corazones de las vidas disponibles.
+    for (let i = 0; i < carreraNotas.vidas; i++) {
+        image(corazonLleno, 30 + i * 43, 93, 34, 34);
+    }
+
+    // Puntuación.
     noStroke();
     fill('#423451');
     textAlign(LEFT, CENTER);
-    textStyle(BOLD);
-    textSize(23);
-
-    const corazones =
-        '♥ '.repeat(carreraNotas.vidas) +
-        '♡ '.repeat(3 - carreraNotas.vidas);
-
-    text(corazones, 30, 110);
-
-    // Puntuación.
     textSize(19);
+    textStyle(NORMAL);
     text('Puntos: ' + carreraNotas.puntos, 30, 140);
 
-    textStyle(NORMAL);
 
     // Instrucciones.
     noStroke();
