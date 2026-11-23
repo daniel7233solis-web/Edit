@@ -731,11 +731,26 @@ function boton(b, t, color) {
 // ==========================================
 // INTERFAZ DEL JUEGO
 // ==========================================
+function obtenerNombreMascota() {
+    try {
+        const datos = JSON.parse(localStorage.getItem('edit_mascota') || '{}');
 
+        return typeof datos.nombre === 'string' && datos.nombre.trim()
+            ? datos.nombre.trim()
+            : 'Mishi';
+
+    } catch (error) {
+        return 'Mishi';
+    }
+}
 function dibujarInterfaz() {
     noStroke();fill('#fff9efe8');rect(13,13,Math.min(286,width*.62),47,15);
     fill(C.tinta);textAlign(LEFT,CENTER);textStyle(BOLD);
-    textSize(Math.min(16,width/25));text('♡  La casa de Mishi',27,37);
+    textSize(Math.min(16, width / 25));
+
+    const nombreMascota = obtenerNombreMascota();
+
+    text('♡  La casa de ' + nombreMascota, 27, 37);
     botones.salir={x:width-135,y:15,w:120,h:42};
     boton(botones.salir,'Inicio',C.amarillo);
     if(millis()<mensajeHasta){
