@@ -99,22 +99,209 @@ function iniciarParejas() {
         }); board.appendChild(b);
     });
 }
+
+
 function iniciarFormas() {
-    const estado = minijuegoActual, board = tableroJuego();
-    board.className = 'mini-tablero mini-formas'; board.replaceChildren();
-    mensajeJuego('Tocá las figuras en este orden: ● → ▲ → ◆ → ★.'); progresoJuego(0, 4);
-    const formas = ['◆', '★', '●', '▲'];
-    for (const forma of formas) {
-        const b = botonJuego(forma, () => {
-            if (estado.terminado || b.disabled) return;
-            const orden = ['●', '▲', '◆', '★'];
-            if (forma !== orden[estado.pasos]) { mensajeJuego('Probá con la siguiente figura del orden indicado.'); return; }
-            estado.pasos++; b.disabled = true; b.classList.add('acertada');
-            mensajeJuego('¡Bien! Seguí con la siguiente figura.'); progresoJuego(estado.pasos, 4);
-            if (estado.pasos === 4) finalizarJuego();
-        }); board.appendChild(b);
+    const estado = minijuegoActual;
+    const board = tableroJuego();
+
+    board.className = 'mini-tablero mini-formas';
+    estado.pasos = 0;
+    estado.bloqueado = false;
+
+    // Banco de desafíos de Morfología
+    const desafios = [
+        {
+            consigna: '¿Qué figura tiene tres lados?',
+            respuesta: '▲'
+        },
+        {
+            consigna: '¿Qué figura no tiene vértices?',
+            respuesta: '●'
+        },
+        {
+            consigna: '¿Qué figura tiene cuatro lados iguales y cuatro ángulos rectos?',
+            respuesta: '■'
+        },
+        {
+            consigna: '¿Cuál de estas figuras es un rombo?',
+            respuesta: '◆'
+        },
+        {
+            consigna: '¿Qué figura tiene cinco puntas?',
+            respuesta: '★'
+        },
+        {
+            consigna: '¿Qué sigue? ● → ▲ → ● → ▲ → ?',
+            respuesta: '●'
+        },
+        {
+            consigna: 'Completá: ■ → ◆ → ■ → ◆ → ?',
+            respuesta: '■'
+        },
+        {
+            consigna: '¿Qué falta? ★ → ● → ▲ → ★ → ● → ?',
+            respuesta: '▲'
+        },
+        {
+            consigna: '¿Qué sigue? ▲ → ▲ → ● → ▲ → ▲ → ?',
+            respuesta: '●'
+        },
+        {
+            consigna: 'Completá: ◆ → ■ → ★ → ◆ → ■ → ?',
+            respuesta: '★'
+        },
+        {
+            consigna: '¿Qué sigue? ● → ● → ■ → ● → ● → ?',
+            respuesta: '■'
+        },
+        {
+            consigna: 'Completá: ★ → ◆ → ▲ → ★ → ◆ → ?',
+            respuesta: '▲'
+        },
+        {
+            consigna: '¿Qué falta? ■ → ● → ● → ■ → ● → ?',
+            respuesta: '●'
+        },
+        {
+            consigna: '¿Qué sigue? ▲ → ◆ → ▲ → ◆ → ?',
+            respuesta: '▲'
+        },
+        {
+            consigna: 'Completá: ★ → ★ → ◆ → ★ → ★ → ?',
+            respuesta: '◆'
+        },
+        {
+            consigna: '¿Qué sigue? ● → ■ → ▲ → ● → ■ → ?',
+            respuesta: '▲'
+        },
+        {
+            consigna: '¿Qué falta? ◆ → ★ → ● → ◆ → ★ → ?',
+            respuesta: '●'
+        },
+        {
+            consigna: 'Completá: ■ → ▲ → ◆ → ■ → ▲ → ?',
+            respuesta: '◆'
+        },
+        {
+            consigna: '¿Qué sigue? ▲ → ● → ★ → ▲ → ● → ?',
+            respuesta: '★'
+        },
+        {
+            consigna: '¿Qué falta? ◆ → ◆ → ■ → ◆ → ◆ → ?',
+            respuesta: '■'
+        }
+    ];
+
+    // Mezclar las consignas
+    const desafiosMezclados = [...desafios];
+
+    for (let i = desafiosMezclados.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+
+        const temporal = desafiosMezclados[i];
+        desafiosMezclados[i] = desafiosMezclados[j];
+        desafiosMezclados[j] = temporal;
     }
+
+    // Elegir 10 desafíos por partida
+    desafiosMezclados.splice(10);
+
+    const figuras = ['●', '▲', '■', '◆', '★'];
+
+    progresoJuego(0, desafiosMezclados.length);
+
+    function mostrarDesafio() {
+        board.replaceChildren();
+
+        const desafio = desafiosMezclados[estado.pasos];
+
+        // Mostrar al Mishi personalizado
+        const mishi = crearMishiLaboratorio();
+
+        mishi.mensaje.textContent =
+            '¡Vamos! Observá las figuras y elegí la respuesta.';
+
+        board.append(mishi.elemento);
+
+        mensajeJuego(desafio.consigna);
+
+        // Mezclar posiciones de las respuestas
+        const opciones = [...figuras];
+
+        for (let i = opciones.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+
+            const temporal = opciones[i];
+            opciones[i] = opciones[j];
+            opciones[j] = temporal;
+        }
+
+        opciones.forEach(figura => {
+            const boton = botonJuego(figura, () => {
+                if (estado.bloqueado || estado.terminado) {
+                    return;
+                }
+
+                if (figura === desafio.respuesta) {
+                    estado.bloqueado = true;
+                    boton.classList.add('acertada');
+
+                    mensajeJuego('¡Muy bien! ¡Respuesta correcta!');
+
+                    mishi.mensaje.textContent =
+                        '¡Excelente! ¡Descubriste la figura!';
+
+                    mishi.elemento.classList.remove('mishi-error');
+                    mishi.elemento.classList.add('mishi-acierto');
+
+                    window.setTimeout(() => {
+                        if (minijuegoActual !== estado ||
+                            estado.terminado) {
+                            return;
+                        }
+
+                        estado.pasos++;
+
+                        progresoJuego(
+                            estado.pasos,
+                            desafiosMezclados.length
+                        );
+
+                        if (estado.pasos === desafiosMezclados.length) {
+                            finalizarJuego();
+                        } else {
+                            estado.bloqueado = false;
+                            mostrarDesafio();
+                        }
+                    }, 1200);
+
+                } else {
+                    mensajeJuego(
+                        '¡Esa no es! Observá nuevamente las figuras.'
+                    );
+
+                    mishi.mensaje.textContent =
+                        '¡No pasa nada! Intentemos otra vez.';
+
+                    mishi.elemento.classList.remove('mishi-acierto');
+                    mishi.elemento.classList.remove('mishi-error');
+
+                    // Reiniciar la animación de error
+                    void mishi.elemento.offsetWidth;
+
+                    mishi.elemento.classList.add('mishi-error');
+                }
+            });
+
+            board.append(boton);
+        });
+    }
+
+    mostrarDesafio();
 }
+
+
 function iniciarEstrellas() {
     const estado = minijuegoActual, board = tableroJuego();
     board.className = 'mini-tablero mini-estrellas'; board.replaceChildren();

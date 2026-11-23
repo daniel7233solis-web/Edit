@@ -1341,6 +1341,17 @@ a.mapa-lugar:hover {
 }
 
 
+.mini-formas .mishi-laboratorio {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 130px;
+}
+
+.mini-formas .mishi-laboratorio img {
+    width: 90px;
+    height: 110px;
+}
+
 .frasco-mini {
     position: relative;
     display: block;
