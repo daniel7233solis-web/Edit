@@ -13,6 +13,12 @@ function abrirMinijuegoActual() {
     }
     const info = EDIFICIOS_UNM.find(e => e.id === id);
     if (!info) return;
+
+    if (id === 'daract2') {
+        iniciarEsquivarNotas();
+        return;
+    }
+
     const dlg = document.getElementById('dialogoJuego');
     document.getElementById('tituloJuego').textContent = info.juego;
     minijuegoActual = { id, pasos: 0, terminado: false, bloqueado: false, seleccion: [] };
