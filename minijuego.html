@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <script>
+    if (window === window.top) {
+      location.replace('app.html?pagina=' + encodeURIComponent('minijuego.html' + location.search));
+    }
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>EDIT | Minijuegos</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="pagina-interior pagina-minijuego">
+  <header class="encabezado">
+    <a href="index.html" class="logo" aria-label="EDIT, inicio"><img src="img/portada/capas/edit 1.png" alt="EDIT"></a>
+    <nav class="navegacion" aria-label="Navegación principal">
+      <a href="personaje.html">Crear personaje</a>
+      <a href="escenario.html?ir=universidad" class="activo">Jugar</a>
+    </nav>
+  </header>
+  <main class="contenido-principal contenido-minijuego">
+    <a href="escenario.html?ir=universidad" class="boton-accion regreso-minijuego">Volver al mapa de la UNM</a>
+    <section id="panelMinijuego" class="minijuego-panel" aria-labelledby="tituloJuego">
+      <p class="eyebrow">UNIVERSIDAD NACIONAL DE MORENO · EDIT</p>
+      <h1 id="tituloJuego"></h1>
+      <p id="mensajeJuego" class="minijuego-mensaje" role="status"></p>
+      <div id="tableroJuego" class="mini-tablero"></div>
+      <div id="lienzo-mishi" class="fuente-mishi" aria-hidden="true"></div>
+      <div id="pantallaCarrera" class="pantalla-carrera" hidden>
+        <div id="lienzoCarrera"></div>
+        <button id="saltarJuego" class="boton-salto" type="button">↑ Saltar</button>
+        <div class="botones-carrera">
+          <button type="button" id="reiniciarCarrera" class="boton-vamos-jugar">↻ Volver a jugar</button>
+        </div>
+      </div>
+      <p class="mini-progreso" id="pieProgreso">Progreso: <strong id="progresoJuego">0 / 10</strong></p>
+    </section>
+    <section id="panelTrivia" class="trivia" aria-labelledby="tituloTrivia" hidden>
+      <p class="eyebrow">UNIVERSIDAD NACIONAL DE MORENO · EDIT</p>
+      <h1 id="tituloTrivia">Teoría y Trivia</h1>
+      <p>¡Poné a prueba tus conocimientos!</p>
+      <div class="trivia-juego">
+        <div class="trivia-contenido">
+          <div class="trivia-preguntas">
+            <p id="progreso">Pregunta 1 de 10</p>
+            <h2 id="pregunta"></h2>
+            <div id="opciones-trivia"></div>
+            <p id="resultado" role="status"></p>
+            <button type="button" id="siguiente" disabled>Siguiente pregunta</button>
+          </div>
+          <div class="trivia-mishi">
+            <div id="lienzo-trivia"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="lib/p5.js"></script>
+  <script src="js/assets.js"></script>
+  <script src="js/mascota.js"></script>
+  <script src="js/minijuegos.js"></script>
+  <script src="js/carrera.js"></script>
+  <script src="js/minijuego-vista.js"></script>
+  <script src="js/efectos-ui.js" defer></script>
+  <script src="js/audio-edit.js" defer></script>
+</body>
+</html>

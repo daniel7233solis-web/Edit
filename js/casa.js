@@ -42,165 +42,6 @@ let camaraX = 0;
 let jugando = false;
 let lugarActual = 'casa';
 
-const carreraNotas = {
-
-    salto: 0,
-    velocidadVertical: 0,
-    suelo: 430,
-    fase: 0,
-    obstaculos: [],
-    tiempoObstaculo: 0,
-    velocidadObstaculos: 5,
-    vidas: 5,
-    puntos: 0,
-    terminado: false,
-    invulnerableHasta: 0
-
-};
-let corazonLleno;
-
-function iniciarEsquivarNotas() {
-    lugarActual = 'esquivar';
-    window.EDITAudio?.actualizarEscena();
-
-    carreraNotas.vidas = 5;
-    carreraNotas.puntos = 0;
-    carreraNotas.terminado = false;
-    carreraNotas.invulnerableHasta = 0;
-
-    carreraNotas.salto = 0;
-    carreraNotas.velocidadVertical = 0;
-    carreraNotas.fase = 0;
-    carreraNotas.obstaculos = [];
-    carreraNotas.tiempoObstaculo = 0;
-}
-
-function saltarEsquivarNotas() {
-    // Solo puede saltar cuando está tocando el suelo.
-    if (!carreraNotas.terminado && carreraNotas.salto === 0) {
-        carreraNotas.velocidadVertical = -13;
-    }
-}
-
-function comprobarColisionNota(obstaculo) {
-    // Zona de colisión aproximada de las piernas de Mishi.
-    const mishiX = 135;
-    const mishiAncho = 70;
-
-    const mishiAbajo = carreraNotas.suelo + carreraNotas.salto;
-    const mishiArriba = mishiAbajo - 45;
-
-    const choqueHorizontal =
-        mishiX < obstaculo.x + obstaculo.ancho &&
-        mishiX + mishiAncho > obstaculo.x;
-
-    const choqueVertical =
-        mishiArriba < obstaculo.y + obstaculo.alto &&
-        mishiAbajo > obstaculo.y;
-
-    return choqueHorizontal && choqueVertical;
-}
-
-function dibujarNotasMalas() {
-
-    if (!carreraNotas.terminado) {
-        carreraNotas.tiempoObstaculo++;
-    }
-
-
-    // Generar una nota aproximadamente cada 105 fotogramas.
-
-    if (!carreraNotas.terminado && carreraNotas.tiempoObstaculo >= 105) {
-
-        const nota = Math.floor(Math.random() * 4) + 1;
-
-        carreraNotas.obstaculos.push({
-            x: 920,
-            y: carreraNotas.suelo - 60,
-            ancho: 48,
-            alto: 60,
-            nota: nota
-        });
-
-        carreraNotas.tiempoObstaculo = 0;
-    }
-
-    // Actualizar y dibujar cada obstáculo.
-    for (const obstaculo of carreraNotas.obstaculos) {
-
-        if (!carreraNotas.terminado) {
-            obstaculo.x -= carreraNotas.velocidadObstaculos;
-        }
-
-        // Comprobamos el choque una sola vez por hoja.
-        if (
-            !carreraNotas.terminado &&
-            !obstaculo.golpeo &&
-            frameCount >= carreraNotas.invulnerableHasta &&
-            comprobarColisionNota(obstaculo)
-        ) {
-            obstaculo.golpeo = true;
-
-            carreraNotas.vidas--;
-            window.EDITAudio?.efecto('error', .23);
-            reaccionarMascota('triste', 850);
-
-            // Un segundo de protección aproximadamente.
-            carreraNotas.invulnerableHasta = frameCount + 60;
-
-            if (carreraNotas.vidas <= 0) {
-                carreraNotas.terminado = true;
-            }
-        }
-
-        // Sumamos puntos por las notas esquivadas.
-        if (
-            !carreraNotas.terminado &&
-            !obstaculo.contado &&
-            obstaculo.x + obstaculo.ancho < 125
-        ) {
-            obstaculo.contado = true;
-
-            if (!obstaculo.golpeo) {
-                carreraNotas.puntos += 10;
-            }
-        }
-
-        push();
-
-        translate(obstaculo.x, obstaculo.y);
-
-        // Hoja de examen.
-        stroke('#423451');
-        strokeWeight(2.5);
-        fill('#fffaf0');
-        rect(0, 0, obstaculo.ancho, obstaculo.alto, 5);
-
-        // Renglones.
-        stroke('#b9c8d3');
-        strokeWeight(1.5);
-        line(8, 12, 39, 12);
-        line(8, 19, 39, 19);
-
-        // Calificación.
-        noStroke();
-        fill('#e7657b');
-        textAlign(CENTER, CENTER);
-        textStyle(BOLD);
-        textSize(30);
-        text(obstaculo.nota, 24, 41);
-        textStyle(NORMAL);
-
-        pop();
-    }
-
-    // Eliminar las hojas que ya salieron de la pantalla.
-    carreraNotas.obstaculos = carreraNotas.obstaculos.filter(
-        obstaculo => obstaculo.x + obstaculo.ancho > 0
-    );
-}
-
-
 let tvEncendida = false;
 let tvConSonido = false;
 let heladeraAbierta = false;
@@ -249,8 +90,7 @@ function precargarRotulos() {
         dorrego: 'img/interfaz/etiqueta_dorrego.png',
         daract1: 'img/interfaz/etiqueta_daract1.png',
         daract2: 'img/interfaz/etiqueta_daract2.png',
-        laboratorios: 'img/interfaz/etiqueta_laboratorios.png',
-        historico: 'img/interfaz/etiqueta_historico.png'
+        laboratorios: 'img/interfaz/etiqueta_laboratorios.png'
     };
     for (const [clave, ruta] of Object.entries(recursos)) {
         ROTULOS_INTERFAZ[clave] = loadImage(ruta);
@@ -283,7 +123,6 @@ function fuenteEDIT(nombre) {
 function preload() {
     preloadMascota();
     precargarRotulos();
-    corazonLleno = loadImage('img/minijuegos/corazon-lleno.png');
 }
 function setup() {
     cargarMascota();
@@ -345,7 +184,6 @@ function configurarControlesTactiles() {
 
 function draw() {
     document.body.classList.toggle('juego-activo', jugando && lugarActual === 'casa');
-    document.body.classList.toggle('juego-esquivar', lugarActual === 'esquivar');
     const destino = document.getElementById('escenario');
     if (destino && (Math.abs(destino.clientWidth-width)>1 ||
         Math.abs(destino.clientHeight-height)>1)) ajustarLienzo();
@@ -367,11 +205,6 @@ function draw() {
         return;
     }
 
-    if (lugarActual === 'esquivar') {
-        dibujarEsquivarNotas();
-        return;
-    }
-
     if (!objetoArrastrado && millis() > (personaje.durmiendoHasta || 0)) {
         actualizarMovimiento();
     }
@@ -384,7 +217,7 @@ function draw() {
         personaje.x - anchoVisible * .43,
         0, Math.max(0, CASA.ancho - anchoVisible)
     );
-    camaraX = lerp(camaraX, objetivo, .075);
+    camaraX = lerp(camaraX, objetivo, .11);
 
     push();
     scale(escalaMundo);
@@ -408,16 +241,19 @@ function actualizarMovimiento() {
         personaje.sentado = false;
         personaje.y = CASA.suelo;
     }
-    const velocidadObjetivo = direccion * 4.8; // Paso más ágil de Dani, sin deformar el dibujo de Iris.
-    personaje.velocidad = lerp(personaje.velocidad,
-        velocidadObjetivo, direccion ? .22 : .27);
+    const factorTiempo = constrain(deltaTime / (1000 / 60), .5, 2);
+    const velocidadObjetivo = direccion * 3.8;
+    const suavizado = 1 - Math.pow(direccion ? .78 : .75, factorTiempo);
+    personaje.velocidad = lerp(personaje.velocidad, velocidadObjetivo, suavizado);
     if (abs(personaje.velocidad) < .06) personaje.velocidad = 0;
-    personaje.x = constrain(personaje.x + personaje.velocidad, 45, CASA.ancho - 45);
-    const intensidadObjetivo = Math.min(1, Math.abs(personaje.velocidad) / 4.5);
-    personaje.intensidad = lerp(personaje.intensidad, intensidadObjetivo, .22);
+    personaje.x = constrain(personaje.x + personaje.velocidad * factorTiempo, 45, CASA.ancho - 45);
+    const intensidadObjetivo = Math.min(1, Math.abs(personaje.velocidad) / 3.8);
+    personaje.intensidad = lerp(personaje.intensidad, intensidadObjetivo,
+        1 - Math.pow(.82, factorTiempo));
     personaje.caminando = personaje.intensidad > .035;
-    // Cada ciclo corresponde a pasos tranquilos y no a una carrera.
-    if (personaje.intensidad > .025) personaje.fase += .075 + Math.abs(personaje.velocidad) * .045;
+    if (personaje.intensidad > .025) {
+        personaje.fase += (.075 + Math.abs(personaje.velocidad) * .039) * factorTiempo;
+    }
     if (direccion) personaje.mirando = direccion;
 }
 
@@ -841,146 +677,6 @@ function dibujarFrenteSillon() {
     rect(1851, 418, 193, 44, 9);
 }
 
-function dibujarEsquivarNotas() {
-    push();
-
-    // Mantenemos un área de juego proporcional.
-    scale(width / 900, height / 550);
-
-    // Cielo.
-    background('#DDF4FF');
-
-    noStroke();
-    fill('#FFF183');
-    circle(785, 85, 80);
-
-    // Pasto.
-    fill('#82BA88');
-    rect(0, 430, 900, 120);
-
-    // Camino.
-    fill('#D8B28D');
-    rect(0, 465, 900, 85);
-
-    // Líneas que se desplazan para simular velocidad.
-    stroke('#B58D6D');
-    strokeWeight(4);
-
-    const desplazamiento = (frameCount * 6) % 100;
-
-    for (let x = -100; x < 1000; x += 100) {
-        line(x - desplazamiento, 510,
-            x + 45 - desplazamiento, 510);
-    }
-    // Dibujar y mover las malas notas.
-    dibujarNotasMalas();
-
-    if (!carreraNotas.terminado) {
-        // Física del salto.
-        carreraNotas.salto += carreraNotas.velocidadVertical;
-        carreraNotas.velocidadVertical += 0.65;
-
-        if (carreraNotas.salto > 0) {
-            carreraNotas.salto = 0;
-            carreraNotas.velocidadVertical = 0;
-        }
-
-        // La animación continúa mientras corre.
-        carreraNotas.fase += 0.32;
-    }
-
-
-    // Sombra de Mishi.
-    noStroke();
-    fill(66, 52, 81, 35);
-    ellipse(170, carreraNotas.suelo + 3, 75, 12);
-
-    // Mishi personalizado.
-    push();
-
-    translate(
-        170,
-        carreraNotas.suelo + carreraNotas.salto
-    );
-
-    scale(0.22);
-    translate(-ANCHO / 2, -1190);
-
-    dibujarMascota({
-        caminando: carreraNotas.salto === 0,
-        intensidad: carreraNotas.salto === 0 ? 1 : 0,
-        fase: carreraNotas.fase,
-        mirando: 1
-    });
-
-    pop();
-
-
-    // Mostrar solamente los corazones de las vidas disponibles.
-
-    // Mostrar los corazones de las vidas disponibles.
-    for (let i = 0; i < carreraNotas.vidas; i++) {
-        image(corazonLleno, 30 + i * 43, 93, 34, 34);
-    }
-
-    // Puntuación.
-    noStroke();
-    fill('#423451');
-    textAlign(LEFT, CENTER);
-    textSize(19);
-    textStyle(NORMAL);
-    text('Puntos: ' + carreraNotas.puntos, 30, 140);
-
-
-    // Instrucciones.
-    noStroke();
-    fill('#423451');
-    textAlign(LEFT, CENTER);
-    textSize(24);
-    textStyle(BOLD);
-    text('¡Esquivá las malas notas!', 30, 38);
-
-    textSize(16);
-    textStyle(NORMAL);
-    text('ESPACIO o ↑ para saltar', 30, 73);
-
-    textAlign(RIGHT, CENTER);
-    text('ESC para volver al mapa', 870, 38);
-
-    if (carreraNotas.terminado) {
-        // Fondo semitransparente.
-        noStroke();
-        fill(66, 52, 81, 170);
-        rect(0, 0, 900, 550);
-
-        // Tarjeta de resultado.
-        fill('#fffaf0');
-        stroke('#FAA4B5');
-        strokeWeight(5);
-        rect(245, 140, 410, 260, 25);
-
-        noStroke();
-        fill('#423451');
-        textAlign(CENTER, CENTER);
-
-        textStyle(BOLD);
-        textSize(37);
-        text('¡Fin del juego!', 450, 200);
-
-        textSize(24);
-        text('Puntos: ' + carreraNotas.puntos, 450, 260);
-
-        textStyle(NORMAL);
-        textSize(17);
-        text('Presioná R para volver a jugar', 450, 325);
-        text('ESC para regresar al mapa', 450, 355);
-    }
-
-    pop();
-}
-
-
-
 function dibujarPersonaje() {
     if (millis() < (personaje.durmiendoHasta || 0)) {
         push();
@@ -1231,11 +927,19 @@ function dibujarInterfaz() {
 // INTERACCIONES CON EL MOUSE
 // ==========================================
 
-function mousePressed() {
-    if (lugarActual === 'esquivar') {
-        if (!carreraNotas.terminado) saltarEsquivarNotas();
-        return false;
+function mousePressed(evento) {
+    const lienzo = document.querySelector('#escenario canvas');
+
+    if (evento && evento.target !== lienzo) {
+        return;
     }
+
+    const dialogo = document.getElementById('dialogoEdificio');
+
+    if (dialogo && dialogo.open) {
+        return;
+    }
+
     if (!jugando) {
         if(enBoton(botones.play)) jugando=true;
         return;
@@ -1257,7 +961,7 @@ function mousePressed() {
     const objeto=objetoEnPunto(p);
     if(objeto){
         if(Math.abs(personaje.x-p.x)>300){
-            avisar('Acercá a Mishi al objeto para usarlo.');return;
+            avisar('Acercá a ' + obtenerNombreMascota() + ' al objeto para usarlo.');return;
         }
         objetoArrastrado={tipo:objeto,pasadas:0,ultimaPasada:0};
         if (objeto === 'jabon') reaccionarMascota('sorpresa', 900);
@@ -1271,7 +975,7 @@ function mousePressed() {
         reaccionarMascota('dormir', 4200);
         mejorarNecesidad('sueno', 34);
         personaje.caminando=false;personaje.velocidad=0;personaje.intensidad=0;
-        avisar('Mishi se acurrucó en su cama... Zzz');
+        avisar(obtenerNombreMascota() + ' se acurrucó en su cama... Zzz');
         return false;
     }
     if (p.x>=2289 && p.x<=2319 && p.y>=277 && p.y<=307) {
@@ -1293,9 +997,9 @@ function mousePressed() {
             personaje.x = 1950;
             personaje.mirando = 1;
             reaccionarMascota('juego', 2000);
-            avisar('¡Mishi se sentó a mirar la tele! Tocá las flechas para levantarte.');
+            avisar('¡' + obtenerNombreMascota() + ' se sentó a mirar la tele! Tocá las flechas para levantarte.');
         } else {
-            avisar('¡Mishi se levantó!');
+            avisar('¡' + obtenerNombreMascota() + ' se levantó!');
         }
         return false;
     }
@@ -1315,7 +1019,7 @@ function mouseDragged() {
             for(let i=0;i<4;i++)burbujasCasa.push({x:p.x+random(-35,35),
                 y:p.y+random(-35,35),r:random(14,28),hasta:millis()+1200});
             if(objetoArrastrado.pasadas>=6){
-                avisar('¡Mishi quedó reluciente! ✦');
+                avisar('¡' + obtenerNombreMascota() + ' quedó reluciente! ✦');
                 estadoMascota.saludo=1;
                 reaccionarMascota('bano', 2300);
                 mejorarNecesidad('higiene', 37);
@@ -1335,7 +1039,7 @@ function mouseReleased() {
         estadoMascota.saludo=1;
         avisar('¡Qué rica manzana! ♡');
     }else if(objetoArrastrado.tipo==='jabon' && objetoArrastrado.pasadas>0){
-        avisar('¡Seguí pasando el jabón sobre Mishi!');
+        avisar('¡Seguí pasando el jabón sobre ' + obtenerNombreMascota() + '!');
     }
     objetoArrastrado=null;
     return false;
@@ -1354,22 +1058,6 @@ function avisar(t) {
 }
 
 function keyPressed() {
-    if (lugarActual === 'esquivar') {
-        if (key === 'r' || key === 'R') {
-            iniciarEsquivarNotas();
-            return false;
-        }
-        if (keyCode === ESCAPE) {
-            lugarActual = 'mapa';
-            window.EDITAudio?.actualizarEscena();
-            return false;
-        }
-        if (!carreraNotas.terminado && (keyCode === 32 || keyCode === UP_ARROW)) {
-            saltarEsquivarNotas();
-            return false;
-        }
-        return false;
-    }
     if ([LEFT_ARROW, RIGHT_ARROW, 32].includes(keyCode)) return false;
 }
 
@@ -1390,7 +1078,7 @@ function apagarTelevisor() {
     window.EDITAudio?.televisorConSonido(false);
 }
 
-// Reproduce el archivo entregado por Iris dentro de la pantalla p5.
+// Reproduce el video dentro de la pantalla de p5.
 // El sonido se activa sólo cuando se pulsa el parlante: en ese momento
 // se pausa la música general, y se restaura al volver a mutear.
 function alternarVideoTele() {
@@ -1437,8 +1125,3 @@ function cambiarSonidoTele() {
 document.getElementById('volumenTeleAccesible')?.addEventListener('click', cambiarSonidoTele);
 document.getElementById('videoTele')?.addEventListener('ended', apagarTelevisor);
 window.addEventListener('pagehide', apagarTelevisor);
-
-// Accesibilidad: el minijuego de saltos también admite pantalla táctil.
-document.getElementById('saltarJuego')?.addEventListener('click', () => {
-    if (lugarActual === 'esquivar') saltarEsquivarNotas();
-});

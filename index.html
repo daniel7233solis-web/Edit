@@ -1,6 +1,13 @@
 <!doctype html>
 <html lang="es" class="html-portada">
 <head>
+  <script>
+    if (window === window.top) {
+      const pagina = location.pathname.split('/').pop() || 'index.html';
+      location.replace('app.html?pagina=' + encodeURIComponent(pagina + location.search));
+    }
+  </script>
+
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#70C1E1">
@@ -26,7 +33,6 @@
       <img class="deco-portada deco-extra-uno capa-entrada" style="--demora:.68s" src="img/portada/capas/deco 1.png" alt="">
       <img class="deco-portada deco-extra-dos capa-entrada" style="--demora:.75s" src="img/portada/capas/deco 2.png" alt="">
       <img class="deco-portada deco-extra-tres capa-entrada" style="--demora:.82s" src="img/portada/capas/deco 6.png" alt="">
-      <!-- Más corazones y flores, reutilizando exactamente los PNG de Iris. -->
       <img class="deco-portada deco-flor-nueva-a capa-entrada" style="--demora:.57s" src="img/portada/capas/deco 2.png" alt="">
       <img class="deco-portada deco-flor-nueva-b capa-entrada" style="--demora:.69s" src="img/portada/capas/deco 3.png" alt="">
       <img class="deco-portada deco-corazon-nuevo-a capa-entrada" style="--demora:.86s" src="img/portada/capas/deco 4.png" alt="">

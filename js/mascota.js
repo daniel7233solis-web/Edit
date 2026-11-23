@@ -1,7 +1,7 @@
 /* EDIT · Mascota articulada con p5.js.
  * Las coordenadas se expresan en el lienzo de composición 844 × 1227.
  * El cuerpo original mide 801 × 1000 y se ubica en (21, 194).
- * Los dibujos NO se redibujan: solo se posicionan y animan los PNG de Iris.
+ * Los sprites se posicionan y animan sin modificar sus ilustraciones.
  */
 
 const ANCHO = 844;
@@ -37,7 +37,7 @@ const POSICIONES = {
 };
 const AJUSTES_ROPA = {
   remeraPistacho: { x: -2, y: 100 },
-  remeraBlanca: { x: 5, y: 99 },
+  remeraBlanca: { x: 5, y: 99, escala: 1.055 },
   blusa: { x: 0, y: 100 }
 };
 const AJUSTES_ROPA_INFERIOR = {
@@ -91,7 +91,7 @@ function cargarMascota() {
 
 const imagenes = {};
 
-// Expresiones dibujadas por Iris: únicamente se muestran temporalmente.
+// Expresiones temporales de la mascota.
 // No reemplazan los ojos/boca elegidos y guardados por el usuario.
 const ARCHIVOS_EXPRESIONES = {
   felizOjos: 'ojos sonriente.png',
@@ -120,16 +120,17 @@ const RECORTES_EXPRESIONES = {
 function reaccionarMascota(tipo, duracion = 1700) {
   expresionActual = { tipo, hasta: millis() + duracion };
 }
-// Combinaciones de los dibujos provistos por Iris. No reemplazan la
+// Combinaciones de expresiones que no reemplazan la
 // personalización: al caducar vuelve exactamente la cara guardada.
 const COMBINACIONES_EXPRESIONES = {
-  dormir: { eyes: 'dormirOjos', mouth: 'felizBoca' },
-  feliz: { eyes: 'felizOjos', mouth: 'felizBoca' },
+  dormir: { eyes: 'dormirOjos', mouth: 'sorpresaBoca' },
+  contento: { eyes: 'felizOjos', mouth: 'felizBoca' },
+  feliz: { eyes: 'fuerteOjos', mouth: 'juegoBoca' },
   comer: { eyes: 'felizOjos', mouth: 'sorpresaBoca' },
   bano: { eyes: 'fuerteOjos', mouth: 'juegoBoca' },
   juego: { eyes: 'felizOjos', mouth: 'juegoBoca' },
   triste: { eyes: 'tristeOjos', mouth: 'tristeBoca' },
-  llorar: { eyes: 'llorarOjos', mouth: 'tristeBoca' },
+  llorar: { eyes: 'llorarOjos', mouth: 'sorpresaBoca' },
   molesto: { eyes: 'fuerteOjos', mouth: 'tristeBoca' },
   sorpresa: { eyes: 'fuerteOjos', mouth: 'sorpresaBoca' }
 };
@@ -281,7 +282,15 @@ function dibujarPrenda(id, parte, desplazamientoY = DESFASE_VESTUARIO_Y) {
     const x = ajuste ? ajuste.x : 0;
     const y = ajuste ? ajuste.y : desplazamientoY;
     const ajusteRuedo = parte === 'torso' && ['remeraPistacho', 'remeraBlanca', 'blusa'].includes(id) ? 6 : 0;
+    const escalaPrenda = parte === 'torso' ? (ajuste?.escala || 1) : 1;
+    push();
+    if (escalaPrenda !== 1) {
+      translate(ANCHO / 2, 840);
+      scale(escalaPrenda);
+      translate(-ANCHO / 2, -840);
+    }
     image(recurso, x, y, recurso.width, recurso.height + ajusteRuedo);
+    pop();
   }
 }
 
@@ -303,7 +312,8 @@ function dibujarPrendaEnArticulacion(id, parte, p) {
   // Escalamos desde el pivote REAL de la pierna, no desde la esquina del
   // lienzo transparente de la prenda. Así el encastre permanece estable.
   const escala = (parte === 'piernaL' || parte === 'piernaR')
-    ? (AJUSTES_PERNERAS[id] || 1) : 1;
+    ? (AJUSTES_PERNERAS[id] || 1)
+    : ((parte === 'brazoL' || parte === 'brazoR') ? (ajuste?.escala || 1) : 1);
   push();
   scale(escala);
   image(recurso, x - p.pivotX, y - p.pivotY, recurso.width, recurso.height);
@@ -466,12 +476,7 @@ function dibujarMascota(movimiento = false) {
   dibujarPieza('head', 1, POSICIONES.head.x, POSICIONES.head.y);
   dibujarCentrada('brows', estadoMascota.brows);
   const ojosTemporales = rasgoDeExpresion('eyes');
-  if (ojosTemporales === 'llorarOjos') {
-    // El archivo celeste tiene sólo LÁGRIMAS, no ojos. Se dibujan por
-    // debajo de los párpados cerrados originales de Iris.
-    dibujarExpresion('llorarOjos');
-    dibujarExpresion('dormirOjos');
-  } else if (!ojosTemporales || !dibujarExpresion(ojosTemporales)) {
+  if (!ojosTemporales || !dibujarExpresion(ojosTemporales)) {
     dibujarCentrada('eyes', estadoMascota.eyes);
   }
   dibujarCentrada('nose', estadoMascota.nose);

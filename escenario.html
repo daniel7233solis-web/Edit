@@ -2,6 +2,13 @@
 <html lang="es">
 
 <head>
+  <script>
+    if (window === window.top) {
+      const pagina = location.pathname.split('/').pop() || 'index.html';
+      location.replace('app.html?pagina=' + encodeURIComponent(pagina + location.search));
+    }
+  </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EDIT | Jugar</title>
@@ -10,7 +17,7 @@
 
 <body class="pagina-juego pagina-interior">
 
-    <header class="encabezado">
+  <header class="encabezado">
     <a href="index.html" class="logo" aria-label="EDIT, inicio"><img src="img/portada/capas/edit 1.png" alt="EDIT"></a>
     <nav class="navegacion" aria-label="Navegación principal">
       <a href="personaje.html">Crear personaje</a>
@@ -18,46 +25,35 @@
     </nav>
   </header>
 
-    <main class="contenido-principal contenido-juego">
-        <div class="juego-marco">
-            <div id="escenario" role="application" aria-label="Casa interactiva de EDIT"></div>
-            <div class="controles-tactiles" aria-label="Mover a Mishi">
-                <button id="caminarIzquierda" type="button" aria-label="Caminar a la izquierda">◀</button>
-                <button id="caminarDerecha" type="button" aria-label="Caminar a la derecha">▶</button>
-            </div>
-            <button id="saltarJuego" class="boton-salto" type="button" aria-label="Saltar las malas notas">↑ Saltar</button>
-        </div>
-    </main>
-    <!-- Fuente del video real: se reproduce dentro de la pantalla dibujada en p5. -->
-    <video id="videoTele" hidden playsinline preload="none" muted
-           aria-label="Video de la televisión de EDIT"></video>
-    <button id="volumenTeleAccesible" type="button" class="solo-lectores"
-            aria-label="Activar sonido del televisor">Activar sonido del televisor</button>
-    <dialog id="dialogoEdificio" class="modal-edificio" aria-labelledby="nombreEdificio">
-        <button id="cerrarModalEdificio" class="cerrar-modal" type="button" aria-label="Cerrar">×</button>
-        <p class="eyebrow">UNIVERSIDAD NACIONAL DE MORENO · EDIT</p>
-        <h2 id="nombreEdificio"></h2>
-        <p class="mini-etiqueta">Minijuego: <strong id="nombreMinijuego"></strong></p>
-        <img id="imagenMinijuego" class="preview-minijuego" alt="Vista previa del minijuego">
-        <p id="descripcionMinijuego" class="muted"></p>
-        <button id="irMinijuego" class="boton-vamos-jugar" type="button">▶ Ir al minijuego</button>
-    </dialog>
-    <dialog id="dialogoJuego" class="modal-edificio modal-juego" aria-labelledby="tituloJuego">
-        <button id="cerrarDialogoJuego" class="cerrar-modal" type="button" aria-label="Volver al mapa">×</button>
-        <p class="eyebrow">UNM · MINIJUEGO</p>
-        <h2 id="tituloJuego"></h2>
-        <p class="mini-etiqueta" id="mensajeJuego"></p>
-        <div id="tableroJuego" class="mini-tablero"></div>
-        <p class="mini-progreso">Progreso: <strong id="progresoJuego">0 / 4</strong></p>
-    </dialog>
-    <script src="lib/p5.js"></script>
-    <script src="js/assets.js"></script>
-    <script src="js/mascota.js"></script>
-    <script src="js/mapa.js"></script>
-    <script src="js/minijuegos.js"></script>
-    <script src="js/casa.js"></script>
+  <main class="contenido-principal contenido-juego">
+      <div class="juego-marco">
+          <div id="escenario" role="application" aria-label="Casa interactiva de EDIT"></div>
+          <div class="controles-tactiles" aria-label="Mover al personaje">
+              <button id="caminarIzquierda" type="button" aria-label="Caminar a la izquierda">◀</button>
+              <button id="caminarDerecha" type="button" aria-label="Caminar a la derecha">▶</button>
+          </div>
+      </div>
+  </main>
+  <video id="videoTele" hidden playsinline preload="none" muted
+          aria-label="Video de la televisión de EDIT"></video>
+  <button id="volumenTeleAccesible" type="button" class="solo-lectores"
+          aria-label="Activar sonido del televisor">Activar sonido del televisor</button>
+  <dialog id="dialogoEdificio" class="modal-edificio" aria-labelledby="nombreEdificio">
+      <button id="cerrarModalEdificio" class="cerrar-modal" type="button" aria-label="Cerrar">×</button>
+      <p class="eyebrow">UNIVERSIDAD NACIONAL DE MORENO · EDIT</p>
+      <h2 id="nombreEdificio"></h2>
+      <p class="mini-etiqueta">Minijuego: <strong id="nombreMinijuego"></strong></p>
+      <img id="imagenMinijuego" class="preview-minijuego" alt="Vista previa del minijuego">
+      <p id="descripcionMinijuego" class="muted"></p>
+      <button id="irMinijuego" class="boton-vamos-jugar" type="button">▶ Ir al minijuego</button>
+  </dialog>
+  <script src="lib/p5.js"></script>
+  <script src="js/assets.js"></script>
+  <script src="js/mascota.js"></script>
+  <script src="js/mapa.js"></script>
+  <script src="js/casa.js"></script>
+  <script src="js/abrir-edificio.js" defer></script>
   <script src="js/efectos-ui.js" defer></script>
   <script src="js/audio-edit.js" defer></script>
 </body>
-
 </html>

@@ -1,6 +1,4 @@
-/* Tipografías de EDIT. Usá los archivos de los tres ZIP originales de Iris:
-   tipografia/Butterpop.otf, tipografia/Pulang.otf y
-   tipografia/Super Unicorn.ttf. También se permiten fuentes instaladas. */
+/* Tipografías de EDIT. */
 @font-face {
     font-family: 'Butterpop';
     src: url('../tipografia/Butterpop.otf') format('opentype'), local('Butterpop');
@@ -44,6 +42,10 @@
 
 * {
     box-sizing: border-box;
+}
+
+[hidden] {
+    display: none !important;
 }
 
 html {
@@ -877,8 +879,7 @@ dialog p {
     transform: translateY(-3px);
 }
 
-/* El logo visible utiliza el PNG original de Iris. Si un logo es texto,
-   la familia correcta es Super Unicorn. */
+/* Logotipo y tipografía de marca. */
 .logo { font-family: 'Super Unicorn', 'Trebuchet MS', sans-serif; letter-spacing: .02em; }
 
 /* ==========================================
@@ -1252,10 +1253,6 @@ a.mapa-lugar:hover {
     line-height: 1.5;
     color: #705e82;
 }
-.modal-juego {
-    width: min(94vw, 620px);
-    max-width: 620px;
-}
 .mini-tablero {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1292,8 +1289,7 @@ a.mapa-lugar:hover {
 .pieza-mini:disabled {
     cursor: default;
 }
-.mini-formas,
-.mini-estrellas {
+.mini-formas {
     grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 .mini-mezclas {
@@ -1445,7 +1441,7 @@ p, .muted, .save-note, .choice, .mini-etiqueta {
 .boton-vamos-jugar:hover { transform: translateY(-2px); }
 
 /* La portada conserva el fondo, la mascota, el logo y las decoraciones
-   tal como los dibujó Iris. Ningún arbusto es generado ni agregado. */
+   según las ilustraciones originales del proyecto. */
 html.html-portada { scrollbar-gutter: auto; }
 body.pagina-portada {
     min-width: 320px;
@@ -1663,7 +1659,7 @@ body.pagina-portada {
 .deco-extra-uno { top: 33%; left: 6%; width: clamp(30px, 4vw, 63px); }
 .deco-extra-dos { bottom: 22%; left: 30%; width: clamp(38px, 4.3vw, 73px); }
 .deco-extra-tres { top: 25%; right: 42%; width: clamp(29px, 3vw, 50px); }
-/* Repeticiones de los dibujos de Iris: no se generan formas ajenas. */
+/* Decoraciones de la portada. */
 .deco-flor-nueva-a { top: 22%; left: 2%; width: clamp(34px, 4vw, 61px); }
 .deco-flor-nueva-b { bottom: 9%; left: 22%; width: clamp(45px, 5vw, 88px); }
 .deco-corazon-nuevo-a { top: 29%; right: 27%; width: clamp(35px, 4.6vw, 73px); }
@@ -1846,13 +1842,7 @@ body.pagina-portada {
 }
 
 
-/* Juegos completos de la rama Daniel, integrados a la identidad visual de EDIT. */
-.mini-formas,
-.mini-estrellas {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-
+/* Componentes de los minijuegos. */
 .mini-mezclas {
     grid-template-columns: repeat(4, minmax(0, 1fr));
 }
@@ -1895,9 +1885,9 @@ body.pagina-portada {
     min-height: 130px;
 }
 
-.mini-formas .mishi-laboratorio img {
-    width: 90px;
-    height: 110px;
+.mini-formas .mishi-laboratorio canvas {
+    width: 145px !important;
+    height: auto !important;
 }
 
 .frasco-mini {
@@ -2043,17 +2033,17 @@ body.pagina-portada {
     align-items: center;
     justify-content: center;
     gap: 14px;
-    min-height: 140px;
+    min-height: 150px;
     padding: 12px 18px;
     border: 2px solid #faa4b5;
     border-radius: 20px;
     background: #fff3f6;
 }
 
-.mishi-laboratorio img {
+.mishi-laboratorio canvas {
     display: block;
-    width: 100px;
-    height: 115px;
+    width: clamp(120px, 11vw, 160px) !important;
+    height: auto !important;
     flex-shrink: 0;
     object-fit: contain;
     object-position: center;
@@ -2070,11 +2060,11 @@ body.pagina-portada {
 }
 
 
-.mishi-laboratorio.mishi-acierto img {
+.mishi-laboratorio.mishi-acierto canvas {
     animation: mishi-festejo 0.6s ease;
 }
 
-.mishi-laboratorio.mishi-error img {
+.mishi-laboratorio.mishi-error canvas {
     animation: mishi-duda 0.5s ease;
 }
 
@@ -2145,13 +2135,273 @@ body.pagina-portada {
     font: 20px 'Butterpop', 'Trebuchet MS', sans-serif;
     cursor: pointer;
 }
-@media (pointer: coarse) {
-    .pagina-juego.juego-esquivar .boton-salto { display: block; }
-}
 @media (max-width: 690px) {
     .mini-mezclas .muestra-objetivo { grid-column: 1 / 3; }
     .mini-mezclas .zona-mezcla { grid-column: 3 / 5; }
     .mini-mezclas .tinte-mini { padding: 10px 3px; }
     .mishi-laboratorio { padding: 8px; min-height: 95px; gap: 8px; }
     .mishi-laboratorio img { width: 65px; height: 90px; }
+}
+
+
+.pagina-minijuego, .pagina-trivia {
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+.contenido-minijuego {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    max-width: 1200px;
+    width: 100%;
+    min-height: calc(100dvh - 100px);
+    margin: 0 auto;
+    padding: 20px 24px 40px;
+}
+
+.regreso-minijuego {
+    align-self: flex-start;
+    text-decoration: none;
+}
+
+#panelMinijuego[hidden],
+#panelTrivia[hidden] {
+    display: none;
+}
+
+.minijuego-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: min(760px, calc(100dvh - 185px));
+    width: 100%;
+    max-width: 1090px;
+    padding: clamp(16px, 2.5vw, 30px);
+    border: 3px solid #cf9ebc;
+    border-radius: 28px;
+    background: #fffaf5;
+    box-shadow: 0 12px 25px #63456223;
+    text-align: center;
+}
+
+.minijuego-panel h1 {
+    margin: 4px 0 9px;
+    font-family: 'Butterpop', 'Pulang', sans-serif;
+    color: #493d46;
+    font-size: clamp(24px, 3vw, 37px);
+}
+
+.minijuego-mensaje {
+    margin: 7px auto 17px;
+    color: #695675;
+    font-size: clamp(15px, 1.5vw, 19px);
+}
+
+.pagina-minijuego .mini-tablero {
+    flex: 1;
+    max-width: 100%;
+    min-height: 0;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(8px, 1.4vw, 14px);
+    padding: clamp(10px, 1.6vw, 19px);
+}
+
+.pagina-minijuego .mini-formas {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.pagina-minijuego .mini-memoria {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(165px, .85fr);
+    align-content: center;
+}
+
+.pagina-minijuego .mini-memoria .mishi-laboratorio {
+    grid-column: 5;
+    grid-row: 1 / span 4;
+    flex-direction: column;
+    padding: 12px 10px;
+}
+
+.pagina-minijuego .mini-memoria .mishi-laboratorio canvas {
+    width: clamp(112px, 10vw, 145px) !important;
+}
+
+.pagina-minijuego .mini-memoria .mishi-laboratorio p {
+    max-width: 185px;
+    text-align: center;
+}
+
+.pagina-minijuego .mini-memoria .pieza-mini {
+    min-height: clamp(52px, 6.3vh, 78px);
+}
+
+.pagina-minijuego .mini-mezclas {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.pagina-minijuego .mini-formas .pieza-mini {
+    min-height: 80px;
+}
+
+.pagina-minijuego .mini-mezclas .tinte-mini {
+    min-height: 135px;
+    padding: 10px 5px;
+}
+
+.pagina-minijuego .mini-mezclas .frasco-mini {
+    margin-top: 0;
+}
+
+.pagina-minijuego .mini-progreso {
+    margin-top: 16px;
+    font-size: 18px;
+}
+
+.fuente-mishi {
+    position: absolute;
+    width: 240px;
+    height: 300px;
+    top: -9999px;
+    left: -9999px;
+    pointer-events: none;
+}
+
+.pantalla-carrera {
+    position: relative;
+    width: min(100%, calc((100dvh - 410px) * 900 / 550));
+    max-width: 100%;
+    margin-inline: auto;
+    overflow: hidden;
+    border: 3px solid #78506d;
+    border-radius: 20px;
+}
+
+.pantalla-carrera canvas {
+    display: block;
+    width: 100% !important;
+    height: auto !important;
+}
+
+.minijuego-carrera {
+    max-width: 1140px;
+    min-height: 0;
+}
+
+.minijuego-carrera .boton-salto {
+    display: none;
+}
+
+.botones-carrera {
+    display: flex;
+    justify-content: center;
+    padding: 12px;
+    background: #f8eff4;
+}
+
+.pagina-trivia .trivia-regreso {
+    max-width: 1130px;
+    margin: auto;
+}
+
+.pagina-trivia .trivia {
+    display: flex;
+    flex-direction: column;
+    min-height: min(760px, calc(100dvh - 185px));
+    width: 100%;
+    max-width: 1090px;
+    padding: clamp(16px, 2.5vw, 30px);
+    border: 3px solid #cf9ebc;
+    border-radius: 28px;
+    background: #fffaf5;
+    box-shadow: 0 12px 25px #63456223;
+}
+
+.pagina-trivia .trivia-juego {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    max-width: 100%;
+    width: 100%;
+    padding: clamp(16px, 2.4vw, 28px);
+    border: 0;
+    border-radius: 20px;
+    background: #fffaf5;
+    box-shadow: none;
+}
+
+.pagina-trivia .trivia-contenido {
+    width: 100%;
+}
+
+@media (max-width: 850px) {
+    .pagina-minijuego .mini-memoria {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .pagina-minijuego .mini-memoria .mishi-laboratorio {
+        grid-column: 1 / -1;
+        grid-row: auto;
+        flex-direction: row;
+    }
+
+    .pagina-minijuego .mini-memoria .mishi-laboratorio p {
+        text-align: left;
+    }
+}
+
+@media (pointer: coarse) {
+    .minijuego-carrera .boton-salto {
+        display: block;
+    }
+}
+
+@media (max-width: 690px) {
+    .contenido-minijuego {
+        padding: 12px 12px 24px;
+    }
+    .minijuego-panel {
+        padding: 14px 10px;
+        border-radius: 19px;
+    }
+    .pagina-minijuego .mini-tablero {
+        padding: 9px;
+        gap: 7px;
+    }
+    .pagina-minijuego .mini-formas .pieza-mini {
+        min-height: 60px;
+    }
+    .pagina-minijuego .mini-mezclas .tinte-mini {
+        min-height: 110px;
+    }
+    .pagina-minijuego .mini-mezclas .frasco-mini {
+        transform: scale(.75);
+        margin: -9px auto;
+    }
+    .pagina-minijuego .mini-mezclas .tinte-mini span:last-child {
+        font-size: 13px;
+    }
+    .minijuego-carrera .boton-salto {
+        right: 8px;
+        bottom: 70px;
+        min-width: 85px;
+        min-height: 45px;
+        font-size: 15px;
+    }
+}
+
+
+.pagina-app {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    overflow: hidden;
+}
+
+#editContenido {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
 }

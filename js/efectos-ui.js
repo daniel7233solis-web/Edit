@@ -1,8 +1,8 @@
-/* EDIT · Efectos visuales globales. No altera el comportamiento de p5.js. */
 (() => {
   const reducir = window.matchMedia('(prefers-reduced-motion: reduce)');
+
   function mostrarCorazones(evento) {
-    if (reducir.matches || evento.pointerType === 'mouse' && evento.button !== 0) return;
+    if (reducir.matches || (evento.pointerType === 'mouse' && evento.button !== 0)) return;
     const colores = ['#FAA4B5', '#FFF183', '#70C1E1', '#F8B77C'];
     for (let i = 0; i < 5; i++) {
       const el = document.createElement('span');
@@ -19,9 +19,9 @@
       el.addEventListener('animationend', () => el.remove(), { once: true });
     }
   }
+
   document.addEventListener('pointerdown', mostrarCorazones);
-  // Jugar entra directamente sólo cuando existe una mascota realmente guardada.
-  // Sin datos válidos, el mismo enlace lleva al creador, sin guardar por su cuenta.
+
   function destinoConMascota(enlace) {
     if (!enlace.hasAttribute('data-ruta-mascota')) return enlace.href;
     try {
@@ -34,16 +34,21 @@
     }
   }
 
-  // En portada se ve brevemente la respuesta antes de navegar.
-
-  document.querySelectorAll('.boton-caramelo, a[data-ruta-mascota]').forEach(enlace => {
+  let navegando = false;
+  document.querySelectorAll('.pagina-portada .portada-acciones .boton-caramelo, a[data-ruta-mascota]').forEach(enlace => {
     enlace.addEventListener('click', evento => {
       if (evento.button !== 0 || evento.metaKey || evento.ctrlKey || evento.shiftKey || evento.altKey) return;
-      // Si se reduce movimiento, igual hay que resolver la ruta condicional.
-      if (reducir.matches && !enlace.hasAttribute('data-ruta-mascota')) return;
+      if (reducir.matches && !enlace.hasAttribute('data-ruta-mascota') && !enlace.matches('.boton-caramelo')) return;
       evento.preventDefault();
-      const url = destinoConMascota(enlace);
-      window.setTimeout(() => { window.location.href = url; }, reducir.matches ? 0 : 190);
+      if (navegando) return;
+      navegando = true;
+      const destino = destinoConMascota(enlace);
+      if (enlace.closest('.portada-acciones')) {
+        window.EDITAudio?.transicion();
+        window.setTimeout(() => { location.href = destino; }, 650);
+      } else {
+        location.href = destino;
+      }
     });
   });
 })();

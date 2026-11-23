@@ -1,49 +1,14 @@
-/* EDIT · Juegos breves de campus. Cada edificio ofrece una actividad real.
- * Todos los minijuegos mantienen al usuario en el mismo recorrido.
- * La trivia original se conserva en trivia.html. */
+/* Minijuegos del campus. La trivia se desarrolla en trivia.html. */
 let minijuegoActual = null;
-function reaccionMishi(estado, textoPersonalizado = '') {
-    const avatar = document.getElementById('miniMishiAvatar');
-    const texto = document.getElementById('miniMishiTexto');
-
-    if (!avatar || !texto) {
-        return;
-    }
-
-    if (estado === 'inicio') {
-        avatar.textContent = '🐱';
-        texto.textContent = textoPersonalizado || '¡Vamos! Encontrá las parejas.';
-    } else if (estado === 'bien') {
-        avatar.textContent = '😺';
-        texto.textContent = textoPersonalizado || '¡Muy bien! Seguís re bien.';
-    } else if (estado === 'mal') {
-        avatar.textContent = '😿';
-        texto.textContent = textoPersonalizado || 'No pasa nada, probá otra vez.';
-    } else if (estado === 'final') {
-        avatar.textContent = '🎉';
-        texto.textContent = textoPersonalizado || '¡Lo lograste! Estoy muy orgulloso.';
-    }
-}
-function abrirMinijuegoActual() {
-    const id = modalEdificioId;
-    const ficha = document.getElementById('dialogoEdificio');
-    if (ficha.open) ficha.close();
-    if (id === 'historico') {
-        window.location.href = 'trivia.html?desde=universidad';
-        return;
-    }
-    const info = EDIFICIOS_UNM.find(e => e.id === id);
-    if (!info) return;
-
-    if (id === 'daract2') {
-        iniciarEsquivarNotas();
-        return;
-    }
-
-    const dlg = document.getElementById('dialogoJuego');
-    document.getElementById('tituloJuego').textContent = info.juego;
+const TITULOS_JUEGOS = {
+    dorrego: 'Memoria de programación',
+    daract1: 'Ordená las formas',
+    laboratorios: 'Laboratorio cromático'
+};
+function iniciarMinijuego(id) {
+    if (!TITULOS_JUEGOS[id]) return;
+    document.getElementById('tituloJuego').textContent = TITULOS_JUEGOS[id];
     minijuegoActual = { id, pasos: 0, terminado: false, bloqueado: false, seleccion: [] };
-    if (!dlg.open) dlg.showModal();
     if (id === 'dorrego') iniciarParejas();
     else if (id === 'daract1') iniciarFormas();
     else if (id === 'laboratorios') iniciarMezclas();
@@ -60,14 +25,12 @@ function botonJuego(label, accion, clase = '') {
 function finalizarJuego() {
     if (!minijuegoActual || minijuegoActual.terminado) return;
     window.EDITAudio?.efecto('correcto', .30);
+    reaccionarMascota('contento', 5000);
     minijuegoActual.terminado = true;
 
     const board = tableroJuego();
 
-    // Conservar a Mishi cuando termina el juego de memoria.
-    const mishi = minijuegoActual.id === 'dorrego'
-        ? board.querySelector('.mishi-laboratorio')
-        : null;
+    const mishi = board.querySelector('.mishi-laboratorio');
 
     board.replaceChildren();
 
@@ -76,8 +39,7 @@ function finalizarJuego() {
         const mensajeMishi = mishi.querySelector('p');
 
         if (mensajeMishi) {
-            mensajeMishi.textContent =
-                '¡Lo logramos! ¡Encontraste todas las parejas!';
+            mensajeMishi.textContent = '¡Lo logramos! ¡Terminamos el desafío!';
         }
 
         mishi.classList.remove('mishi-error', 'mishi-acierto');
@@ -99,7 +61,7 @@ function finalizarJuego() {
         minijuegoActual = { id, pasos: 0, terminado: false, bloqueado: false, seleccion: [] };
         if (id === 'dorrego') iniciarParejas();
         else if (id === 'daract1') iniciarFormas();
-            else if (id === 'laboratorios') iniciarMezclas();
+        else if (id === 'laboratorios') iniciarMezclas();
     });
     tableroJuego().append(boton);
 }
@@ -140,8 +102,8 @@ function iniciarParejas() {
 
     mensajeJuego('Encontrá las ocho parejas de palabras de HTML, CSS y p5.js.');
     progresoJuego(0, 8);
+    reaccionarMascota('juego', 1600);
 
-    // Mostrar al Mishi personalizado.
     const mishi = crearMishiLaboratorio();
 
     mishi.mensaje.textContent =
@@ -168,6 +130,7 @@ function iniciarParejas() {
                     mishi.elemento.classList.add('mishi-acierto');
 
                     window.EDITAudio?.efecto('correcto', .18);
+                    reaccionarMascota('feliz', 1450);
                     estado.acertadas.add(a); estado.acertadas.add(z);
                     estado.vistas = [];
                     progresoJuego(estado.acertadas.size / 2, 8);
@@ -184,6 +147,7 @@ function iniciarParejas() {
                     mishi.elemento.classList.add('mishi-error');
 
                     window.EDITAudio?.efecto('error', .2);
+                    reaccionarMascota('triste', 1600);
                     estado.bloqueado = true;
                     window.setTimeout(() => {
                         if (minijuegoActual !== estado) return;
@@ -313,6 +277,7 @@ function iniciarFormas() {
     const figuras = ['●', '▲', '■', '◆', '★'];
 
     progresoJuego(0, desafiosMezclados.length);
+    reaccionarMascota('juego', 1600);
 
     function mostrarDesafio() {
         board.replaceChildren();
@@ -351,6 +316,7 @@ function iniciarFormas() {
                     boton.classList.add('acertada');
 
                     window.EDITAudio?.efecto('correcto', .22);
+                    reaccionarMascota('feliz', 1300);
                     mensajeJuego('¡Muy bien! ¡Respuesta correcta!');
 
                     mishi.mensaje.textContent =
@@ -382,6 +348,7 @@ function iniciarFormas() {
 
                 } else {
                     window.EDITAudio?.efecto('error', .2);
+                    reaccionarMascota('molesto', 1750);
                     mensajeJuego(
                         '¡Esa no es! Observá nuevamente las figuras.'
                     );
@@ -423,46 +390,17 @@ function crearFrasco(color) {
 function crearMishiLaboratorio() {
     const ayudante = document.createElement('div');
     ayudante.className = 'mishi-laboratorio';
-
-    const imagen = document.createElement('img');
-    imagen.alt = 'Mishi, ayudante del laboratorio';
-
-    // Capturamos al Mishi personalizado con p5.js
-    const alto = 190;
-    const ancho = Math.ceil(alto * ANCHO / ALTO);
-
-    // Preservamos el cuadro del campus mientras generamos la miniatura.
-    const cuadroAnterior = get();
-    push();
-    resetMatrix();
-    clear();
-    scale(alto / ALTO);
-    dibujarMascota({
-        caminando: false,
-        intensidad: 0,
-        fase: 0
-    });
-    pop();
-
-    const captura = get(0, 0, ancho, alto);
-    imagen.src = captura.canvas.toDataURL('image/png');
-    push();
-    resetMatrix();
-    clear();
-    image(cuadroAnterior, 0, 0, width, height);
-    pop();
-
+    const lienzo = window.EDITCanvasMascota;
     const mensaje = document.createElement('p');
-    mensaje.textContent = '¡Hola! Soy Mishi. ¡Vamos a experimentar con los colores!';
-
-    ayudante.append(imagen, mensaje);
-
-    return {
-        elemento: ayudante,
-        mensaje: mensaje
-    };
+    mensaje.textContent = '¡Hola! ¡Vamos a jugar!';
+    if (lienzo) {
+        lienzo.setAttribute('role', 'img');
+        lienzo.setAttribute('aria-label', 'Tu mascota personalizada');
+        ayudante.append(lienzo);
+    }
+    ayudante.append(mensaje);
+    return { elemento: ayudante, mensaje };
 }
-
 
 function iniciarMezclas() {
     const estado = minijuegoActual;
@@ -593,6 +531,7 @@ function iniciarMezclas() {
         .slice(0, 10);
 
     progresoJuego(0, mezclasPartida.length);
+    reaccionarMascota('juego', 1600);
 
     function ronda() {
         board.replaceChildren();
@@ -693,6 +632,7 @@ function iniciarMezclas() {
 
                     if (correcto) {
                         window.EDITAudio?.efecto('correcto', .20);
+                        reaccionarMascota('contento', 1450);
                         mensajeJuego('¡Excelente! ¡Conseguiste el color de la muestra!');
 
                         mishi.mensaje.textContent =
@@ -701,6 +641,7 @@ function iniciarMezclas() {
                         mishi.elemento.classList.add('mishi-acierto');
                     } else {
                         window.EDITAudio?.efecto('error', .21);
+                        reaccionarMascota('llorar', 1900);
                         mensajeJuego('¡La mezcla no coincide! Intentá nuevamente.');
 
                         mishi.mensaje.textContent =
@@ -757,11 +698,3 @@ function iniciarMezclas() {
 }
 
 
-document.getElementById('cerrarModalEdificio')?.addEventListener('click', () => {
-    const ficha = document.getElementById('dialogoEdificio');
-    if (ficha.open) ficha.close();
-});
-document.getElementById('irMinijuego')?.addEventListener('click', abrirMinijuegoActual);
-document.getElementById('cerrarDialogoJuego')?.addEventListener('click', () => {
-    minijuegoActual = null; document.getElementById('dialogoJuego').close();
-});

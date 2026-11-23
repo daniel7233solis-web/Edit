@@ -1,7 +1,4 @@
-/* EDIT · Campus UNM ilustrado. Referencia espacial: mapas aportados por Iris.
- * Se dibuja directamente con p5.js; ningún mapa institucional es copiado.
- * Las posiciones mantienen Dorrego al noroeste, Daract I/II y laboratorios al
- * este, y el Edificio Histórico en el centro-sur del campus. */
+
 const EDIFICIOS_UNM = [
     { id: 'dorrego', nombre: 'Dorrego', juego: 'Memoria de programación', descripcion: 'Encontrá ocho parejas de HTML, CSS y p5.js.', color: '#eac6fa', techo: '#a37ac6', x: 233, y: 191, icono: '✿' },
     { id: 'daract1', nombre: 'Daract I', juego: 'Ordená las formas', descripcion: 'Respondé diez desafíos de figuras y secuencias.', color: '#b8e5ff', techo: '#77b4d3', x: 753, y: 188, icono: '◆' },
@@ -186,9 +183,16 @@ function dibujarEdificioMapa(e,x,y) {
     noStroke();fill('#fffefa');stroke(resaltado?'#e396ac':'#c39bc3');strokeWeight(resaltado?3.5:2);
     rect(-102,94,204,34,13);
     noStroke();fill('#42304f');textAlign(CENTER,CENTER);textFont(fuenteEDIT('Butterpop'));
-    if (!dibujarRotulo(e.id, 0, 111, 188, 26)) {
-        textSize(e.id==='historico' ? 16 : 19);
-        text(e.nombre,0,111);
+    if (e.id === 'historico') {
+        let tamano = 19;
+        textSize(tamano);
+        while (textWidth(e.nombre) > 187 && tamano > 14) {
+            textSize(--tamano);
+        }
+        text(e.nombre, 0, 111);
+    } else if (!dibujarRotulo(e.id, 0, 111, 188, 26)) {
+        textSize(19);
+        text(e.nombre, 0, 111);
     }
     if(resaltado){noFill();stroke('#fff3a7');strokeWeight(4);rect(-105,-58,210,194,11);}
     pop();
@@ -226,6 +230,7 @@ function abrirModalEdificio(id) {
     const e=EDIFICIOS_UNM.find(item=>item.id===id);
     const dialogo=document.getElementById('dialogoEdificio');
     if(!e || !dialogo) return;
+    console.log('Edificio seleccionado:', id);
     modalEdificioId=id;
     document.getElementById('nombreEdificio').textContent=e.nombre;
     document.getElementById('nombreMinijuego').textContent=e.juego;

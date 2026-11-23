@@ -1,9 +1,4 @@
-/* EDIT · Música y efectos a partir de los MP3 provistos por Iris.
- * La música empieza por decisión del usuario y se puede apagar.
- * Los efectos cortos acompañan clics e interacciones sin cambiar p5.js. */
 (() => {
-  const nav = document.querySelector('.encabezado .navegacion');
-  if (!nav) return;
   const tracks = {
     inicio: 'audio/musica de inicio.mp3',
     casa: 'audio/musica de casa.mp3',
@@ -12,147 +7,183 @@
   const effects = {
     click: 'audio/click.mp3',
     entrar: 'audio/click para crear jugar e inicio.mp3',
+    transicion: 'audio/transicion de escena.mp3',
     correcto: 'audio/respuesta correcta minijuego.mp3',
     error: 'audio/error mini juego.mp3',
     mascota: 'audio/risita mascota.mp3',
     bano: 'audio/sonido baño.mp3',
     comida: 'audio/sonido comida.mp3'
   };
-  const audio = new Audio();
-  audio.loop = true;
-  audio.preload = 'none';
-  audio.volume = .22;
-  let activo = false;
-  let actual = '';
-  let boton;
-  const esJuego = location.pathname.endsWith('/escenario.html');
-  const esTrivia = location.pathname.endsWith('/trivia.html');
-  const inicial = esJuego ? 'casa' : esTrivia ? 'minijuego' : 'inicio';
-  let audioHabilitado = false;
-  let teleConSonido = false;
 
-  function efecto(nombre, volumen = .22) {
-    const ruta = effects[nombre];
-    if (!ruta) return;
+  if (document.body.classList.contains('pagina-app')) {
+    const reproductor = new Audio();
+    reproductor.loop = true;
+    reproductor.preload = 'auto';
+    reproductor.volume = .22;
+    let activa = true;
+    let pistaActual = '';
+    let enTelevisor = false;
+    let escenaActual = 'inicio';
+    let volumenTemporal = false;
+    const sonidos = new Set();
+
     try {
-      const a = new Audio(encodeURI(ruta));
-      a.volume = volumen;
-      a.play().catch(() => {});
-      a.addEventListener('ended', () => { a.src = ''; }, { once: true });
-    } catch (_) { /* Audio no permitido: los botones funcionan igual. */ }
-  }
-  function guardarPreferencia(v) {
-    try { sessionStorage.setItem('edit_musica', v ? 'si' : 'no'); } catch (_) {}
-  }
-  function pistaNecesaria() {
-    const dlg = document.getElementById('dialogoJuego');
-    const ficha = document.getElementById('dialogoEdificio');
-    if (esJuego && (dlg?.open || ficha?.open ||
-        (typeof lugarActual !== 'undefined' && (lugarActual === 'mapa' || lugarActual === 'esquivar')))) {
-      return 'minijuego';
+      activa = localStorage.getItem('edit_musica') !== 'no';
+    } catch (_) {}
+
+    function botonContenido() {
+      const frame = document.getElementById('editContenido');
+      try { frame?.contentWindow?.EDITAudio?.actualizarBoton?.(); } catch (_) {}
     }
-    return inicial;
-  }
-  function elegirPista() {
-    const pista = pistaNecesaria();
-    if (actual === pista) return;
-    actual = pista;
-    audio.pause();
-    audio.src = encodeURI(tracks[pista]);
-    if (activo && !teleConSonido) audio.play().catch(() => actualizarBoton());
-  }
-  function actualizarBoton() {
-    const suena = !audio.paused && !teleConSonido;
-    boton.classList.toggle('musica-activa', suena);
-    boton.setAttribute('aria-pressed', String(suena));
-    boton.setAttribute('aria-label', suena ? 'Silenciar música' : 'Activar música');
-    boton.title = suena ? 'Silenciar música' : 'Activar música';
-    boton.textContent = suena ? '♫' : '♪';
-  }
-  async function cambiarMusica() {
-    if (!activo) {
-      activo = true;
-      audioHabilitado = true;
-      guardarPreferencia(true);
-      if (!teleConSonido) {
-        try { await audio.play(); } catch (_) { activo = false; guardarPreferencia(false); }
+
+    function reproducir() {
+      if (!activa || enTelevisor) return;
+      if (pistaActual !== escenaActual) {
+        pistaActual = escenaActual;
+        reproductor.src = encodeURI(tracks[escenaActual]);
       }
-    } else {
-      activo = false;
-      audio.pause();
-      guardarPreferencia(false);
+      reproductor.play().catch(() => {});
+      botonContenido();
     }
-    actualizarBoton();
+
+    function cambiarMusica() {
+      if (activa && reproductor.paused && !enTelevisor) {
+        reproducir();
+        return;
+      }
+      activa = !activa;
+      try { localStorage.setItem('edit_musica', activa ? 'si' : 'no'); } catch (_) {}
+      if (!activa) reproductor.pause();
+      else reproducir();
+      botonContenido();
+    }
+
+    function efecto(nombre, volumen = .22) {
+      if (!effects[nombre]) return;
+      const sonido = new Audio(encodeURI(effects[nombre]));
+      sonido.volume = volumen;
+      sonidos.add(sonido);
+      const terminar = () => sonidos.delete(sonido);
+      sonido.addEventListener('ended', terminar, { once: true });
+      sonido.addEventListener('error', terminar, { once: true });
+      sonido.play().catch(terminar);
+      return sonido;
+    }
+
+    function registrarPagina(pagina, busqueda = '') {
+      const escenario = pagina === 'escenario.html';
+      escenaActual = escenario
+        ? new URLSearchParams(busqueda).get('ir') === 'universidad' ? 'minijuego' : 'casa'
+        : pagina === 'minijuego.html' || pagina === 'trivia.html' ? 'minijuego' : 'inicio';
+      reproducir();
+    }
+
+    function actualizarEscena(escena) {
+      if (!tracks[escena]) return;
+      escenaActual = escena;
+      reproducir();
+    }
+
+    function televisorConSonido(conSonido) {
+      enTelevisor = Boolean(conSonido);
+      if (enTelevisor) reproductor.pause();
+      else reproducir();
+      botonContenido();
+    }
+
+    function transicion() {
+      efecto('transicion', .45);
+      if (!volumenTemporal) {
+        volumenTemporal = true;
+        reproductor.volume = .08;
+        window.setTimeout(() => {
+          reproductor.volume = .22;
+          volumenTemporal = false;
+        }, 2900);
+      }
+    }
+
+    window.EDITAudio = {
+      efecto,
+      cambiarMusica,
+      musicaActiva: () => activa,
+      musicaSonando: () => !reproductor.paused || enTelevisor,
+      reproducir,
+      actualizarEscena,
+      televisorConSonido,
+      registrarPagina,
+      transicion
+    };
+    registrarPagina('index.html');
+    return;
   }
-  boton = document.createElement('button');
+
+  const nav = document.querySelector('.encabezado .navegacion');
+  if (!nav) return;
+  const controlador = window.parent !== window ? window.parent.EDITAudio : null;
+  if (!controlador) return;
+  const boton = document.createElement('button');
   boton.type = 'button';
   boton.className = 'control-musica';
-  boton.setAttribute('aria-label', 'Activar música');
   nav.appendChild(boton);
-  elegirPista();
-  actualizarBoton();
-  boton.addEventListener('click', cambiarMusica);
-  audio.addEventListener('play', actualizarBoton);
-  audio.addEventListener('pause', actualizarBoton);
 
-  try { activo = sessionStorage.getItem('edit_musica') === 'si'; } catch (_) {}
-  if (activo) {
-    // Puede bloquearse la reproducción automática después de navegar.
-    // Si ocurre, se reintenta al siguiente gesto real del usuario.
-    if (!teleConSonido) audio.play().catch(() => actualizarBoton());
-    document.addEventListener('pointerdown', () => {
-      if (activo && !teleConSonido && audio.paused) audio.play().catch(() => {});
-    }, { passive: true });
+  function actualizarBoton() {
+    const activa = controlador.musicaActiva();
+    boton.classList.toggle('musica-activa', activa);
+    boton.setAttribute('aria-pressed', String(activa));
+    const estado = activa
+      ? controlador.musicaSonando() ? 'Desactivar música' : 'Reproducir música'
+      : 'Activar música';
+    boton.setAttribute('aria-label', estado);
+    boton.title = estado;
+    boton.textContent = activa ? '♫' : '♪';
   }
-  if (esJuego) {
-    const cuadros = ['dialogoJuego', 'dialogoEdificio'];
-    const observer = new MutationObserver(() => { elegirPista(); });
-    cuadros.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el, { attributes: true, attributeFilter: ['open'] });
-    });
+
+  function escenaActual() {
+    if (location.pathname.endsWith('minijuego.html') || location.pathname.endsWith('trivia.html')) return 'minijuego';
+    if (!location.pathname.endsWith('escenario.html')) return 'inicio';
+    if (typeof lugarActual !== 'undefined' && lugarActual === 'mapa') return 'minijuego';
+    if (new URLSearchParams(location.search).get('ir') === 'universidad') return 'minijuego';
+    return 'casa';
   }
-  // API compartida entre trivia, juegos y televisor. No altera las rutas MP3.
+
   window.EDITAudio = {
-    efecto,
-    musicaActiva: () => activo,
-    actualizarEscena: elegirPista,
-    televisorConSonido(habilitado) {
-      teleConSonido = Boolean(habilitado);
-      if (teleConSonido) {
-        audio.pause();
-      } else if (activo) {
-        elegirPista();
-        audio.play().catch(() => {});
-      }
-      actualizarBoton();
-    }
+    efecto: controlador.efecto,
+    musicaActiva: controlador.musicaActiva,
+    actualizarBoton,
+    actualizarEscena: () => controlador.actualizarEscena(escenaActual()),
+    televisorConSonido: controlador.televisorConSonido,
+    transicion: controlador.transicion
   };
-  // Botones y enlaces: efectos puntuales, nunca sonidos repetidos por frame.
+
+  actualizarBoton();
+  controlador.actualizarEscena(escenaActual());
+  boton.addEventListener('click', () => controlador.cambiarMusica());
+  document.addEventListener('pointerdown', () => controlador.reproducir(), { passive: true });
+  document.addEventListener('keydown', () => controlador.reproducir());
+
   document.addEventListener('click', event => {
     const elemento = event.target.closest('a, button');
     if (!elemento || elemento === boton) return;
-    const principal = elemento.classList.contains('boton-caramelo') ||
-      elemento.classList.contains('boton-vamos-jugar') ||
+    if (elemento.closest('.portada-acciones') && elemento.matches('.boton-caramelo')) return;
+    const principal = elemento.classList.contains('boton-vamos-jugar') ||
       elemento.id === 'guardarPersonaje' || elemento.matches('.navegacion a');
-    if (elemento.id === 'narizPortada') efecto('mascota', .40);
-    else if (elemento.id === 'sorpresa' || elemento.id === 'saludar') efecto('mascota', .2);
-    else if (elemento.closest('#tableroJuego') && elemento.classList.contains('pieza-mini')) efecto('click', .15);
-    else efecto(principal ? 'entrar' : 'click', principal ? .27 : .17);
+    if (elemento.id === 'narizPortada') controlador.efecto('mascota', .40);
+    else if (elemento.id === 'sorpresa' || elemento.id === 'saludar') controlador.efecto('mascota', .20);
+    else if (elemento.closest('#tableroJuego') && elemento.classList.contains('pieza-mini')) controlador.efecto('click', .15);
+    else controlador.efecto(principal ? 'entrar' : 'click', principal ? .27 : .17);
   });
-  // Eventos de la casa: detección no intrusiva del mensaje o las burbujas.
-  if (esJuego) {
+
+  if (location.pathname.endsWith('escenario.html')) {
     document.addEventListener('pointerup', event => {
       if (!event.target.closest('#escenario')) return;
-      // El movimiento p5 se completa durante mouseReleased.
       window.setTimeout(() => {
         const texto = typeof mensaje === 'string' ? mensaje : '';
-        const t = typeof mensajeHasta === 'number' ? mensajeHasta : 0;
-        if (typeof millis !== 'function' || t <= millis()) return;
-        if (/manzana|comida|rica/i.test(texto)) efecto('comida', .23);
-        else if (/baño|jabon|jabón|reluciente/i.test(texto)) efecto('bano', .22);
+        const fin = typeof mensajeHasta === 'number' ? mensajeHasta : 0;
+        if (typeof millis !== 'function' || fin <= millis()) return;
+        if (/manzana|comida|rica/i.test(texto)) controlador.efecto('comida', .23);
+        else if (/baño|jabon|jabón|reluciente/i.test(texto)) controlador.efecto('bano', .22);
       }, 0);
     });
   }
-  window.addEventListener('pagehide', () => audio.pause());
 })();

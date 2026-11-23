@@ -1,4 +1,4 @@
-/* Catálogo: cada opción conserva el PNG original de Iris, recortado solo en su transparencia externa. */
+/* Catálogo de sprites y accesorios de la mascota. */
 const ARCHIVOS = {
   "head": [
     "head1.png"
