@@ -143,6 +143,41 @@ function crearFrasco(color) {
     return frasco;
 }
 
+function crearMishiLaboratorio() {
+    const ayudante = document.createElement('div');
+    ayudante.className = 'mishi-laboratorio';
+
+    const imagen = document.createElement('img');
+    imagen.alt = 'Mishi, ayudante del laboratorio';
+
+    // Capturamos al Mishi personalizado con p5.js
+    const alto = 190;
+    const ancho = Math.ceil(alto * ANCHO / ALTO);
+
+    push();
+    clear();
+    scale(alto / ALTO);
+    dibujarMascota({
+        caminando: false,
+        intensidad: 0,
+        fase: 0
+    });
+    pop();
+
+    const captura = get(0, 0, ancho, alto);
+    imagen.src = captura.canvas.toDataURL('image/png');
+
+    const mensaje = document.createElement('p');
+    mensaje.textContent = '¡Hola! Soy Mishi. ¡Vamos a experimentar con los colores!';
+
+    ayudante.append(imagen, mensaje);
+
+    return {
+        elemento: ayudante,
+        mensaje: mensaje
+    };
+}
+
 
 function iniciarMezclas() {
     const estado = minijuegoActual;
@@ -200,12 +235,63 @@ function iniciarMezclas() {
             par: ['azul', 'verde'],
             muestra: '#54c6b5',
             opciones: ['verde', 'rojo', 'azul', 'blanco']
+        },
+
+        {
+            color: 'lila',
+            par: ['violeta', 'blanco'],
+            muestra: '#d9c1f1',
+            opciones: ['violeta', 'amarillo', 'blanco', 'rojo']
+        },
+        {
+            color: 'verde lima',
+            par: ['verde', 'amarillo'],
+            muestra: '#b6d96c',
+            opciones: ['verde', 'azul', 'amarillo', 'rosa']
+        },
+        {
+            color: 'durazno',
+            par: ['naranja', 'blanco'],
+            muestra: '#ffd0a6',
+            opciones: ['naranja', 'violeta', 'blanco', 'verde']
+        },
+        {
+            color: 'rosa claro',
+            par: ['rosa', 'blanco'],
+            muestra: '#ffd8e3',
+            opciones: ['rosa', 'azul', 'blanco', 'amarillo']
+        },
+        {
+            color: 'azul oscuro',
+            par: ['azul', 'negro'],
+            muestra: '#355888',
+            opciones: ['azul', 'blanco', 'negro', 'verde']
+        },
+        {
+            color: 'verde oscuro',
+            par: ['verde', 'negro'],
+            muestra: '#376f4a',
+            opciones: ['verde', 'amarillo', 'negro', 'rosa']
+        },
+        {
+            color: 'gris',
+            par: ['blanco', 'negro'],
+            muestra: '#a9a9ae',
+            opciones: ['blanco', 'rojo', 'negro', 'amarillo']
+        },
+        {
+            color: 'amarillo claro',
+            par: ['amarillo', 'blanco'],
+            muestra: '#fff5b2',
+            opciones: ['amarillo', 'verde', 'blanco', 'violeta']
         }
+
     ];
 
 
 
     const tintes = {
+        negro: '#33333d',
         rojo: '#ef7185',
         azul: '#73c2ea',
         amarillo: '#ffe273',
@@ -217,15 +303,25 @@ function iniciarMezclas() {
     };
 
 
-    progresoJuego(0, rondas.length);
+    const mezclasPartida = [...rondas]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 10);
+
+    progresoJuego(0, mezclasPartida.length);
 
     function ronda() {
         board.replaceChildren();
         estado.seleccion = [];
 
-        const r = rondas[estado.pasos];
+        // Mishi acompaña el experimento
+        const mishi = crearMishiLaboratorio();
+        board.append(mishi.elemento);
+
+        const r = mezclasPartida[estado.pasos];
 
         mensajeJuego('Mezclá dos frascos para conseguir el color de la muestra.');
+
+
 
         // Frasco de muestra
         const muestra = document.createElement('div');
@@ -234,45 +330,129 @@ function iniciarMezclas() {
         const titulo = document.createElement('span');
         titulo.textContent = 'Muestra: ' + r.color;
 
+
+
         muestra.append(titulo, crearFrasco(r.muestra));
         board.append(muestra);
 
-        // Frascos disponibles para mezclar
-        r.opciones.forEach(nombre => {
+        // Recipiente donde se mezclan los líquidos
+        const zonaMezcla = document.createElement('div');
+        zonaMezcla.className = 'zona-mezcla';
+
+        const tituloMezcla = document.createElement('span');
+        tituloMezcla.textContent = 'Tu mezcla';
+
+        // Primero creamos el tubo
+        const tuboMezcla = crearFrasco('#e8f8ff');
+        tuboMezcla.classList.add('tubo-mezcla');
+
+        // Después obtenemos su líquido
+        const liquidoMezcla = tuboMezcla.querySelector('.liquido-mini');
+
+        // Permitimos comenzar una nueva mezcla
+        estado.bloqueado = false;
+
+        zonaMezcla.append(tituloMezcla, tuboMezcla);
+        board.append(zonaMezcla);
+
+
+        // Mezclar aleatoriamente las posiciones de los tubos
+        const opcionesMezcladas = [...r.opciones];
+
+        for (let i = opcionesMezcladas.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+
+            const temporal = opcionesMezcladas[i];
+            opcionesMezcladas[i] = opcionesMezcladas[j];
+            opcionesMezcladas[j] = temporal;
+        }
+
+        // Crear los tubos en el nuevo orden
+        opcionesMezcladas.forEach(nombre => {
             const tono = tintes[nombre];
+
+
             const boton = botonJuego(nombre, () => {
-                if (estado.seleccion.includes(nombre)) {
+                // No permitir más selecciones mientras se mezcla
+                if (estado.bloqueado || estado.seleccion.includes(nombre)) {
                     return;
                 }
 
                 estado.seleccion.push(nombre);
                 boton.classList.add('acertada');
 
+                // Primer líquido seleccionado
+                if (estado.seleccion.length === 1) {
+                    liquidoMezcla.style.background = tono;
+                    liquidoMezcla.style.height = '32%';
+
+                    mensajeJuego('¡Primer color agregado! Elegí el segundo tubo.');
+                }
+
+                // Segundo líquido seleccionado
                 if (estado.seleccion.length === 2) {
+                    estado.bloqueado = true;
+
                     const correcto = r.par.every(color =>
                         estado.seleccion.includes(color)
                     );
 
+                    // Mostramos el resultado de la mezcla
+                    liquidoMezcla.style.background = correcto
+                        ? r.muestra
+                        : '#9b8e91';
+
+                    liquidoMezcla.style.height = '62%';
+
+
+
                     if (correcto) {
-                        estado.pasos++;
-                        progresoJuego(estado.pasos, rondas.length);
+                        mensajeJuego('¡Excelente! ¡Conseguiste el color de la muestra!');
 
-                        if (estado.pasos === rondas.length) {
-                            finalizarJuego();
-                        } else {
-                            ronda();
-                        }
+                        mishi.mensaje.textContent =
+                            '¡Lo logramos! ¡Qué buen experimento!';
+
+                        mishi.elemento.classList.add('mishi-acierto');
                     } else {
-                        mensajeJuego('¡Esa mezcla no coincide con la muestra! Intentá otra combinación.');
+                        mensajeJuego('¡La mezcla no coincide! Intentá nuevamente.');
 
-                        estado.seleccion = [];
+                        mishi.mensaje.textContent =
+                            '¡Ups! Probemos con otros colores.';
 
-                        board.querySelectorAll('.tinte-mini').forEach(b => {
-                            b.classList.remove('acertada');
-                        });
+                        mishi.elemento.classList.add('mishi-error');
                     }
+
+
+
+                    // Dejamos que el jugador vea el resultado
+                    window.setTimeout(() => {
+                        if (minijuegoActual !== estado || estado.terminado) {
+                            return;
+                        }
+
+                        if (correcto) {
+                            estado.pasos++;
+                            progresoJuego(estado.pasos, mezclasPartida.length);
+
+                            if (estado.pasos === mezclasPartida.length) {
+                                finalizarJuego();
+                            } else {
+                                ronda();
+                            }
+                        } else {
+                            estado.seleccion = [];
+                            estado.bloqueado = false;
+
+                            liquidoMezcla.style.height = '0%';
+
+                            board.querySelectorAll('.tinte-mini').forEach(b => {
+                                b.classList.remove('acertada');
+                            });
+                        }
+                    }, 1500);
                 }
             }, 'tinte-mini');
+
 
             boton.replaceChildren();
 
