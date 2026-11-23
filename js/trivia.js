@@ -150,6 +150,206 @@ const preguntas = [
             "La cantidad de imágenes que lo acompañan"
         ],
         correcta: 2
+    },
+    {
+        pregunta: "¿Qué función cumple HTML en una página web?",
+        opciones: [
+            "Definir la estructura y el contenido de la página",
+            "Controlar únicamente las animaciones",
+            "Modificar la velocidad del procesador",
+            "Crear exclusivamente efectos visuales"
+        ],
+        correcta: 0
+    },
+    {
+        pregunta: "¿Qué atributo se utiliza en una etiqueta <link> para vincular un archivo CSS?",
+        opciones: [
+            "src",
+            "href",
+            "class",
+            "rel"
+        ],
+        correcta: 1
+    },
+    {
+        pregunta: "¿Qué atributo utiliza normalmente la etiqueta <script> para cargar un archivo JavaScript externo?",
+        opciones: [
+            "href",
+            "rel",
+            "src",
+            "style"
+        ],
+        correcta: 2
+    },
+    {
+        pregunta: "¿Para qué se utiliza la etiqueta <script> en HTML?",
+        opciones: [
+            "Para definir el tamaño de las imágenes",
+            "Para crear exclusivamente títulos",
+            "Para establecer los colores de la página",
+            "Para incorporar o vincular código JavaScript"
+        ],
+        correcta: 3
+    },
+    {
+        pregunta: "¿Qué significa DOM?",
+        opciones: [
+            "Document Object Model",
+            "Digital Output Method",
+            "Design Order Mode",
+            "Data Operation Module"
+        ],
+        correcta: 0
+    },
+    {
+        pregunta: "¿Qué permite hacer el DOM desde JavaScript?",
+        opciones: [
+            "Cambiar únicamente la resolución de la pantalla",
+            "Acceder a elementos HTML y modificarlos",
+            "Editar automáticamente todos los archivos CSS del proyecto",
+            "Reemplazar el navegador"
+        ],
+        correcta: 1
+    },
+    {
+        pregunta: "¿Para qué se utiliza querySelector() en JavaScript?",
+        opciones: [
+            "Para crear un ciclo de repetición",
+            "Para dibujar figuras geométricas",
+            "Para seleccionar un elemento del documento mediante un selector",
+            "Para cargar automáticamente una imagen"
+        ],
+        correcta: 2
+    },
+    {
+        pregunta: "¿Qué sucede al utilizar textContent en un elemento del DOM?",
+        opciones: [
+            "Se modifica el tamaño de la pantalla",
+            "Se cambia automáticamente su color",
+            "Se elimina el archivo HTML",
+            "Se accede o modifica el contenido textual del elemento"
+        ],
+        correcta: 3
+    },
+    {
+        pregunta: "¿Qué función cumple setup() en p5.js?",
+        opciones: [
+            "Se ejecuta una vez al comenzar el sketch y permite inicializarlo",
+            "Se ejecuta continuamente para dibujar cada fotograma",
+            "Se ejecuta únicamente cuando se mueve el mouse",
+            "Se utiliza exclusivamente para cerrar el canvas"
+        ],
+        correcta: 0
+    },
+    {
+        pregunta: "¿Cuál es la función principal de draw() en p5.js?",
+        opciones: [
+            "Crear el archivo HTML",
+            "Ejecutarse repetidamente para producir el dibujo y las animaciones",
+            "Cargar la biblioteca CSS",
+            "Ejecutarse una sola vez al iniciar"
+        ],
+        correcta: 1
+    },
+    {
+        pregunta: "¿Qué sucede cuando se utiliza background() dentro de draw()?",
+        opciones: [
+            "Se modifica el tamaño del canvas",
+            "Se agrega una nueva figura",
+            "Se pinta el fondo y puede cubrir los dibujos del fotograma anterior",
+            "Se detiene la ejecución de draw()"
+        ],
+        correcta: 2
+    },
+    {
+        pregunta: "En p5.js, ¿qué representa la variable width?",
+        opciones: [
+            "La posición vertical del mouse",
+            "La cantidad de fotogramas",
+            "El color de fondo",
+            "El ancho del canvas"
+        ],
+        correcta: 3
+    },
+    {
+        pregunta: "¿Qué permite realizar un ciclo for en JavaScript?",
+        opciones: [
+            "Repetir instrucciones una determinada cantidad de veces o mientras se cumpla una condición",
+            "Crear únicamente variables de texto",
+            "Cambiar automáticamente el HTML",
+            "Detener todas las funciones"
+        ],
+        correcta: 0
+    },
+    {
+        pregunta: "¿Qué sucede si una variable x vale 10 y ejecutamos x += 5?",
+        opciones: [
+            "x pasa a valer 5",
+            "x pasa a valer 15",
+            "x pasa a valer 50",
+            "x permanece en 10"
+        ],
+        correcta: 1
+    },
+    {
+        pregunta: "¿Qué operador representa la condición lógica OR (O) en JavaScript?",
+        opciones: [
+            "&&",
+            "!",
+            "||",
+            "==="
+        ],
+        correcta: 2
+    },
+    {
+        pregunta: "¿Qué ocurre cuando se utiliza push() y luego pop() en p5.js?",
+        opciones: [
+            "Se elimina todo el canvas",
+            "Se reinician todas las variables",
+            "Se detiene el ciclo draw()",
+            "Se guarda y restaura el estado de dibujo y las transformaciones"
+        ],
+        correcta: 3
+    },
+    {
+        pregunta: "¿Para qué se utiliza translate() en p5.js?",
+        opciones: [
+            "Para desplazar el origen del sistema de coordenadas",
+            "Para cambiar automáticamente el color",
+            "Para borrar una figura",
+            "Para detener las animaciones"
+        ],
+        correcta: 0
+    },
+    {
+        pregunta: "¿Qué permite utilizar keyIsDown() dentro de draw()?",
+        opciones: [
+            "Detectar exclusivamente el clic del mouse",
+            "Comprobar si una tecla está presionada y generar acciones mientras lo está",
+            "Cambiar el contenido de un archivo CSS",
+            "Crear una nueva página HTML"
+        ],
+        correcta: 1
+    },
+    {
+        pregunta: "¿Qué sucede si dibujamos primero un rectángulo y después un círculo opaco encima en el mismo canvas?",
+        opciones: [
+            "El rectángulo desaparece completamente",
+            "Ambas figuras se trasladan",
+            "El círculo cubre la zona del rectángulo donde se superponen",
+            "El canvas cambia de tamaño"
+        ],
+        correcta: 2
+    },
+    {
+        pregunta: "¿Cuál es la diferencia entre modificar una variable de JavaScript y modificar un elemento del DOM?",
+        opciones: [
+            "No existe ninguna diferencia",
+            "Modificar una variable siempre modifica el HTML",
+            "El DOM solo puede utilizarse desde CSS",
+            "Modificar una variable cambia un dato del programa, mientras que modificar el DOM puede cambiar lo que se representa en la página"
+        ],
+        correcta: 3
     }
 
 ];
