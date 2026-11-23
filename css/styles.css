@@ -111,14 +111,6 @@ input:focus-visible {
     padding: 25px 20px;
 }
 
-.eyebrow {
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: #ae86bf;
-    font-weight: 900;
-    margin: 0 0 15px;
-}
-
 h1 {
     font-size: 26px;
     line-height: 1.16;
@@ -1200,9 +1192,6 @@ a.mapa-lugar:hover {
 .modal-edificio h2 {
     margin: 5px 40px 7px 0;
     font-size: 29px;
-}
-.modal-edificio .eyebrow {
-    margin: 0 35px 6px 0;
 }
 .modal-edificio .muted {
     font-size: 14px;
