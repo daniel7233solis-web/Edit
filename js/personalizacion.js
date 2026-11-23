@@ -155,6 +155,9 @@ function aleatorio(lista) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Recuperar la configuración antes de mostrar las opciones.
+  cargarMascota();
+  
   CATEGORIAS.forEach(categoria => {
     const boton = document.createElement('button');
     const icono = document.createElement('span');
