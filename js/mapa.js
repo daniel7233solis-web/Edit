@@ -22,7 +22,7 @@ function dibujarMapa() {
     // Universidad EDIT
     dibujarUniversidad(650, 270, 0.7);
 }
-//prueba de subir
+
 function dibujarCasaMapa(x, y, s) {
     push();
     translate(x, y);

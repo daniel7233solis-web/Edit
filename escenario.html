@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 
-<body>
+<body class="pagina-juego">
 
     <header class="encabezado">
         <a href="index.html" class="logo">EDIT</a>
@@ -21,13 +21,20 @@
         </nav>
     </header>
 
-    <main class="contenido-principal">
-        <div id="escenario"></div>
+    <main class="contenido-principal contenido-juego">
+        <div class="juego-marco">
+            <div id="escenario" role="application" aria-label="Casa interactiva de EDIT"></div>
+            <div class="controles-tactiles" aria-label="Mover a Mishi">
+                <button id="caminarIzquierda" type="button" aria-label="Caminar a la izquierda">◀</button>
+                <button id="caminarDerecha" type="button" aria-label="Caminar a la derecha">▶</button>
+            </div>
+        </div>
     </main>
     <script src="lib/p5.js"></script>
     <script src="js/assets.js"></script>
     <script src="js/mascota.js"></script>
     <script src="js/mapa.js"></script>
+    <script src="js/actividades.js"></script>
     <script src="js/casa.js"></script>
 </body>
 

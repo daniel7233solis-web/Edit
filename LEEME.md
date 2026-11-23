@@ -1,29 +1,47 @@
-# EDIT — Base del creador de mascotas
+# EDIT — Prototipo de mascota y casa interactiva
 
-## Abrir
-Abrir `index.html` con Live Server desde VS Code. No se necesita npm ni conexión para p5.js (la biblioteca está incluida). La tipografía Nunito se carga desde Google Fonts si hay conexión.
+## Cómo abrirlo
 
-## Origen de los dibujos
-Los 28 PNG de `img/partes/` son las ilustraciones originales de Iris tomadas de `EDIT(1).rar`, carpeta `body en tamaño original`. Solo se eliminaron **márgenes transparentes externos** para simplificar la colocación; los trazos y las formas NO se redibujaron ni deformaron. `peluca 1.png` y `peluca 5.png` son las versiones independientes; `peluca 1-01.png` contiene el cuerpo y no sirve como capa.
+1. Abrí la carpeta **EDIT** en Visual Studio Code.
+2. Iniciá **Live Server** en `index.html` (no abras el HTML directamente mediante `file://`).
+3. Entrá a **Crear personaje**. Podés elegir rasgos, remeras, falda/short, conjuntos y calzado.
+4. Los cambios se guardan automáticamente en el almacenamiento local del navegador; el botón **Guardar personaje** permite confirmarlo de forma visible. **Descargar imagen PNG** es una acción diferente.
+5. Entrá en **Jugar**, presioná **JUGAR** y explorá la casa con **A/D** o las flechas. En celulares, usá los controles táctiles.
+6. Los cuatro botones inferiores abren actividades de cursor; también se puede hacer clic sobre objetos cuando Mishi está cerca. La puerta del living lleva al mapa.
 
-## Cómo se ubican
-El lienzo lógico de composición es de 844 × 1227, igual que los ejemplos de pelucas. El cuerpo de 801 × 1000 se ubica dentro de ese lienzo; no se estira. Las seis pelucas están colocadas con las coordenadas visibles de sus respectivos ejemplos. Las facciones siguen la referencia del rostro.
+No se requieren npm ni instalaciones externas. `lib/p5.js` está incluido. Nunito se obtiene de Google Fonts cuando hay conexión y dispone de alternativas locales.
 
-Para cambiar posiciones, editar **solo `POSICIONES`** en `js/mascota.js`. Cada pieza se dibuja con su tamaño original; las cejas usan escala proporcional 0,90 para ajustarse a la guía facial.
+## Ilustraciones
 
-## Archivos
-- `index.html`: estructura de tres columnas.
-- `css/styles.css`: estilos y diseño adaptable.
-- `js/assets.js`: nombres de PNG y paletas.
-- `js/mascota.js`: composición, coloración y animación en p5.js.
-- `js/personalizacion.js`: botones y controles.
-- `img/partes/`: ilustraciones de Iris.
+Los PNG originales de Iris permanecen intactos en `img/partes/` y `img/ropa/`. `img/miniaturas/` contiene recortes de **vista previa**, generados a partir de los PNG originales; no se utilizaron para reemplazar las capas del personaje. Las imágenes de referencia de vestuario están en `referencias/ejemplos-outfits/`.
 
-## Animaciones y evolución
-`draw()` llama a `dibujarMascota()`. Cada brazo y pierna tiene un pivote separado para incorporar estados `walk`, `run` y `jump` más adelante. En esta versión se implementan respiración y saludo leve. Los futuros movimientos todavía **no están implementados**.
+Las capas del rostro y el pelo comparten las mismas coordenadas y transformaciones: no reciben animaciones independientes ni escala variable durante la caminata. Se conservaron sus posiciones específicas en `POSICIONES`, sin retocar los seis encastres de las pelucas. La composición lógica original mide 844 × 1227; el creador agrega margen transparente exterior para evitar recortes durante el saludo.
 
-## Comprobación realizada
-Se verificó la sintaxis de los tres archivos JavaScript y se generó una composición estática a partir de las piezas recortadas, incluida en `referencias/composicion_estatica_prueba.png`. La prueba automatizada del navegador no pudo confirmar la carga de las imágenes en el entorno aislado: comprobar en Live Server antes de darlo por definitivo.
+## Organización
 
-## Pruebas recomendadas
-Verificar todas las pelucas y expresiones, cambiar los colores, activar/desactivar animación, saludar, aleatorizar y exportar PNG. Los controles usan JavaScript nativo y la biblioteca p5.js local.
+- `js/assets.js`: catálogo de piezas, ropa, colores y carga de imágenes.
+- `js/mascota.js`: estado persistente, dibujo de capas y articulaciones.
+- `js/personalizacion.js`: categorías, guardado y selección de vestuario.
+- `js/casa.js`: escenario, movimiento, cámara, navegación y HUD de actividades.
+- `js/actividades.js`: minijuegos de arrastrar, recorrer o tocar elementos; sin barras ni premios automáticos.
+- `js/mapa.js`: mapa existente.
+- `css/styles.css`: interfaz y adaptación a escritorio/celular.
+
+La vista del escenario se ajusta al ancho y alto disponibles **sin deformar el juego**. JUGAR ya no solicita pantalla completa.
+
+## Actividades
+
+- **Dormir:** mantener presionado y seguir cinco estrellas en orden.
+- **Bañar:** arrastrar el cursor para limpiar ocho burbujas.
+- **Comer:** llevar tres manzanas a un objetivo.
+- **Jugar:** hacer clic en cinco destellos animados.
+
+Las acciones deben completarse; no modifican barras de energía, hambre, higiene o diversión (el HUD anterior fue retirado).
+
+## Alcance y próximas ilustraciones
+
+La caminata usa las piezas articuladas entregadas: brazos y piernas en contrafase, suavizado de inicio y frenada, y balanceo leve del torso sin rebote global. La dirección se refleja horizontalmente y la cabeza se mantiene rígida junto al pelo. **No hay ilustraciones laterales reales entre los archivos recibidos**, de modo que esta etapa crea una caminata de títere 2.5D, no un perfil lateral dibujado de cero. Para obtener una vista lateral idéntica a un juego con sprites de frente/perfil, hará falta ilustrar las poses laterales de Mishi.
+
+## Comprobaciones
+
+Se validó sintaxis de todos los archivos JavaScript y se ejecutaron pruebas con Chromium en escritorio y viewport móvil: creación de personaje, combinación de vestuario y calzado, guardado, ingreso al juego sin pantalla completa, caminata y finalización de las cuatro actividades. Durante esas comprobaciones no se registraron errores de JavaScript. Se recomienda probar de nuevo en el navegador de destino con Live Server antes de entregar el trabajo.

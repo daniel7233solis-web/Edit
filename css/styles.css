@@ -339,8 +339,18 @@ h3 {
 
 .choice img {
     width: 100%;
-    height: 61px;
+    height: 72px;
     object-fit: contain;
+}
+
+.choice:focus-visible,
+.cat:focus-visible {
+    outline: 3px solid #a77ec9;
+    outline-offset: 2px;
+}
+
+.choices .choice span:last-child {
+    line-height: 1.25;
 }
 
 .colors-area {
@@ -371,6 +381,25 @@ h3 {
     margin-top: 30px;
     border-top: 1px solid var(--line);
     padding-top: 20px;
+}
+
+.save-note {
+    margin: 9px 0 13px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #568b64;
+}
+
+.opcion-sin-prenda {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 52px;
+    border-radius: 16px;
+    background: #fff;
+    color: #ad88bb;
+    font-size: 32px;
 }
 
 .save-area label {
@@ -644,6 +673,98 @@ dialog p {
     margin: 0 auto;
     padding: 32px;
     box-sizing: border-box;
+}
+
+/* Juego: lienzo proporcional que utiliza TODO el espacio libre de la página. */
+.pagina-juego {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 540px;
+    overflow: hidden;
+}
+
+.pagina-juego .encabezado {
+    flex: 0 0 auto;
+    padding: 14px clamp(12px, 2.5vw, 32px);
+}
+
+.contenido-principal.contenido-juego {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-width: none;
+    padding: 0 clamp(9px, 1.5vw, 24px) clamp(9px, 1.5vw, 20px);
+    display: flex;
+}
+
+.juego-marco {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border: 3px solid #dcb9d0;
+    border-radius: 24px;
+    background: #e3f2dc;
+    box-shadow: 0 14px 36px #54425c1c;
+}
+
+#escenario {
+    width: 100%;
+    height: 100%;
+}
+
+#escenario canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    touch-action: none;
+}
+
+.controles-tactiles {
+    display: none;
+}
+
+@media (max-width: 690px) {
+    .pagina-juego {
+        min-height: 610px;
+    }
+
+    .pagina-juego .encabezado {
+        gap: 8px;
+        padding: 10px 12px;
+    }
+
+    .pagina-juego .navegacion {
+        gap: 4px;
+    }
+
+    .pagina-juego .navegacion a {
+        padding: 7px 8px;
+        font-size: 11px;
+    }
+
+    .pagina-juego.juego-activo .controles-tactiles {
+        display: flex;
+        position: absolute;
+        left: 12px;
+        bottom: 96px;
+        gap: 8px;
+        z-index: 2;
+        touch-action: none;
+    }
+
+    .controles-tactiles button {
+        width: 45px;
+        height: 45px;
+        border-radius: 14px;
+        border: 2px solid #493d46;
+        background: #fff9efe9;
+        color: #493d46;
+        font-weight: 900;
+        touch-action: none;
+    }
 }
 
 /* Tarjetas de novedades */

@@ -1,4 +1,4 @@
-/* EDIT · Interfaz de personalización. No contiene coordenadas ni dibuja la mascota. */
+/* EDIT · Opciones de personalización. Los PNG originales se conservan. */
 const CATEGORIAS = [
   { key: 'hair', titulo: 'Pelucas', icono: '✿', desc: 'Elegí el peinado que más te guste.' },
   { key: 'skin', titulo: 'Piel', icono: '♡', desc: 'Cambiá el tono de piel.' },
@@ -6,11 +6,26 @@ const CATEGORIAS = [
   { key: 'brows', titulo: 'Cejas', icono: '⌣', desc: 'Cambiá su expresión.' },
   { key: 'nose', titulo: 'Nariz', icono: '♥', desc: 'Elegí una nariz.' },
   { key: 'mouth', titulo: 'Boca', icono: '☺', desc: 'Elegí su sonrisa.' },
-  { key: 'ears', titulo: 'Orejas', icono: '✧', desc: 'Elegí las orejas de tu mascota.' }
+  { key: 'ears', titulo: 'Orejas', icono: '✧', desc: 'Elegí las orejas de tu mascota.' },
+  { key: 'ropaSuperior', titulo: 'Remeras', icono: '♧', desc: 'Elegí la parte superior. Un conjunto se desactiva al elegir una remera.' },
+  { key: 'ropaInferior', titulo: 'Faldas y shorts', icono: '✦', desc: 'Elegí la prenda inferior. Un conjunto se desactiva al elegir una falda o shorts.' },
+  { key: 'conjunto', titulo: 'Conjuntos', icono: '★', desc: 'Los conjuntos reemplazan la remera y la prenda inferior, pero conservan el calzado.' },
+  { key: 'calzado', titulo: 'Calzado', icono: '❀', desc: 'Elegí zapatos, zapatillas o dejá a Mishi descalzo.' }
 ];
 
-let categoriaActual = 'hair';
+const PRENDAS_POR_CATEGORIA = {
+  ropaSuperior: ROPA.superiores,
+  ropaInferior: ROPA.inferiores,
+  conjunto: ROPA.conjuntos,
+  calzado: ROPA.calzado
+};
 const elemento = id => document.getElementById(id);
+let categoriaActual = 'hair';
+
+function notificarAutoguardado() {
+  guardarMascota();
+  elemento('estado').textContent = '✓ Cambios guardados automáticamente';
+}
 
 function elegirCategoria(key) {
   categoriaActual = key;
@@ -23,9 +38,33 @@ function elegirCategoria(key) {
     boton.classList.toggle('active', activo);
     boton.setAttribute('aria-pressed', String(activo));
   });
-
   mostrarOpciones();
   mostrarColores();
+}
+
+function crearOpcion(nombre, src, elegido, alElegir) {
+  const boton = document.createElement('button');
+  boton.type = 'button';
+  boton.className = 'choice' + (elegido ? ' selected' : '');
+  boton.setAttribute('aria-pressed', String(elegido));
+  boton.setAttribute('aria-label', nombre);
+  if (src) {
+    const imagen = document.createElement('img');
+    imagen.src = src;
+    imagen.alt = '';
+    imagen.loading = 'lazy';
+    boton.append(imagen);
+  } else {
+    const icono = document.createElement('span');
+    icono.className = 'opcion-sin-prenda';
+    icono.textContent = '✧';
+    boton.append(icono);
+  }
+  const texto = document.createElement('span');
+  texto.textContent = nombre;
+  boton.append(texto);
+  boton.addEventListener('click', alElegir);
+  return boton;
 }
 
 function mostrarOpciones() {
@@ -40,62 +79,60 @@ function mostrarOpciones() {
     return;
   }
 
+  if (PRENDAS_POR_CATEGORIA[categoriaActual]) {
+    const puedeQuitar = categoriaActual !== 'ropaSuperior' && categoriaActual !== 'ropaInferior';
+    if (puedeQuitar) {
+      const etiqueta = categoriaActual === 'conjunto' ? 'Sin conjunto' : 'Descalzo';
+      contenedor.append(crearOpcion(etiqueta, null,
+        estadoMascota[categoriaActual] === 'ninguno', () => {
+          estadoMascota[categoriaActual] = 'ninguno';
+          notificarAutoguardado();
+          mostrarOpciones();
+        }));
+    }
+    PRENDAS_POR_CATEGORIA[categoriaActual].forEach(prenda => {
+      const imagen = 'img/miniaturas/' + prenda.completa;
+      contenedor.append(crearOpcion(prenda.nombre, imagen,
+        estadoMascota[categoriaActual] === prenda.id, () => {
+          estadoMascota[categoriaActual] = prenda.id;
+          if (categoriaActual === 'ropaSuperior' || categoriaActual === 'ropaInferior') {
+            estadoMascota.conjunto = 'ninguno';
+          }
+          notificarAutoguardado();
+          mostrarOpciones();
+        }));
+    });
+    return;
+  }
+
   ARCHIVOS[categoriaActual].forEach((archivo, indice) => {
     const numero = indice + 1;
-    const boton = document.createElement('button');
-    const imagen = document.createElement('img');
-    const texto = document.createElement('span');
-
-    boton.type = 'button';
-    boton.className = 'choice' + (estadoMascota[categoriaActual] === numero ? ' selected' : '');
-    boton.setAttribute('aria-label', 'Opción ' + numero);
-    imagen.src = 'img/partes/' + archivo;
-    imagen.alt = '';
-    texto.textContent = 'Opción ' + numero;
-
-    boton.append(imagen, texto);
-    boton.addEventListener('click', () => {
-      estadoMascota[categoriaActual] = numero;
-      guardarMascota();
-      mostrarOpciones();
-    });
-    contenedor.append(boton);
+    contenedor.append(crearOpcion('Opción ' + numero,
+      'img/partes/' + archivo,
+      estadoMascota[categoriaActual] === numero,
+      () => {
+        estadoMascota[categoriaActual] = numero;
+        notificarAutoguardado();
+        mostrarOpciones();
+      }));
   });
 }
 
 function mostrarColores() {
   let tipo = null;
-
-  if (categoriaActual === 'skin') {
-    tipo = 'skin';
-  } else if (categoriaActual === 'hair') {
-    tipo = 'hairColor';
-  } else if (categoriaActual === 'nose') {
-    tipo = 'noseColor';
-  }
+  if (categoriaActual === 'skin') tipo = 'skin';
+  else if (categoriaActual === 'hair') tipo = 'hairColor';
+  else if (categoriaActual === 'nose') tipo = 'noseColor';
 
   elemento('colores').hidden = !tipo;
   if (!tipo) return;
+  elemento('tituloColores').textContent = tipo === 'skin'
+    ? 'Tono de piel' : tipo === 'hairColor' ? 'Color de pelo' : 'Color de nariz';
 
-  if (tipo === 'skin') {
-    elemento('tituloColores').textContent = 'Tono de piel';
-  } else if (tipo === 'hairColor') {
-    elemento('tituloColores').textContent = 'Color de pelo';
-  } else {
-    elemento('tituloColores').textContent = 'Color de nariz';
-  }
+  const paleta = tipo === 'skin' ? COLORES_PIEL
+    : tipo === 'hairColor' ? COLORES_PELO : COLORES_NARIZ;
   const contenedor = elemento('muestras');
   contenedor.replaceChildren();
-  let paleta;
-
-  if (tipo === 'skin') {
-    paleta = COLORES_PIEL;
-  } else if (tipo === 'hairColor') {
-    paleta = COLORES_PELO;
-  } else {
-    paleta = COLORES_NARIZ;
-  }
-
   paleta.forEach(color => {
     const boton = document.createElement('button');
     boton.type = 'button';
@@ -103,17 +140,14 @@ function mostrarColores() {
     boton.style.backgroundColor = color;
     boton.title = color;
     boton.setAttribute('aria-label', 'Color ' + color);
+    boton.setAttribute('aria-pressed', String(estadoMascota[tipo] === color));
     boton.addEventListener('click', () => {
       estadoMascota[tipo] = color;
-      guardarMascota();
+      notificarAutoguardado();
       mostrarColores();
     });
     contenedor.append(boton);
   });
-}
-
-function mensaje(texto) {
-  elemento('estado').textContent = texto;
 }
 
 function aleatorio(lista) {
@@ -139,40 +173,42 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   elegirCategoria('hair');
-  elemento('animar').addEventListener('change', event => {
-    estadoMascota.animar = event.target.checked;
+  elemento('estado').textContent = '✓ Tus cambios se conservan en este navegador';
+  elemento('nombre').addEventListener('input', notificarAutoguardado);
+  elemento('animar').addEventListener('change', evento => {
+    estadoMascota.animar = evento.target.checked;
   });
-  elemento('saludar').addEventListener('click', () => {
-    estadoMascota.saludo = 1;
-  });
+  elemento('saludar').addEventListener('click', () => { estadoMascota.saludo = 1; });
   elemento('sorpresa').addEventListener('click', () => {
     ['hair', 'eyes', 'brows', 'nose', 'mouth', 'ears'].forEach(tipo => {
       estadoMascota[tipo] = 1 + Math.floor(Math.random() * ARCHIVOS[tipo].length);
     });
     estadoMascota.skin = aleatorio(COLORES_PIEL);
     estadoMascota.hairColor = aleatorio(COLORES_PELO);
-
-    guardarMascota();
-
+    estadoMascota.ropaSuperior = aleatorio(ROPA.superiores).id;
+    estadoMascota.ropaInferior = aleatorio(ROPA.inferiores).id;
+    estadoMascota.conjunto = Math.random() < 0.3 ? aleatorio(ROPA.conjuntos).id : 'ninguno';
+    estadoMascota.calzado = Math.random() < 0.3 ? 'ninguno' : aleatorio(ROPA.calzado).id;
+    notificarAutoguardado();
     mostrarOpciones();
     mostrarColores();
-    mensaje('¡Nueva combinación! ✨');
+    elemento('estado').textContent = '¡Nueva combinación guardada! ✨';
   });
-
+  elemento('guardarPersonaje').addEventListener('click', () => {
+    guardarMascota();
+    elemento('estado').textContent = '✓ Personaje guardado. ¡Ya podés ir a jugar!';
+  });
   elemento('guardar').addEventListener('click', exportarMascota);
-
   elemento('guardarConfig').addEventListener('click', async () => {
     const configuracion = JSON.stringify({
       nombre: elemento('nombre').value,
       ...estadoMascota
     }, null, 2);
-
     try {
       await navigator.clipboard.writeText(configuracion);
-      mensaje('¡Configuración copiada!');
+      elemento('estado').textContent = '¡Configuración copiada!';
     } catch (error) {
-      mensaje('No se pudo copiar automáticamente.');
+      elemento('estado').textContent = 'No se pudo copiar automáticamente.';
     }
   });
-
 });

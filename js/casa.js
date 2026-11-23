@@ -1,7 +1,7 @@
 
 /* EDIT · Casa explorable · p5.js 1.x
    A/D o flechas: caminar · Mouse: interactuar
-   PLAY: pantalla completa · Esc: salir
+   Las actividades del juego requieren interacción real con el cursor.
 */
 
 const CASA = {
@@ -32,7 +32,9 @@ let personaje = {
     y: CASA.suelo,
     velocidad: 0,
     mirando: 1,
-    caminando: false
+    caminando: false,
+    intensidad: 0,
+    fase: 0
 };
 
 
@@ -46,12 +48,9 @@ let heladeraAbierta = false;
 let mensaje = '';
 let mensajeHasta = 0;
 
-let energia = 75;
-let hambre = 65;
-let higiene = 80;
-let diversion = 60;
-
 let botones = {};
+let escalaMundo = 1;
+const controlTactil = { izquierda: false, derecha: false };
 
 const objetos = [
     { nombre: 'Cama', x: 245, y: 310, w: 260, h: 170, accion: 'dormir' },
@@ -65,23 +64,50 @@ function preload() {
 }
 function setup() {
     cargarMascota();
-
-    const canvas = createCanvas(CASA.vista, CASA.alto);
     const destino = document.getElementById('escenario');
-
-    if (destino) {
-        canvas.parent(destino);
-    }
-
+    const lienzo = createCanvas(900, 550);
+    if (destino) lienzo.parent(destino);
     pixelDensity(1);
     strokeCap(ROUND);
     strokeJoin(ROUND);
     textFont('Arial');
+    ajustarLienzo();
+    configurarControlesTactiles();
+}
+
+function ajustarLienzo() {
+    const destino = document.getElementById('escenario');
+    if (!destino) return;
+    resizeCanvas(Math.max(300, Math.floor(destino.clientWidth)),
+        Math.max(380, Math.floor(destino.clientHeight)));
+    escalaMundo = height / CASA.alto;
+}
+
+function windowResized() {
+    ajustarLienzo();
+}
+
+function configurarControlesTactiles() {
+    for (const [selector, direccion] of [['#caminarIzquierda', 'izquierda'],
+        ['#caminarDerecha', 'derecha']]) {
+        const boton = document.querySelector(selector);
+        if (!boton) continue;
+        boton.addEventListener('pointerdown', evento => {
+            evento.preventDefault();
+            boton.setPointerCapture(evento.pointerId);
+            controlTactil[direccion] = true;
+        });
+        const detener = () => { controlTactil[direccion] = false; };
+        boton.addEventListener('pointerup', detener);
+        boton.addEventListener('pointercancel', detener);
+        boton.addEventListener('lostpointercapture', detener);
+    }
 }
 
 function draw() {
+    document.body.classList.toggle('juego-activo', jugando && lugarActual === 'casa');
     background(C.crema);
-
+    escalaMundo = height / CASA.alto;
 
     if (!jugando) {
         dibujarPortada();
@@ -90,70 +116,48 @@ function draw() {
 
     if (lugarActual === 'mapa') {
         dibujarMapa();
+        dibujarIndicacionMapa();
         return;
     }
 
-    actualizarMovimiento();
+    if (!actividadActiva) actualizarMovimiento();
 
-
+    // El escenario mantiene proporciones uniformes, sin estirarse ni quedar
+    // encerrado en los 900 x 550 px que antes dejaban márgenes enormes.
+    const anchoVisible = width / escalaMundo;
     const objetivo = constrain(
-        personaje.x - width * 0.43,
-        0,
-        CASA.ancho - width
+        personaje.x - anchoVisible * .43,
+        0, Math.max(0, CASA.ancho - anchoVisible)
     );
+    camaraX = lerp(camaraX, objetivo, .075);
 
-    camaraX = lerp(camaraX, objetivo, 0.075);
     push();
+    scale(escalaMundo);
     translate(-camaraX, 0);
-
     dibujarCasa();
-
-    pop();
-
-    push();
-    translate(-camaraX, 0);
-
     dibujarPersonaje();
-
     pop();
 
     dibujarInterfaz();
+    if (actividadActiva) dibujarActividad();
 }
 
 function actualizarMovimiento() {
     let direccion = 0;
+    if (keyIsDown(65) || keyIsDown(LEFT_ARROW) || controlTactil.izquierda) direccion--;
+    if (keyIsDown(68) || keyIsDown(RIGHT_ARROW) || controlTactil.derecha) direccion++;
 
-    if (keyIsDown(65) || keyIsDown(LEFT_ARROW)) {
-        direccion--;
-    }
-
-    if (keyIsDown(68) || keyIsDown(RIGHT_ARROW)) {
-        direccion++;
-    }
-
-    const objetivo = direccion * 4.2;
-
-    personaje.velocidad = lerp(
-        personaje.velocidad,
-        objetivo,
-        direccion ? 0.15 : 0.20
-    );
-
-    if (abs(personaje.velocidad) < 0.06) {
-        personaje.velocidad = 0;
-    }
-
-    personaje.x = constrain(
-        personaje.x + personaje.velocidad,
-        45,
-        CASA.ancho - 45
-    );
-
-    personaje.caminando = abs(personaje.velocidad) > 0.2;
-
-    if (direccion) {
-        personaje.mirando = direccion;
-    }
+    const velocidadObjetivo = direccion * 2.85;
+    personaje.velocidad = lerp(personaje.velocidad,
+        velocidadObjetivo, direccion ? .15 : .20);
+    if (abs(personaje.velocidad) < .06) personaje.velocidad = 0;
+    personaje.x = constrain(personaje.x + personaje.velocidad, 45, CASA.ancho - 45);
+    const intensidadObjetivo = Math.min(1, Math.abs(personaje.velocidad) / 2.7);
+    personaje.intensidad = lerp(personaje.intensidad, intensidadObjetivo, .18);
+    personaje.caminando = personaje.intensidad > .035;
+    // Cada ciclo corresponde a pasos tranquilos y no a una carrera.
+    if (personaje.intensidad > .025) personaje.fase += .075 + Math.abs(personaje.velocidad) * .039;
+    if (direccion) personaje.mirando = direccion;
 }
 
 function dibujarCasa() {
@@ -530,27 +534,24 @@ function dibujarLiving() {
 }
 
 // ==========================================
-// PERSONAJE PROVISIONAL
+// MISHI · SPRITES ORIGINALES ARTICULADOS
 // ==========================================
 
 function dibujarPersonaje() {
     push();
+    noStroke();
+    fill('#4d405135');
+    ellipse(personaje.x, CASA.suelo + 3, 110, 12);
 
-    const rebote = personaje.caminando
-        ? abs(sin(frameCount * 0.20)) * 4
-        : 0;
-
-    translate(personaje.x, personaje.y + 20 - rebote);
-
+    // Los pies se apoyan siempre en el mismo suelo. Ni salto ni achatamiento
+    // de cabeza/peluca al caminar. Sólo se espeja la dirección.
+    translate(personaje.x, personaje.y);
     scale(personaje.mirando, 1);
-
-    const escala = 0.28;
-    scale(escala);
-
-    translate(-ANCHO / 2, -ALTO);
-
-    dibujarMascota(personaje.caminando);
-    dibujarPantaloncito();
+    const escalaMishi = .28 * Math.min(1, Math.max(.64, width / 750));
+    scale(escalaMishi);
+    translate(-ANCHO / 2, -1195);
+    dibujarMascota({ caminando: personaje.caminando,
+        intensidad: personaje.intensidad, fase: personaje.fase });
     pop();
 }
 
@@ -560,45 +561,39 @@ function dibujarPersonaje() {
 // ==========================================
 
 function dibujarPortada() {
+    // Vista previa de la casa al tamaño REAL del escenario.
     push();
-    scale(width / CASA.ancho, height / CASA.alto);
+    scale(escalaMundo);
     dibujarCasa();
     pop();
 
     noStroke();
+    fill('#ffffff90');
+    rect(0, 0, width, height);
+
+    const w = Math.min(width - 32, 515);
+    const h = Math.min(height - 32, 325);
+    const x = (width - w) / 2;
+    const y = (height - h) / 2;
     fill('#fff9efed');
-    rect(width * 0.18, height * 0.18, width * 0.64, height * 0.65, 28);
-
     stroke(C.rosa);
-    strokeWeight(5);
-    noFill();
-    rect(width * 0.18, height * 0.18, width * 0.64, height * 0.65, 28);
-
+    strokeWeight(4);
+    rect(x, y, w, h, 25);
     noStroke();
     fill(C.tinta);
     textAlign(CENTER, CENTER);
     textStyle(BOLD);
-
-    textSize(57);
-    text('EDIT', width / 2, 165);
-
+    textSize(Math.min(61, w * .15));
+    text('EDIT', width / 2, y + h * .26);
     textStyle(NORMAL);
-    textSize(20);
-    text('¡Bienvenido a tu casa!', width / 2, 220);
+    textSize(Math.min(21, w * .054));
+    text('¡Bienvenido a tu casa!', width / 2, y + h * .43);
+    textSize(Math.min(14, w * .033));
+    text('Caminá con A/D o las flechas.', width / 2, y + h * .56);
+    text('Elegí actividades e interactuá con el cursor.', width / 2, y + h * .65);
 
-    textSize(15);
-    text(
-        'Caminá con A / D o las flechas. Interactuá con el mouse.',
-        width / 2, 258
-    );
-
-    botones.play = {
-        x: width / 2 - 105,
-        y: 302,
-        w: 210,
-        h: 69
-    };
-
+    botones.play = { x: width / 2 - Math.min(105, w * .25),
+        y: y + h * .76, w: Math.min(210, w * .5), h: Math.min(54, h * .18) };
     boton(botones.play, '▶  JUGAR', C.azul);
 }
 
@@ -625,62 +620,80 @@ function boton(b, t, color) {
 
 function dibujarInterfaz() {
     noStroke();
-    fill('#fff9efdf');
-    rect(15, 13, 425, 54, 15);
-
-    textAlign(LEFT, CENTER);
-    textSize(14);
+    fill('#fff9efdc');
+    rect(15, 14, Math.min(270, width * .48), 47, 15);
     fill(C.tinta);
+    textAlign(LEFT, CENTER);
+    textStyle(BOLD);
+    textSize(16);
+    text('♡  La casa de Mishi', 29, 37);
+    textStyle(NORMAL);
 
-    text(
-        '⚡ ' + Math.round(energia) +
-        '   🍎 ' + Math.round(hambre) +
-        '   ✨ ' + Math.round(higiene) +
-        '   ♥ ' + Math.round(diversion),
-        30,
-        39
-    );
+    botones.salir = { x: width - 155, y: 15, w: 139, h: 44 };
+    boton(botones.salir, 'Salir', C.amarillo);
 
-    botones.salir = {
-        x: width - 174,
-        y: 15,
-        w: 158,
-        h: 44
-    };
-
-    boton(botones.salir, 'Salir ⛶', C.amarillo);
-
-    const cercano = objetos.find(
-        o => abs(personaje.x - (o.x + o.w / 2)) < 175
-    );
-
-    if (cercano) {
+    // Barra inferior de actividades, inspirada en el ejemplo de interacción.
+    const tipos = ['dormir', 'lavar', 'comer', 'tele'];
+    const etiquetas = ['Dormir', 'Bañar', 'Comer', 'Jugar'];
+    const iconos = ['☾', '✧', '🍎', '✦'];
+    const total = Math.min(width - 24, 495);
+    const separacion = 8;
+    const tamanio = (total - separacion * 3) / 4;
+    const xInicial = (width - total) / 2;
+    const y = height - 80;
+    botones.actividades = [];
+    for (let i = 0; i < tipos.length; i++) {
+        const b = { x: xInicial + i * (tamanio + separacion), y,
+            w: tamanio, h: 66, tipo: tipos[i] };
+        botones.actividades.push(b);
+        stroke('#493d46');
+        strokeWeight(2);
+        fill([C.rosa, C.azul, C.naranja, C.verde][i]);
+        rect(b.x, b.y, b.w, b.h, 16);
         noStroke();
-        fill('#fff9efe8');
-        rect(width / 2 - 185, height - 72, 370, 50, 14);
-
         fill(C.tinta);
         textAlign(CENTER, CENTER);
-        textSize(17);
-
-        text(
-            'Hacé clic en ' + cercano.nombre,
-            width / 2,
-            height - 47
-        );
+        textSize(25);
+        text(iconos[i], b.x + b.w / 2, b.y + 24);
+        textStyle(BOLD);
+        textSize(12);
+        text(etiquetas[i], b.x + b.w / 2, b.y + 50);
+        textStyle(NORMAL);
     }
 
+    const cercano = objetos.find(o => Math.abs(personaje.x - (o.x + o.w / 2)) < 175);
+    if (cercano) {
+        fill('#fff9efe8');
+        noStroke();
+        const ancho = Math.min(width - 24, 340);
+        rect((width - ancho) / 2, height - 131, ancho, 39, 12);
+        fill(C.tinta);
+        textAlign(CENTER, CENTER);
+        textSize(14);
+        text('Hacé clic en ' + cercano.nombre + ' para interactuar',
+            width / 2, height - 111);
+    }
     if (millis() < mensajeHasta) {
         noStroke();
         fill('#fff9eff5');
-        rect(width / 2 - 240, 78, 480, 55, 14);
-
+        const ancho = Math.min(width - 24, 470);
+        rect((width - ancho) / 2, 77, ancho, 49, 14);
         fill(C.tinta);
         textAlign(CENTER, CENTER);
-        textSize(17);
-
-        text(mensaje, width / 2, 105);
+        textSize(15);
+        text(mensaje, width / 2, 102);
     }
+}
+
+function dibujarIndicacionMapa() {
+    noStroke();
+    fill('#fff9efeb');
+    rect(width / 2 - Math.min(210, width / 2 - 16), height - 69,
+        Math.min(420, width - 32), 51, 14);
+    fill(C.tinta);
+    textAlign(CENTER, CENTER);
+    textSize(15);
+    text('Hacé clic en la casa para volver', width / 2, height - 44);
 }
 
 // ==========================================
@@ -688,99 +701,80 @@ function dibujarInterfaz() {
 // ==========================================
 
 function mousePressed() {
+    if (actividadActiva) return presionarActividad();
     if (!jugando) {
-        if (enBoton(botones.play)) {
-            jugando = true;
-            solicitarPantallaCompleta();
-        }
-
+        if (enBoton(botones.play)) jugando = true;
         return;
     }
 
     if (lugarActual === 'mapa') {
-        // Clic sobre la Casa de Mishi
         if (mouseX >= 105 && mouseX <= 295 &&
             mouseY >= 148 && mouseY <= 350) {
-
             lugarActual = 'casa';
-
-            // Mishi reaparece cerca de la puerta del living
             personaje.x = 2450;
             personaje.velocidad = 0;
-            camaraX = CASA.ancho - width;
+            camaraX = Math.max(0, CASA.ancho - width / escalaMundo);
         }
-
         return;
     }
 
     if (enBoton(botones.salir)) {
         jugando = false;
-
-        if (fullscreen()) {
-            fullscreen(false);
-        }
-
         return;
     }
 
-    const mundoX = mouseX + camaraX;
+    const actividadElegida = (botones.actividades || []).find(enBoton);
+    if (actividadElegida) {
+        iniciarActividad(actividadElegida.tipo);
+        return;
+    }
 
-    for (const o of objetos) {
-        if (
-            mundoX >= o.x &&
-            mundoX <= o.x + o.w &&
-            mouseY >= o.y &&
-            mouseY <= o.y + o.h
-        ) {
-            if (abs(personaje.x - (o.x + o.w / 2)) > 175) {
-                avisar('Acercate un poco más para interactuar.');
-                return;
-            }
+    const mundoX = mouseX / escalaMundo + camaraX;
+    const mundoY = mouseY / escalaMundo;
+    for (const objeto of objetos) {
+        if (mundoX < objeto.x || mundoX > objeto.x + objeto.w ||
+            mundoY < objeto.y || mundoY > objeto.y + objeto.h) continue;
 
-            if (o.accion === 'dormir') {
-                energia = min(100, energia + 25);
-                avisar('¡Descansaste! Recuperaste energía.');
-            }
-
-            if (o.accion === 'lavar') {
-                higiene = min(100, higiene + 25);
-                avisar('¡Qué frescura! Mejoró tu higiene.');
-            }
-
-            if (o.accion === 'comer') {
-                heladeraAbierta = !heladeraAbierta;
-                hambre = min(100, hambre + 20);
-                avisar('¡Un bocadito rico! Recuperaste alimento.');
-            }
-
-            if (o.accion === 'tele') {
-                tvEncendida = !tvEncendida;
-                diversion = min(100, diversion + 15);
-
-                avisar(
-                    tvEncendida
-                        ? '¡Encendiste el televisor!'
-                        : 'Apagaste el televisor.'
-                );
-            }
-
-
-            if (o.accion === 'salir') {
-                lugarActual = 'mapa';
-                personaje.velocidad = 0;
-            }
-
+        if (Math.abs(personaje.x - (objeto.x + objeto.w / 2)) > 175) {
+            avisar('Acercate un poco más para interactuar.');
             return;
         }
+        if (objeto.accion === 'salir') {
+            lugarActual = 'mapa';
+            personaje.velocidad = 0;
+        } else {
+            if (objeto.accion === 'comer') heladeraAbierta = !heladeraAbierta;
+            iniciarActividad(objeto.accion);
+        }
+        return;
     }
 }
 
+function mouseDragged() {
+    if (actividadActiva) {
+        registrarMovimientoActividad();
+        return false;
+    }
+}
+
+function mouseReleased() {
+    if (actividadActiva) return soltarActividad();
+}
+
+function touchMoved() {
+    if (actividadActiva) {
+        registrarMovimientoActividad();
+        return false;
+    }
+}
+
+function touchEnded() {
+    if (actividadActiva) return soltarActividad();
+}
+
 function enBoton(b) {
-    return b &&
-        mouseX >= b.x &&
-        mouseX <= b.x + b.w &&
-        mouseY >= b.y &&
-        mouseY <= b.y + b.h;
+    return b && mouseX >= b.x && mouseX <= b.x + b.w &&
+        mouseY >= b.y && mouseY <= b.y + b.h;
 }
 
 function avisar(t) {
@@ -788,16 +782,10 @@ function avisar(t) {
     mensajeHasta = millis() + 2700;
 }
 
-function solicitarPantallaCompleta() {
-    try {
-        fullscreen(true);
-    } catch (e) {
-        console.warn('Pantalla completa no disponible', e);
-    }
-}
-
 function keyPressed() {
-    if ([LEFT_ARROW, RIGHT_ARROW, 32].includes(keyCode)) {
+    if (keyCode === ESCAPE && actividadActiva) {
+        actividadActiva = null;
         return false;
     }
+    if ([LEFT_ARROW, RIGHT_ARROW, 32].includes(keyCode)) return false;
 }

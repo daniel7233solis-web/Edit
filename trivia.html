@@ -82,7 +82,7 @@
         function setup() {
             cargarMascota();
 
-            const lienzo = createCanvas(ANCHO, ALTO);
+            const lienzo = createCanvas(ANCHO + 280, ALTO + 80);
             lienzo.parent('lienzo-trivia');
 
             pixelDensity(1);
@@ -94,6 +94,7 @@
             clear();
 
             push();
+            translate(140, 40); // margen seguro para que el saludo no quede recortado
 
             if (millis() < sorpresaHasta) {
                 const movimiento = sin(frameCount * 0.8) * 12;

@@ -7,7 +7,7 @@
 const ANCHO = 844;
 const ALTO = 1227;
 const estadoMascota = {
-  hair: 2, eyes: 1, brows: 2, nose: 1, mouth: 2, ears: 1, ropaInferior: 'pantaloncito', ropaSuperior: 'remeraBlanca',
+  hair: 2, eyes: 1, brows: 2, nose: 1, mouth: 2, ears: 1, ropaInferior: 'pantaloncito', ropaSuperior: 'remeraBlanca', conjunto: 'ninguno', calzado: 'ninguno',
   skin: '#ffebd9', hairColor: '#ffffff', noseColor: '#e8b9b4', animar: true, saludo: 0
 };
 
@@ -54,9 +54,12 @@ function guardarMascota() {
     ears: estadoMascota.ears,
     ropaSuperior: estadoMascota.ropaSuperior,
     ropaInferior: estadoMascota.ropaInferior,
+    conjunto: estadoMascota.conjunto,
+    calzado: estadoMascota.calzado,
     skin: estadoMascota.skin,
     hairColor: estadoMascota.hairColor,
-    noseColor: estadoMascota.noseColor
+    noseColor: estadoMascota.noseColor,
+    nombre: document.getElementById('nombre')?.value.trim() || 'Mishi'
   };
 
   localStorage.setItem('edit_mascota', JSON.stringify(datos));
@@ -68,7 +71,18 @@ function cargarMascota() {
   if (datosGuardados) {
     try {
       const datos = JSON.parse(datosGuardados);
-      Object.assign(estadoMascota, datos);
+      const claves = ['hair', 'eyes', 'brows', 'nose', 'mouth', 'ears',
+        'ropaSuperior', 'ropaInferior', 'conjunto', 'calzado',
+        'skin', 'hairColor', 'noseColor'];
+      claves.forEach(clave => {
+        if (Object.prototype.hasOwnProperty.call(datos, clave)) {
+          estadoMascota[clave] = datos[clave];
+        }
+      });
+      const campoNombre = document.getElementById('nombre');
+      if (campoNombre && typeof datos.nombre === 'string') {
+        campoNombre.value = datos.nombre.slice(0, 24);
+      }
     } catch (error) {
       console.error('Error al recuperar la mascota:', error);
     }
@@ -106,7 +120,9 @@ function preloadMascota() {
 function setupMascota() {
   cargarMascota();
 
-  const lienzo = createCanvas(ANCHO, ALTO);
+  // El saludo puede salirse del rectángulo original. Añadimos una zona
+  // transparente a ambos lados SIN mover las coordenadas de las piezas.
+  const lienzo = createCanvas(ANCHO + 280, ALTO + 80);
   lienzo.parent('lienzo');
   pixelDensity(1);
   angleMode(RADIANS);
@@ -190,161 +206,203 @@ function dibujarCentrada(tipo, numero) {
 
 
 
-function dibujarArticulacion(tipo, angulo, desplazamiento = 0) {
+// Todas las prendas fueron dibujadas sobre una plantilla original 844 x 1121.
+// Se compensan sus 100 px de diferencia respecto de la composición del cuerpo.
+const DESFASE_VESTUARIO_Y = 100;
+
+function imagenDePrenda(id, parte) {
+  return imagenesRopa[id] && imagenesRopa[id][parte];
+}
+
+function dibujarPrenda(id, parte, desplazamientoY = DESFASE_VESTUARIO_Y) {
+  const recurso = imagenDePrenda(id, parte);
+  if (recurso && recurso.width > 1) {
+    const ajuste = AJUSTES_ROPA[id];
+    const x = ajuste ? ajuste.x : 0;
+    const y = ajuste ? ajuste.y : desplazamientoY;
+    image(recurso, x, y, recurso.width, recurso.height);
+  }
+}
+
+// Los archivos de indumentaria usan una plantilla completa de 844 x 1121.
+// Su pivote coincide con la articulación del cuerpo. Un pequeño aumento en
+// las perneras cubre las uniones sin alterar ni volver a dibujar los PNG.
+const AJUSTES_PERNERAS = {
+  pantaloncito: 1.035,
+  enterizo: 1.025
+};
+
+function dibujarPrendaEnArticulacion(id, parte, p) {
+  const recurso = imagenDePrenda(id, parte);
+  if (!recurso || recurso.width <= 1) return;
+  const ajuste = AJUSTES_ROPA[id];
+  const x = ajuste ? ajuste.x : 0;
+  const y = ajuste ? ajuste.y : DESFASE_VESTUARIO_Y;
+
+  // Escalamos desde el pivote REAL de la pierna, no desde la esquina del
+  // lienzo transparente de la prenda. Así el encastre permanece estable.
+  const escala = (parte === 'piernaL' || parte === 'piernaR')
+    ? (AJUSTES_PERNERAS[id] || 1) : 1;
+  push();
+  scale(escala);
+  image(recurso, x - p.pivotX, y - p.pivotY, recurso.width, recurso.height);
+  pop();
+}
+
+// Sólo la articulación se mueve. No aplicamos escalado ni rotación a la
+// cabeza o a la peluca. El orden de las capas se decide en dibujarMascota().
+function dibujarArticulacion(tipo, angulo, intensidad = 0) {
   const p = POSICIONES[tipo];
+  const brazo = tipo === 'armL' || tipo === 'armR';
+  const parte = tipo === 'armL' ? 'brazoL'
+    : tipo === 'armR' ? 'brazoR'
+    : tipo === 'legL' ? 'piernaL' : 'piernaR';
 
   push();
-
-  translate(p.pivotX, p.pivotY + desplazamiento);
+  translate(p.pivotX, p.pivotY);
   rotate(angulo);
-
-  // Dibujamos la parte original de la mascota.
+  if (brazo && intensidad > 0) {
+    // Elasticidad muy leve SOLO en brazos y mangas para evitar rigidez.
+    const flexion = Math.abs(Math.sin(angulo * 3)) * intensidad;
+    scale(1 + flexion * 0.01, 1 - flexion * 0.02);
+  }
   dibujarPieza(tipo, 1, p.x - p.pivotX, p.y - p.pivotY);
 
-  // Dibujamos la manga de la ropa seleccionada.
-  if (tipo === 'armL' || tipo === 'armR') {
-    const remera = imagenesRopa[estadoMascota.ropaSuperior];
-
-    if (remera) {
-      const manga = tipo === 'armL'
-        ? remera.brazoL
-        : remera.brazoR;
-
-      const ajuste = AJUSTES_ROPA[estadoMascota.ropaSuperior] || { x: 0, y: 0 };
-
-      if (manga && manga.width > 1) {
-        image(
-          manga,
-          -p.pivotX + ajuste.x,
-          -p.pivotY + ajuste.y,
-          manga.width,
-          manga.height
-        );
-      }
-    }
+  if (brazo) {
+    const remera = estadoMascota.conjunto !== 'ninguno'
+      ? 'remeraBlanca' : estadoMascota.ropaSuperior;
+    dibujarPrendaEnArticulacion(remera, parte, p);
+  } else {
+    // Primero el calzado: queda por DEBAJO del pantalón/enterizo.
+    dibujarPrendaEnArticulacion(estadoMascota.calzado, parte, p);
+    const inferior = estadoMascota.conjunto !== 'ninguno'
+      ? estadoMascota.conjunto : estadoMascota.ropaInferior;
+    dibujarPrendaEnArticulacion(inferior, parte, p);
   }
-
   pop();
 }
 
+// Dibujo interno de la cintura. Se conserva el nombre para compatibilidad
+// con las otras pantallas, pero ahora se llama ANTES de la ropa superior.
 function dibujarPantaloncito() {
-  const pantalonCentro = imagenesRopa[estadoMascota.ropaInferior]?.centro;
-
-  if (pantalonCentro && pantalonCentro.width > 1) {
-    image(
-      pantalonCentro,
-      427 - pantalonCentro.width / 2,
-      670 - pantalonCentro.height / 2,
-      pantalonCentro.width,
-      pantalonCentro.height
-    );
+  if (estadoMascota.conjunto === 'ninguno' &&
+      estadoMascota.ropaInferior === 'pantaloncito') {
+    dibujarPrenda('pantaloncito', 'centro');
   }
 }
 
-function dibujarMascota(caminando = false) {
+// Las perneras pueden abrir pequeños triángulos al rotar. Se cubre sólo
+// la cintura con el PNG ORIGINAL completo, sin duplicar los bajos de las
+// piernas (que permanecen independientes). Esto evita huecos al caminar.
+function dibujarUnionCintura() {
+  let id = null;
+  if (estadoMascota.conjunto === 'enterizo') id = 'enterizo';
+  else if (estadoMascota.conjunto === 'ninguno' &&
+      estadoMascota.ropaInferior === 'pantaloncito') id = 'pantaloncito';
+  if (!id) return;
+  const recurso = imagenDePrenda(id, 'completa');
+  if (!recurso || recurso.width <= 1) return;
+  const yInicio = 824;
+  const alto = 100;
+  image(recurso, 0, DESFASE_VESTUARIO_Y + yInicio,
+    recurso.width, alto, 0, yInicio, recurso.width, alto);
+}
 
+function dibujarMascota(movimiento = false) {
+  const andando = typeof movimiento === 'object'
+    ? Boolean(movimiento.caminando) : Boolean(movimiento);
+  const intensidad = typeof movimiento === 'object'
+    ? Math.max(0, Math.min(1, movimiento.intensidad ?? (andando ? 1 : 0)))
+    : (andando ? 1 : 0);
+  const fase = typeof movimiento === 'object' && Number.isFinite(movimiento.fase)
+    ? movimiento.fase : frameCount * 0.1;
+  const pisada = Math.sin(fase);
   const t = millis() / 1000;
-  const activo = estadoMascota.animar;
-  const respiracion = activo ? Math.sin(t * 2.1) * 2.3 : 0;
-  const brazos = activo ? Math.sin(t * 1.4) * 0.025 : 0;
-  const progresoSaludo = 1 - estadoMascota.saludo;
+  const reposo = estadoMascota.animar && intensidad < .05;
+  const respiracion = reposo ? Math.sin(t * 1.25) * 0.9 : 0;
 
-  const elevacionBrazo = estadoMascota.saludo > 0
-    ? Math.min(1, progresoSaludo * 5, estadoMascota.saludo * 5)
-    : 0;
-
-  const saludo = elevacionBrazo * (
-    1.2 + Math.sin(progresoSaludo * Math.PI * 4) * 0.15
-  );
-  const inclinacionSaludo = estadoMascota.saludo > 0
-    ? Math.sin(progresoSaludo * Math.PI) * 0.14
-    : 0;
+  // Saludo: se anima sólo el brazo, nunca la silueta de la cabeza.
+  let saludo = 0;
   if (estadoMascota.saludo > 0) {
-    estadoMascota.saludo = Math.max(0, estadoMascota.saludo - deltaTime / 1300);
+    const progreso = 1 - estadoMascota.saludo;
+    const entrada = Math.min(1, progreso * 7, estadoMascota.saludo * 7);
+    saludo = entrada * (1.12 + Math.sin(progreso * Math.PI * 6) * .11);
+    estadoMascota.saludo = Math.max(0, estadoMascota.saludo - deltaTime / 1350);
   }
 
-  // Piernas independientes: listas para reutilizarse al caminar o correr.
-  const paso = caminando ? sin(frameCount * 0.17) * 0.20 : 0;
+  // Pasos suaves y medidos. Los pies permanecen cerca del piso fijo y no
+  // hay rebote de cuerpo entero ni escala horizontal dependiente de caminar.
+  const anguloPierna = pisada * .145 * intensidad;
+  const anguloBrazo = pisada * .21 * intensidad;
+  const oscilacionTorso = pisada * 2.0 * intensidad;
+  const prendaSuperior = estadoMascota.conjunto !== 'ninguno'
+    ? 'remeraBlanca' : estadoMascota.ropaSuperior;
 
-  dibujarArticulacion('legL', paso);
-  dibujarArticulacion('legR', -paso);
-  // Pantaloncito: no acompaña el saludo.
+  // 1. Piernas -> zapatos -> tela de perneras. Las zapatillas no pueden
+  //    tapar los ruedos. Los PNG de la pierna rotan junto con su pantalón.
+  dibujarArticulacion('legL', anguloPierna, intensidad);
+  dibujarArticulacion('legR', -anguloPierna, intensidad);
 
-  // Torso y brazos comparten el desplazamiento vertical de respiración.
+  // 2. Un brazo va por detrás de la silueta cuando camina.
+  //    El derecho queda atrás al mirar a la derecha; al espejarse cambia lado.
+  const caminando = intensidad > .04;
+  if (caminando && saludo === 0) {
+    push();
+    translate(-12 * intensidad, 0);
+    dibujarArticulacion('armR', anguloBrazo, intensidad);
+    pop();
+  }
+
+  // 3. Piel del torso, DETRÁS de ambas prendas. Dibujar el torso por
+  //    encima de la pollera generaba los parches visibles de piel en cintura.
   push();
-
-  // Todo el cuerpo superior comparte la misma inclinación.
-  push();
-
-  translate(422, 900);
-  rotate(inclinacionSaludo);
-  translate(-422, -900);
-
-  // Torso y brazos.
-  push();
-  translate(0, -respiracion);
-
-
+  translate(oscilacionTorso, -respiracion);
   dibujarPieza('torso', 1, POSICIONES.torso.x, POSICIONES.torso.y);
-
-
-  // Dibujamos el torso de la ropa superior seleccionada.
-  const remeraTorso = imagenesRopa[estadoMascota.ropaSuperior]?.torso;
-  const ajusteRopa = AJUSTES_ROPA[estadoMascota.ropaSuperior] || { x: 0, y: 0 };
-
-  if (remeraTorso && remeraTorso.width > 1) {
-    image(
-      remeraTorso,
-      ajusteRopa.x,
-      ajusteRopa.y,
-      remeraTorso.width,
-      remeraTorso.height
-    );
-  }
-
-
-  const balanceoBrazos = caminando ? paso * 0.55 : brazos;
-
-  dibujarArticulacion('armL', -balanceoBrazos);
-  dibujarArticulacion('armR', balanceoBrazos - saludo);
-
   pop();
 
-  // Cabeza, facciones y pelo.
-  push();
-  translate(0, -respiracion * 1.3);
+  // 4. Capa inferior sobre la piel, sin huecos al flexionar las piernas.
+  dibujarUnionCintura();
+  dibujarPantaloncito();
+  if (estadoMascota.conjunto === 'ninguno' && estadoMascota.ropaInferior === 'pollera') {
+    dibujarPrenda('pollera', 'completa');
+  }
 
+  // 5. Prenda superior EN PRIMER PLANO sobre la capa inferior. Así el
+  //    ruedo tapa el borde de pollera/short y no quedan cortes en la cintura.
+  push();
+  translate(oscilacionTorso, -respiracion);
+  dibujarPrenda(prendaSuperior, 'torso');
+  if (estadoMascota.conjunto === 'enterizo') {
+    dibujarPrenda('enterizo', 'torso');
+  } else if (estadoMascota.conjunto === 'vestido') {
+    dibujarPrenda('vestido', 'completa');
+  }
+  pop();
+
+  // 6. Brazo delantero, con manga unida al mismo pivote.
+  dibujarArticulacion('armL', -anguloBrazo, intensidad);
+  if (!caminando || saludo > 0) {
+    dibujarArticulacion('armR', anguloBrazo - saludo, intensidad);
+  }
+
+  // 7. Cabeza + orejas + facciones + peluca: conjunto completamente rígido.
+  //    No hereda rebote, rotación, escala ni oscilación del torso al caminar.
   dibujarPieza('ears', estadoMascota.ears, POSICIONES.ears.x, POSICIONES.ears.y);
   dibujarPieza('head', 1, POSICIONES.head.x, POSICIONES.head.y);
   dibujarCentrada('brows', estadoMascota.brows);
   dibujarCentrada('eyes', estadoMascota.eyes);
   dibujarCentrada('nose', estadoMascota.nose);
   dibujarCentrada('mouth', estadoMascota.mouth);
-
   const pelo = POSICIONES.hair[estadoMascota.hair - 1];
-  dibujarPieza('hair', estadoMascota.hair, pelo.x, pelo.y);
-
-  pop();
-
-
-  // Terminamos la inclinación del cuerpo superior.
-  pop();
-
-  // Cerramos la transformación exterior.
-  pop();
-
-  // Pantaloncito: permanece quieto durante el saludo.
-
+  if (pelo) dibujarPieza('hair', estadoMascota.hair, pelo.x, pelo.y);
 }
 
 function drawMascota() {
   clear();
-
-  // Dibujamos a Mishi con sus animaciones.
+  push();
+  translate(140, 40);
   dibujarMascota();
-
-  // Dibujamos el pantaloncito sin animación.
-  dibujarPantaloncito();
+  pop();
 }
 
 function exportarMascota() {
