@@ -23,6 +23,10 @@
     box-sizing: border-box;
 }
 
+html {
+    scrollbar-gutter: stable;
+}
+
 body {
     margin: 0;
     background: linear-gradient(145deg,
@@ -153,7 +157,7 @@ h3 {
         inset 0 -2px 3px rgba(190, 100, 130, 0.08),
         0 3px 6px rgba(150, 90, 120, 0.08);
     text-align: center;
-    padding: 12px 5px;
+    padding: 6px;
     font-weight: 800;
     color: var(--ink);
     transition: .15s;
@@ -161,8 +165,8 @@ h3 {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 7px;
     min-height: 88px;
+    gap: 0;
 }
 
 .cat:hover {
@@ -172,8 +176,6 @@ h3 {
             var(--color-amarillo) 70%,
             #f5dc72 100%);
 }
-
-
 .cat.active {
     background: linear-gradient(to bottom,
             #fff0f4 0%,
@@ -182,6 +184,15 @@ h3 {
             #f493a9 100%);
     color: var(--ink);
     border-color: #e98ca4;
+}
+
+.cat-imagen {
+    display: block;
+    width: 70px;
+    height: 70px;
+    max-width: 100%;
+    object-fit: contain;
+    pointer-events: none;
 }
 
 
@@ -662,7 +673,7 @@ dialog p {
     border-radius: 14px;
     color: var(--ink);
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 800;
     transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
@@ -678,7 +689,6 @@ dialog p {
 .navegacion a.activo {
     background-color: var(--color-rosa);
     color: var(--ink);
-    font-weight: 800;
 }
 
 /* Contenido principal */
@@ -703,7 +713,6 @@ dialog p {
 
 .pagina-juego .encabezado {
     flex: 0 0 auto;
-    padding: 14px clamp(12px, 2.5vw, 32px);
 }
 
 .contenido-principal.contenido-juego {
@@ -747,16 +756,16 @@ dialog p {
         min-height: 610px;
     }
 
-    .pagina-juego .encabezado {
+    .encabezado {
         gap: 8px;
         padding: 10px 12px;
     }
 
-    .pagina-juego .navegacion {
+    .navegacion {
         gap: 4px;
     }
 
-    .pagina-juego .navegacion a {
+    .navegacion a {
         padding: 7px 8px;
         font-size: 11px;
     }

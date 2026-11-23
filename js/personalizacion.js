@@ -154,24 +154,57 @@ function aleatorio(lista) {
   return lista[Math.floor(Math.random() * lista.length)];
 }
 
+const ICONOS_CATEGORIAS = {
+  hair: 'pelo.png',
+  skin: 'piel.png',
+  eyes: 'ojos.png',
+  brows: 'cejas.png',
+  nose: 'nariz.png',
+  mouth: 'boca.png',
+  ears: 'orejas.png',
+  ropaSuperior: 'remera.png',
+  ropaInferior: 'pantalones.png',
+  conjunto: 'conjuntos.png',
+  calzado: 'zapatos.png'
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   // Recuperar la configuración antes de mostrar las opciones.
   cargarMascota();
-  
+
   CATEGORIAS.forEach(categoria => {
     const boton = document.createElement('button');
-    const icono = document.createElement('span');
-    const texto = document.createElement('span');
+
     boton.type = 'button';
     boton.className = 'cat';
     boton.dataset.key = categoria.key;
-    icono.className = 'cat-icon';
-    icono.textContent = categoria.icono;
-    icono.setAttribute('aria-hidden', 'true');
-    texto.className = 'cat-label';
-    texto.textContent = categoria.titulo;
-    boton.append(icono, texto);
-    boton.addEventListener('click', () => elegirCategoria(categoria.key));
+    boton.setAttribute('aria-label', categoria.titulo);
+    boton.title = categoria.titulo;
+
+    const archivoIcono = ICONOS_CATEGORIAS[categoria.key];
+
+    if (archivoIcono) {
+      const imagen = document.createElement('img');
+
+      imagen.src = 'img/iconos/' + archivoIcono;
+      imagen.className = 'cat-imagen';
+      imagen.alt = '';
+
+      boton.append(imagen);
+    } else {
+      const icono = document.createElement('span');
+
+      icono.className = 'cat-icon';
+      icono.textContent = categoria.icono;
+      icono.setAttribute('aria-hidden', 'true');
+
+      boton.append(icono);
+    }
+
+    boton.addEventListener('click', () => {
+      elegirCategoria(categoria.key);
+    });
+
     elemento('categorias').append(boton);
   });
 
