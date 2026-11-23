@@ -436,6 +436,30 @@ h3 {
         0 4px 8px rgba(65, 145, 180, 0.18);
 }
 
+.boton-vamos-jugar {
+    display: block;
+    width: 100%;
+    margin-top: 13px;
+    padding: 14px 15px;
+    border: 2px solid #e69d60;
+    border-radius: 14px;
+    color: var(--ink);
+    background: linear-gradient(180deg, #ffe6aa, #ffbb7e 65%, #f5a36d);
+    box-shadow: 0 5px 12px #d9906c2a;
+    text-align: center;
+    font-weight: 900;
+    text-decoration: none;
+    transition: transform .15s ease, filter .15s ease;
+}
+.boton-vamos-jugar:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.035);
+}
+.boton-vamos-jugar:focus-visible {
+    outline: 3px solid #a77ec9;
+    outline-offset: 3px;
+}
+
 .boton-accion {
     display: inline-block;
     padding: 12px 20px;
@@ -1154,4 +1178,165 @@ a.mapa-lugar:hover {
 .mapa-lugar-bloqueado {
     background-color: #e7e1e8;
     opacity: 0.7;
+}
+/* Universidad: modal de cada edificio y minijuegos del campus. */
+.modal-edificio {
+    position: fixed;
+    width: min(92vw, 540px);
+    max-width: 540px;
+    max-height: min(88dvh, 770px);
+    overflow-y: auto;
+    padding: 27px;
+    border: 3px solid #d9b5cd;
+    border-radius: 26px;
+    background: #fffaf5;
+    box-shadow: 0 22px 70px #40314d70;
+    color: var(--ink);
+}
+.modal-edificio::backdrop {
+    background: #2c233d8c;
+    backdrop-filter: blur(5px);
+}
+.modal-edificio h2 {
+    margin: 5px 40px 7px 0;
+    font-size: 29px;
+}
+.modal-edificio .eyebrow {
+    margin: 0 35px 6px 0;
+}
+.modal-edificio .muted {
+    font-size: 14px;
+    margin: 14px 0;
+}
+.cerrar-modal {
+    position: absolute;
+    top: 13px;
+    right: 13px;
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border: 1px solid #e9cfdc;
+    border-radius: 50%;
+    background: #fff;
+    color: #735675;
+    font-size: 30px;
+}
+.cerrar-modal:hover {
+    background: #ffe8ed;
+}
+.preview-minijuego {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    margin-top: 15px;
+    border: 2px solid #e3c7db;
+    border-radius: 16px;
+    background: #efe9ff;
+}
+.mini-etiqueta {
+    margin: 5px 0 15px;
+    line-height: 1.5;
+    color: #705e82;
+}
+.modal-juego {
+    width: min(94vw, 620px);
+    max-width: 620px;
+}
+.mini-tablero {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 13px;
+    min-height: 210px;
+    padding: 18px;
+    border: 2px solid #dcc6e5;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #f6e9ff, #e6f7ff);
+    align-content: center;
+}
+.pieza-mini {
+    display: grid;
+    min-height: 75px;
+    place-items: center;
+    border: 2px solid #b693c9;
+    border-radius: 14px;
+    background: #fffaf0;
+    box-shadow: 0 4px 0 #c5a8ce;
+    font-size: 28px;
+    font-weight: 900;
+    color: #57425a;
+    transition: transform .12s ease, background .12s ease;
+}
+.pieza-mini:not(:disabled):hover {
+    transform: translateY(-3px);
+    background: #ffefba;
+}
+.pieza-mini.abierta,
+.pieza-mini.acertada {
+    background: #bce8c7;
+    box-shadow: none;
+}
+.pieza-mini:disabled {
+    cursor: default;
+}
+.mini-formas,
+.mini-estrellas {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.mini-mezclas {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.muestra-objetivo {
+    grid-column: 1 / -1;
+    display: grid;
+    min-height: 92px;
+    place-items: center;
+    border-radius: 16px;
+    color: #493d46;
+    font-size: 17px;
+    font-weight: 900;
+    text-align: center;
+}
+.mini-mezclas .tinte-mini {
+    font-size: 17px;
+    text-transform: capitalize;
+}
+.mini-progreso {
+    margin-bottom: 0;
+    color: #765e80;
+    text-align: center;
+}
+.mini-exito {
+    grid-column: 1 / -1;
+    font-size: 24px;
+    text-align: center;
+    color: #468452;
+    font-weight: 900;
+}
+.mini-tablero .boton-vamos-jugar {
+    grid-column: 1 / -1;
+}
+.trivia-regreso {
+    padding: 16px 20px 0;
+    text-align: center;
+}
+
+@media (max-width: 690px) {
+    .modal-edificio {
+        padding: 18px;
+        border-radius: 20px;
+    }
+    .modal-edificio h2 {
+        font-size: 23px;
+    }
+    .mini-tablero {
+        gap: 7px;
+        padding: 9px;
+    }
+    .pieza-mini {
+        min-height: 63px;
+        font-size: 23px;
+    }
 }

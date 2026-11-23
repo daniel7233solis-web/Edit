@@ -220,7 +220,8 @@ function dibujarPrenda(id, parte, desplazamientoY = DESFASE_VESTUARIO_Y) {
     const ajuste = AJUSTES_ROPA[id];
     const x = ajuste ? ajuste.x : 0;
     const y = ajuste ? ajuste.y : desplazamientoY;
-    image(recurso, x, y, recurso.width, recurso.height);
+    const ajusteRuedo = parte === 'torso' && ['remeraPistacho', 'remeraBlanca', 'blusa'].includes(id) ? 6 : 0;
+    image(recurso, x, y, recurso.width, recurso.height + ajusteRuedo);
   }
 }
 

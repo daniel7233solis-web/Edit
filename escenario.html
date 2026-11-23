@@ -30,11 +30,28 @@
             </div>
         </div>
     </main>
+    <dialog id="dialogoEdificio" class="modal-edificio" aria-labelledby="nombreEdificio">
+        <button id="cerrarModalEdificio" class="cerrar-modal" type="button" aria-label="Cerrar">×</button>
+        <p class="eyebrow">UNIVERSIDAD NACIONAL DE MORENO · EDIT</p>
+        <h2 id="nombreEdificio"></h2>
+        <p class="mini-etiqueta">Minijuego: <strong id="nombreMinijuego"></strong></p>
+        <img id="imagenMinijuego" class="preview-minijuego" alt="Vista previa del minijuego">
+        <p id="descripcionMinijuego" class="muted"></p>
+        <button id="irMinijuego" class="boton-vamos-jugar" type="button">▶ Ir al minijuego</button>
+    </dialog>
+    <dialog id="dialogoJuego" class="modal-edificio modal-juego" aria-labelledby="tituloJuego">
+        <button id="cerrarDialogoJuego" class="cerrar-modal" type="button" aria-label="Volver al mapa">×</button>
+        <p class="eyebrow">UNM · MINIJUEGO</p>
+        <h2 id="tituloJuego"></h2>
+        <p class="mini-etiqueta" id="mensajeJuego"></p>
+        <div id="tableroJuego" class="mini-tablero"></div>
+        <p class="mini-progreso">Progreso: <strong id="progresoJuego">0 / 4</strong></p>
+    </dialog>
     <script src="lib/p5.js"></script>
     <script src="js/assets.js"></script>
     <script src="js/mascota.js"></script>
     <script src="js/mapa.js"></script>
-    <script src="js/actividades.js"></script>
+    <script src="js/minijuegos.js"></script>
     <script src="js/casa.js"></script>
 </body>
 

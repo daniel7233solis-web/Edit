@@ -1,47 +1,36 @@
-# EDIT — Prototipo de mascota y casa interactiva
+# EDIT · Base compartida para Dani y Martín
 
-## Cómo abrirlo
+Abrí la carpeta `EDIT` en VS Code y ejecutá `index.html` con **Live Server**. No hace falta npm: `lib/p5.js` está incluido.
 
-1. Abrí la carpeta **EDIT** en Visual Studio Code.
-2. Iniciá **Live Server** en `index.html` (no abras el HTML directamente mediante `file://`).
-3. Entrá a **Crear personaje**. Podés elegir rasgos, remeras, falda/short, conjuntos y calzado.
-4. Los cambios se guardan automáticamente en el almacenamiento local del navegador; el botón **Guardar personaje** permite confirmarlo de forma visible. **Descargar imagen PNG** es una acción diferente.
-5. Entrá en **Jugar**, presioná **JUGAR** y explorá la casa con **A/D** o las flechas. En celulares, usá los controles táctiles.
-6. Los cuatro botones inferiores abren actividades de cursor; también se puede hacer clic sobre objetos cuando Mishi está cerca. La puerta del living lleva al mapa.
+## Recorrido
 
-No se requieren npm ni instalaciones externas. `lib/p5.js` está incluido. Nunito se obtiene de Google Fonts cuando hay conexión y dispone de alternativas locales.
+1. `personaje.html`: personalizá a Mishi, elegí ropa, guardá y presioná **¡Vamos a jugar!**. El guardado se almacena en `localStorage` de ese navegador; el PNG es una descarga distinta.
+2. `escenario.html`: presioná **JUGAR**. Mové a Mishi con **A/D** o las flechas (en celular, botones táctiles).
+3. Acercate a la cocina: **arrastrá el jabón** desde la bacha sobre Mishi hasta generar burbujas, o **arrastrá la manzana** hasta él. Hacé clic en la **cama** para dormir o en el **televisor** para encenderlo.
+4. En el extremo derecho de la casa, pasá el cursor por la **puerta**. Verás «Ir a la universidad». Hacé clic para entrar al mapa.
+5. Elegí entre **Dorrego, Daract I, Daract II, Laboratorios o Edificio Histórico**. Cada edificio abre su ficha; el botón «Ir al minijuego» inicia la actividad. La casa y el mapa permiten volver.
 
-## Ilustraciones
+La universidad puede abrirse directamente en `escenario.html?ir=universidad`.
 
-Los PNG originales de Iris permanecen intactos en `img/partes/` y `img/ropa/`. `img/miniaturas/` contiene recortes de **vista previa**, generados a partir de los PNG originales; no se utilizaron para reemplazar las capas del personaje. Las imágenes de referencia de vestuario están en `referencias/ejemplos-outfits/`.
+## Archivos para continuar
 
-Las capas del rostro y el pelo comparten las mismas coordenadas y transformaciones: no reciben animaciones independientes ni escala variable durante la caminata. Se conservaron sus posiciones específicas en `POSICIONES`, sin retocar los seis encastres de las pelucas. La composición lógica original mide 844 × 1227; el creador agrega margen transparente exterior para evitar recortes durante el saludo.
+- `js/assets.js`: catálogo de imágenes de piezas y ropa.
+- `js/mascota.js`: dibujo de Mishi y su animación articulada. La cabeza y el pelo conservan su encastre.
+- `js/personalizacion.js`: creador, selecciones y guardado.
+- `js/casa.js`: dibujo e interacción de la casa. Coordenadas de iconos: `OBJETO_COORDS`.
+- `js/mapa.js`: dibujo del parque y edificios. Lista de datos: `EDIFICIOS_UNM`.
+- `js/minijuegos.js`: memoria, formas, estrellas y colores.
+- `js/trivia.js`: trivia que ya existía, reutilizada para el Edificio Histórico.
+- `css/styles.css`: hoja de estilos de todo el proyecto.
 
-## Organización
+Los **PNG de Iris no fueron redibujados ni reemplazados**. Las miniaturas de prendas se conservan. Las imágenes `img/minijuegos/` son **previews ilustrativas** de los desafíos, reemplazables por capturas reales del juego cuando esté terminado.
 
-- `js/assets.js`: catálogo de piezas, ropa, colores y carga de imágenes.
-- `js/mascota.js`: estado persistente, dibujo de capas y articulaciones.
-- `js/personalizacion.js`: categorías, guardado y selección de vestuario.
-- `js/casa.js`: escenario, movimiento, cámara, navegación y HUD de actividades.
-- `js/actividades.js`: minijuegos de arrastrar, recorrer o tocar elementos; sin barras ni premios automáticos.
-- `js/mapa.js`: mapa existente.
-- `css/styles.css`: interfaz y adaptación a escritorio/celular.
+## Trabajo en paralelo
 
-La vista del escenario se ajusta al ancho y alto disponibles **sin deformar el juego**. JUGAR ya no solicita pantalla completa.
+Para evitar conflictos, conviene que **Dani** siga con el funcionamiento p5 de Mishi, casa y actividades (`mascota.js`, `casa.js`, `mapa.js`, `minijuegos.js`). **Martín** puede continuar con la interfaz HTML/CSS, diseño responsive y modales. Coordinar antes de modificar el mismo archivo.
 
-## Actividades
+### Todavía pendiente
 
-- **Dormir:** mantener presionado y seguir cinco estrellas en orden.
-- **Bañar:** arrastrar el cursor para limpiar ocho burbujas.
-- **Comer:** llevar tres manzanas a un objetivo.
-- **Jugar:** hacer clic en cinco destellos animados.
+Iris ofreció aportar nuevos PNG para expresiones de Mishi (ojos cerrados, sonrisa, tristeza y otras bocas). No están incorporados porque no forman parte de los PNG recibidos. La caminata sigue usando piezas frontales articuladas: un perfil 2D dibujado fielmente necesitará dibujos adicionales de perfil.
 
-Las acciones deben completarse; no modifican barras de energía, hambre, higiene o diversión (el HUD anterior fue retirado).
-
-## Alcance y próximas ilustraciones
-
-La caminata usa las piezas articuladas entregadas: brazos y piernas en contrafase, suavizado de inicio y frenada, y balanceo leve del torso sin rebote global. La dirección se refleja horizontalmente y la cabeza se mantiene rígida junto al pelo. **No hay ilustraciones laterales reales entre los archivos recibidos**, de modo que esta etapa crea una caminata de títere 2.5D, no un perfil lateral dibujado de cero. Para obtener una vista lateral idéntica a un juego con sprites de frente/perfil, hará falta ilustrar las poses laterales de Mishi.
-
-## Comprobaciones
-
-Se validó sintaxis de todos los archivos JavaScript y se ejecutaron pruebas con Chromium en escritorio y viewport móvil: creación de personaje, combinación de vestuario y calzado, guardado, ingreso al juego sin pantalla completa, caminata y finalización de las cuatro actividades. Durante esas comprobaciones no se registraron errores de JavaScript. Se recomienda probar de nuevo en el navegador de destino con Live Server antes de entregar el trabajo.
+**Verificación:** sintaxis, recursos y pruebas de lógica realizadas. La apertura local en Chromium estuvo bloqueada por una política de navegador; probar también el proyecto en Live Server antes de darlo por cerrado visualmente. Consultá `CAMBIOS_UNM_2026-11-22.md` para el detalle.

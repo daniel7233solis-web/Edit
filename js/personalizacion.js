@@ -199,16 +199,5 @@ document.addEventListener('DOMContentLoaded', () => {
     elemento('estado').textContent = '✓ Personaje guardado. ¡Ya podés ir a jugar!';
   });
   elemento('guardar').addEventListener('click', exportarMascota);
-  elemento('guardarConfig').addEventListener('click', async () => {
-    const configuracion = JSON.stringify({
-      nombre: elemento('nombre').value,
-      ...estadoMascota
-    }, null, 2);
-    try {
-      await navigator.clipboard.writeText(configuracion);
-      elemento('estado').textContent = '¡Configuración copiada!';
-    } catch (error) {
-      elemento('estado').textContent = 'No se pudo copiar automáticamente.';
-    }
-  });
+  elemento('vamosAJugar').addEventListener('click', guardarMascota);
 });
