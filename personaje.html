@@ -2,6 +2,13 @@
 <html lang="es">
 
 <head>
+  <script>
+    if (window === window.top) {
+      const pagina = location.pathname.split('/').pop() || 'index.html';
+      location.replace('app.html?pagina=' + encodeURIComponent(pagina + location.search));
+    }
+  </script>
+
   <meta charset="utf-8" />
   <meta content="width=device-width,initial-scale=1" name="viewport" />
   <title>
@@ -10,47 +17,25 @@
   <link href="css/styles.css" rel="stylesheet" />
 </head>
 
-<body>
+<body class="pagina-interior">
 
   <header class="encabezado">
-    <a href="index.html" class="logo">EDIT</a>
-
+    <a href="index.html" class="logo" aria-label="EDIT, inicio"><img src="img/portada/capas/edit 1.png" alt="EDIT"></a>
     <nav class="navegacion" aria-label="Navegación principal">
-      <a href="index.html">Novedades</a>
       <a href="personaje.html" class="activo" aria-current="page">Crear personaje</a>
       <a href="escenario.html">Jugar</a>
-      <a href="ayuda.html">Información y ayuda</a>
     </nav>
   </header>
 
-  <main class="layout">
+  <main class="pagina-creador">
+    <h1 class="titulo-creador">Tu mascota UNM</h1>
+    <div class="layout">
     <aside class="panel categories">
-      <p class="eyebrow">
-        01 / CREAR
-      </p>
-      <h1>
-        ¡Dale vida a tu mascota!
-      </h1>
-      <p class="muted">
-        Elegí cada detalle y mirá cómo se mueve.
-      </p>
       <nav aria-label="Partes de la mascota" id="categorias">
       </nav>
-      <div class="hint">
-        ✦ Todas las piezas se pueden combinar.
-      </div>
+
     </aside>
     <section aria-label="Vista previa de la mascota" class="stage">
-      <div class="stage-top">
-        <span class="live">
-          <i>
-          </i>
-          VISTA EN VIVO
-        </span>
-        <span>
-          Tu mascota, tu estilo ♡
-        </span>
-      </div>
       <div class="canvas-wrap" id="lienzo">
       </div>
       <div class="stage-bottom">
@@ -67,9 +52,6 @@
       </div>
     </section>
     <aside class="panel options">
-      <p class="eyebrow">
-        02 / PERSONALIZAR
-      </p>
       <h2 id="tituloOpciones">
         Pelucas
       </h2>
@@ -90,16 +72,20 @@
           Nombre de tu mascota
         </label>
         <input id="nombre" maxlength="24" placeholder="Ej. Mishi" value="Mishi" />
-        <button class="primary" id="guardar">
-          ↓ Guardar imagen PNG
+        <button class="primary" id="guardarPersonaje" type="button">
+          ♡ Guardar personaje
         </button>
-        <button class="ghost full" id="guardarConfig">
-          Copiar configuración
+        <a class="boton-vamos-jugar" id="vamosAJugar" href="escenario.html">
+          ▶ ¡Vamos a jugar!
+        </a>
+        <button class="ghost full" id="guardar" type="button">
+          Descargar imagen PNG
         </button>
-        <p id="estado" role="status">
-        </p>
+        <p id="estado" role="status"></p>
+        <p class="save-note">Presioná «Guardar personaje» para conservar tus cambios. Se guardarán en este navegador.</p>
       </div>
     </aside>
+    </div>
   </main>
   <footer>
     EDIT · Prototipo interactivo desarrollado con HTML, CSS, JavaScript y p5.js
@@ -109,8 +95,7 @@
       ¡Bienvenida a EDIT! ✨
     </h2>
     <p>
-      Elegí una categoría a la izquierda, seleccioná las piezas y cambiá los colores. La mascota respira y mueve los
-      brazos suavemente. Podés guardar una imagen PNG y copiar tu selección.
+      Elegí los rasgos, la ropa y el calzado. Usá «Guardar personaje» para conservarlos en este navegador. «Descargar imagen PNG» exporta una imagen, no el progreso.
     </p>
     <button class="primary" id="cerrarAyuda">
       ¡Entendido!
@@ -135,6 +120,8 @@
   </script>
 
   <script src="js/personalizacion.js"></script>
+  <script src="js/efectos-ui.js" defer></script>
+  <script src="js/audio-edit.js" defer></script>
 </body>
 
 </html>

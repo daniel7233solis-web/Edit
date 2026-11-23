@@ -1,44 +1,17 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EDIT | Mapa Mundo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="refresh" content="0;url=escenario.html?ir=universidad">
+    <title>EDIT | Universidad</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
-
 <body>
-
-    <header class="encabezado">
-        <a href="index.html" class="logo">EDIT</a>
-
-        <nav class="navegacion" aria-label="Navegación principal">
-            <a href="index.html">Novedades</a>
-            <a href="personaje.html">Crear personaje</a>
-            <a href="escenario.html">Jugar</a>
-            <a href="ayuda.html">Información y ayuda</a>
-        </nav>
-    </header>
-
     <main class="contenido-principal">
-
-        <section class="mapa-mundo">
-
-            <h1>Mapa Mundo</h1>
-
-            <p>¿A dónde vamos hoy, Mishi?</p>
-
-            <div class="mapa-escenario" id="lienzo-mapa"></div>
-
-
-        </section>
-
+        <h1>Mapa de la Universidad</h1>
+        <p><a class="boton-accion" href="escenario.html?ir=universidad">Abrir mapa interactivo de la UNM</a></p>
     </main>
-
-    <script src="lib/p5.js"></script>
-    <script src="js/mapa.js"></script>
-
+    <script>location.replace('escenario.html?ir=universidad');</script>
 </body>
-
 </html>

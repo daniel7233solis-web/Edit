@@ -2,24 +2,28 @@
 <html lang="es">
 
 <head>
+  <script>
+    if (window === window.top) {
+      const pagina = location.pathname.split('/').pop() || 'index.html';
+      location.replace('app.html?pagina=' + encodeURIComponent(pagina + location.search));
+    }
+  </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EDIT | Información y ayuda</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 
-<body>
+<body class="pagina-interior">
 
     <header class="encabezado">
-        <a href="index.html" class="logo">EDIT</a>
-
-        <nav class="navegacion" aria-label="Navegación principal">
-            <a href="index.html">Novedades</a>
-            <a href="personaje.html">Crear personaje</a>
-            <a href="escenario.html">Jugar</a>
-            <a href="ayuda.html" class="activo" aria-current="page">Información y ayuda</a>
-        </nav>
-    </header>
+    <a href="index.html" class="logo" aria-label="EDIT, inicio"><img src="img/portada/capas/edit 1.png" alt="EDIT"></a>
+    <nav class="navegacion" aria-label="Navegación principal">
+      <a href="personaje.html">Crear personaje</a>
+      <a href="escenario.html">Jugar</a>
+    </nav>
+  </header>
 
     <main class="contenido-principal">
         <section>
@@ -40,6 +44,8 @@
         </section>
     </main>
 
+  <script src="js/efectos-ui.js" defer></script>
+  <script src="js/audio-edit.js" defer></script>
 </body>
 
 </html>

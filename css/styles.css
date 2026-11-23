@@ -1,4 +1,25 @@
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap");
+/* Tipografías de EDIT. */
+@font-face {
+    font-family: 'Butterpop';
+    src: url('../tipografia/Butterpop.otf') format('opentype'), local('Butterpop');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Pulang';
+    src: url('../tipografia/Pulang.otf') format('opentype'), local('Pulang');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Super Unicorn';
+    src: url('../tipografia/Super Unicorn.ttf') format('truetype'), local('Super Unicorn');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
 
 
 :root {
@@ -21,6 +42,14 @@
 
 * {
     box-sizing: border-box;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+html {
+    scrollbar-gutter: stable;
 }
 
 body {
@@ -111,14 +140,6 @@ input:focus-visible {
     padding: 25px 20px;
 }
 
-.eyebrow {
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: #ae86bf;
-    font-weight: 900;
-    margin: 0 0 15px;
-}
-
 h1 {
     font-size: 26px;
     line-height: 1.16;
@@ -161,7 +182,7 @@ h3 {
         inset 0 -2px 3px rgba(190, 100, 130, 0.08),
         0 3px 6px rgba(150, 90, 120, 0.08);
     text-align: center;
-    padding: 12px 5px;
+    padding: 6px;
     font-weight: 800;
     color: var(--ink);
     transition: .15s;
@@ -169,8 +190,8 @@ h3 {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 7px;
     min-height: 88px;
+    gap: 0;
 }
 
 .cat:hover {
@@ -180,8 +201,6 @@ h3 {
             var(--color-amarillo) 70%,
             #f5dc72 100%);
 }
-
-
 .cat.active {
     background: linear-gradient(to bottom,
             #fff0f4 0%,
@@ -190,6 +209,15 @@ h3 {
             #f493a9 100%);
     color: var(--ink);
     border-color: #e98ca4;
+}
+
+.cat-imagen {
+    display: block;
+    width: 70px;
+    height: 70px;
+    max-width: 100%;
+    object-fit: contain;
+    pointer-events: none;
 }
 
 
@@ -339,14 +367,24 @@ h3 {
 
 .choice img {
     width: 100%;
-    height: 61px;
+    height: 72px;
     object-fit: contain;
 }
 
+.choice:focus-visible,
+.cat:focus-visible {
+    outline: 3px solid #a77ec9;
+    outline-offset: 2px;
+}
+
+.choices .choice span:last-child {
+    line-height: 1.25;
+}
+
 .colors-area {
-    margin-top: 24px;
+    margin-top: 12px;
     border-top: 1px solid var(--line);
-    padding-top: 20px;
+    padding-top: 12px;
 }
 
 .swatches {
@@ -368,14 +406,33 @@ h3 {
 }
 
 .save-area {
-    margin-top: 30px;
+    margin-top: 12px;
     border-top: 1px solid var(--line);
-    padding-top: 20px;
+    padding-top: 12px;
+}
+
+.save-note {
+    margin: 9px 0 13px;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #568b64;
+}
+
+.opcion-sin-prenda {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 52px;
+    border-radius: 16px;
+    background: #fff;
+    color: #ad88bb;
+    font-size: 32px;
 }
 
 .save-area label {
     display: block;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 800;
     margin-bottom: 9px;
 }
@@ -405,6 +462,30 @@ h3 {
     box-shadow:
         inset 0 2px 3px rgba(255, 255, 255, 0.65),
         0 4px 8px rgba(65, 145, 180, 0.18);
+}
+
+.boton-vamos-jugar {
+    display: block;
+    width: 100%;
+    margin-top: 13px;
+    padding: 14px 15px;
+    border: 2px solid #e69d60;
+    border-radius: 14px;
+    color: var(--ink);
+    background: linear-gradient(180deg, #ffe6aa, #ffbb7e 65%, #f5a36d);
+    box-shadow: 0 5px 12px #d9906c2a;
+    text-align: center;
+    font-weight: 900;
+    text-decoration: none;
+    transition: transform .15s ease, filter .15s ease;
+}
+.boton-vamos-jugar:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.035);
+}
+.boton-vamos-jugar:focus-visible {
+    outline: 3px solid #a77ec9;
+    outline-offset: 3px;
 }
 
 .boton-accion {
@@ -617,7 +698,7 @@ dialog p {
     border-radius: 14px;
     color: var(--ink);
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 800;
     transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
@@ -633,7 +714,6 @@ dialog p {
 .navegacion a.activo {
     background-color: var(--color-rosa);
     color: var(--ink);
-    font-weight: 800;
 }
 
 /* Contenido principal */
@@ -644,6 +724,97 @@ dialog p {
     margin: 0 auto;
     padding: 32px;
     box-sizing: border-box;
+}
+
+/* Juego: lienzo proporcional que utiliza TODO el espacio libre de la página. */
+.pagina-juego {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 540px;
+    overflow: hidden;
+}
+
+.pagina-juego .encabezado {
+    flex: 0 0 auto;
+}
+
+.contenido-principal.contenido-juego {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-width: none;
+    padding: 0 clamp(9px, 1.5vw, 24px) clamp(9px, 1.5vw, 20px);
+    display: flex;
+}
+
+.juego-marco {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border: 3px solid #dcb9d0;
+    border-radius: 24px;
+    background: #e3f2dc;
+    box-shadow: 0 14px 36px #54425c1c;
+}
+
+#escenario {
+    width: 100%;
+    height: 100%;
+}
+
+#escenario canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    touch-action: none;
+}
+
+.controles-tactiles {
+    display: none;
+}
+
+@media (max-width: 690px) {
+    .pagina-juego {
+        min-height: 610px;
+    }
+
+    .encabezado {
+        gap: 8px;
+        padding: 10px 12px;
+    }
+
+    .navegacion {
+        gap: 4px;
+    }
+
+    .navegacion a {
+        padding: 7px 8px;
+        font-size: 11px;
+    }
+
+    .pagina-juego.juego-activo .controles-tactiles {
+        display: flex;
+        position: absolute;
+        left: 12px;
+        bottom: 96px;
+        gap: 8px;
+        z-index: 2;
+        touch-action: none;
+    }
+
+    .controles-tactiles button {
+        width: 45px;
+        height: 45px;
+        border-radius: 14px;
+        border: 2px solid #493d46;
+        background: #fff9efe9;
+        color: #493d46;
+        font-weight: 900;
+        touch-action: none;
+    }
 }
 
 /* Tarjetas de novedades */
@@ -708,19 +879,8 @@ dialog p {
     transform: translateY(-3px);
 }
 
-@font-face {
-    font-family: 'Darling Coffee';
-    src: url('../tipografia/Darling Coffee.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
-.logo {
-    font-family: 'Darling Coffee', cursive;
-    letter-spacing: 1px;
-    font-size: 32px;
-}
+/* Logotipo y tipografía de marca. */
+.logo { font-family: 'Super Unicorn', 'Trebuchet MS', sans-serif; letter-spacing: .02em; }
 
 /* ==========================================
    MINIJUEGO: TEORÍA Y TRIVIA
@@ -1033,4 +1193,1215 @@ a.mapa-lugar:hover {
 .mapa-lugar-bloqueado {
     background-color: #e7e1e8;
     opacity: 0.7;
+}
+/* Universidad: modal de cada edificio y minijuegos del campus. */
+.modal-edificio {
+    position: fixed;
+    width: min(92vw, 540px);
+    max-width: 540px;
+    max-height: min(88dvh, 770px);
+    overflow-y: auto;
+    padding: 27px;
+    border: 3px solid #d9b5cd;
+    border-radius: 26px;
+    background: #fffaf5;
+    box-shadow: 0 22px 70px #40314d70;
+    color: var(--ink);
+}
+.modal-edificio::backdrop {
+    background: #2c233d8c;
+    backdrop-filter: blur(5px);
+}
+.modal-edificio h2 {
+    margin: 5px 40px 7px 0;
+    font-size: 29px;
+}
+.modal-edificio .muted {
+    font-size: 14px;
+    margin: 14px 0;
+}
+.cerrar-modal {
+    position: absolute;
+    top: 13px;
+    right: 13px;
+    display: grid;
+    width: 42px;
+    height: 42px;
+    place-items: center;
+    border: 1px solid #e9cfdc;
+    border-radius: 50%;
+    background: #fff;
+    color: #735675;
+    font-size: 30px;
+}
+.cerrar-modal:hover {
+    background: #ffe8ed;
+}
+.preview-minijuego {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    margin-top: 15px;
+    border: 2px solid #e3c7db;
+    border-radius: 16px;
+    background: #efe9ff;
+}
+.mini-etiqueta {
+    margin: 5px 0 15px;
+    line-height: 1.5;
+    color: #705e82;
+}
+.mini-tablero {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 13px;
+    min-height: 210px;
+    padding: 18px;
+    border: 2px solid #dcc6e5;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #f6e9ff, #e6f7ff);
+    align-content: center;
+}
+.pieza-mini {
+    display: grid;
+    min-height: 75px;
+    place-items: center;
+    border: 2px solid #b693c9;
+    border-radius: 14px;
+    background: #fffaf0;
+    box-shadow: 0 4px 0 #c5a8ce;
+    font-size: 28px;
+    font-weight: 900;
+    color: #57425a;
+    transition: transform .12s ease, background .12s ease;
+}
+.pieza-mini:not(:disabled):hover {
+    transform: translateY(-3px);
+    background: #ffefba;
+}
+.pieza-mini.abierta,
+.pieza-mini.acertada {
+    background: #bce8c7;
+    box-shadow: none;
+}
+.pieza-mini:disabled {
+    cursor: default;
+}
+.mini-formas {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.mini-mezclas {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.muestra-objetivo {
+    grid-column: 1 / -1;
+    display: grid;
+    min-height: 92px;
+    place-items: center;
+    border-radius: 16px;
+    color: #493d46;
+    font-size: 17px;
+    font-weight: 900;
+    text-align: center;
+}
+.mini-mezclas .tinte-mini {
+    font-size: 17px;
+    text-transform: capitalize;
+}
+.mini-progreso {
+    margin-bottom: 0;
+    color: #765e80;
+    text-align: center;
+}
+.mini-exito {
+    grid-column: 1 / -1;
+    font-size: 24px;
+    text-align: center;
+    color: #468452;
+    font-weight: 900;
+}
+.mini-tablero .boton-vamos-jugar {
+    grid-column: 1 / -1;
+}
+.trivia-regreso {
+    padding: 16px 20px 0;
+    text-align: center;
+}
+
+@media (max-width: 690px) {
+    .modal-edificio {
+        padding: 18px;
+        border-radius: 20px;
+    }
+    .modal-edificio h2 {
+        font-size: 23px;
+    }
+    .mini-tablero {
+        gap: 7px;
+        padding: 9px;
+    }
+    .pieza-mini {
+        min-height: 63px;
+        font-size: 23px;
+    }
+}
+/* ================================================================
+   EDIT · Identidad visual (interfaz). No altera dibujos ni lógica p5.
+   Paleta: rosa #FAA4B5 · fawn #F8B77C · maíz #FFF183
+           celeste #70C1E1 · verde #82BA88
+   Los nombres de las fuentes se reconocen cuando el usuario las tenga
+   instaladas. No se incluyen archivos de tipografía ajenos.
+   ================================================================ */
+:root {
+    --color-rosa: #FAA4B5;
+    --color-naranja: #F8B77C;
+    --color-amarillo: #FFF183;
+    --color-celeste: #70C1E1;
+    --color-verde: #82BA88;
+    --ink: #42304f;
+    --muted: #746282;
+    --line: #edd0de;
+}
+/* Separación ligera para evitar que los trazos redondos se junten.
+   Desactivamos la falsa negrita; las fuentes originales ya son gruesas. */
+body {
+    font-family: 'Pulang', 'Trebuchet MS', sans-serif;
+    font-synthesis: none;
+    letter-spacing: .025em;
+    line-height: 1.52;
+}
+h1, h2, h3, .navegacion a, .primary, .ghost, .boton-vamos-jugar,
+.boton-caramelo, .trivia button, .modal-edificio h2 {
+    font-family: 'Butterpop', 'Trebuchet MS', sans-serif;
+    font-weight: 400;
+    letter-spacing: .042em;
+    line-height: 1.28;
+}
+p, .muted, .save-note, .choice, .mini-etiqueta {
+    letter-spacing: .025em;
+    line-height: 1.55;
+}
+
+.encabezado, .pagina-juego .encabezado {
+    flex-shrink: 0;
+    align-items: center;
+    min-height: 88px;
+    padding: 13px clamp(15px, 3vw, 48px);
+    gap: 12px;
+}
+.encabezado .logo {
+    display: block;
+    width: clamp(108px, 10vw, 150px);
+    min-width: 96px;
+    height: auto;
+    line-height: 0;
+}
+.encabezado .logo img { display: block; width: 100%; height: auto; }
+.navegacion { flex-wrap: nowrap; gap: clamp(5px, 1vw, 15px); }
+.navegacion a {
+    padding: 11px clamp(12px, 1.3vw, 19px);
+    border: 2px solid transparent;
+    font-weight: 400;
+    white-space: nowrap;
+    text-align: center;
+}
+.navegacion a.activo {
+    color: var(--ink);
+    background: linear-gradient(#ffd8e5, var(--color-rosa));
+    border-color: #e685aa;
+    box-shadow: 0 4px 0 #de83a5;
+}
+.navegacion a:hover { background: #fff2b3; }
+.pagina-interior {
+    background: linear-gradient(150deg, #dff6ff 0%, #fff4de 49%, #ffe1e9 100%);
+}
+.pagina-interior .panel {
+    background: #fffcfaf5;
+    border: 2px solid #f3bfce;
+    box-shadow: 0 9px 0 #edb2c46b, 0 18px 35px #6a4d781f;
+}
+.pagina-interior .stage {
+    border: 2px solid #b7e1f3;
+    box-shadow: 0 8px 0 #8fd2e76a, 0 18px 34px #6c477d18;
+}
+.cat { gap: 0; padding: 7px; min-height: 82px; }
+.cat-imagen { display: block; width: 68px; height: 68px; max-width: 100%; object-fit: contain; pointer-events: none; }
+.cat.active { box-shadow: 0 4px 0 #d97b9b, 0 6px 13px #aa708a3a; }
+.cat:hover { transform: translateY(-2px) scale(1.025); }
+.primary { background: linear-gradient(#b0e8fb, #70C1E1); }
+.boton-vamos-jugar {
+    background: linear-gradient(#fff2af, #F8B77C);
+    border: 2px solid #e7a06b;
+    border-radius: 15px;
+    box-shadow: 0 5px 0 #dfa06b;
+    font-weight: 900;
+}
+.boton-vamos-jugar:hover { transform: translateY(-2px); }
+
+/* La portada conserva el fondo, la mascota, el logo y las decoraciones
+   según las ilustraciones originales del proyecto. */
+html.html-portada { scrollbar-gutter: auto; }
+body.pagina-portada {
+    min-width: 320px;
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    background: var(--color-celeste);
+}
+.pagina-portada .encabezado-portada {
+    position: absolute;
+    z-index: 40;
+    top: clamp(12px, 2.2vh, 22px);
+    left: clamp(12px, 2.9vw, 53px);
+    right: clamp(12px, 2.9vw, 53px);
+    width: auto;
+    min-height: 76px;
+    padding: 8px clamp(17px, 2vw, 32px);
+    border-radius: 99px;
+    border: 2px solid #e594b5;
+    background: linear-gradient(#fffefa, #fff1f6);
+    box-shadow: inset 0 2px 0 #fff, 0 6px 0 #9e63862c, 0 14px 20px #57426c2b;
+}
+.pagina-portada .encabezado-portada .logo { width: clamp(104px, 9vw, 145px); }
+.pagina-portada .navegacion a { font-size: clamp(13px, 1.1vw, 18px); }
+.portada {
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    min-height: 690px;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    background: var(--color-celeste);
+}
+.portada-fondo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    filter: saturate(1.06);
+    user-select: none;
+    pointer-events: none;
+}
+.portada-mascota {
+    position: absolute;
+    z-index: 2;
+    left: 35.5%;
+    bottom: -1%;
+    width: min(75vw, 1360px);
+    height: auto;
+    pointer-events: none;
+    user-select: none;
+}
+.portada-contenido {
+    position: absolute;
+    z-index: 8;
+    left: clamp(30px, 7.2%, 145px);
+    top: clamp(142px, 19%, 240px);
+    width: min(37%, 550px);
+}
+.portada-marca { display: flex; flex-direction: column; align-items: flex-start; }
+.portada-marca h1 { margin: 0; line-height: 0; }
+.portada-marca h1 img {
+    display: block;
+    width: min(100%, 475px);
+    height: auto;
+    filter: drop-shadow(0 5px 0 #fff7f7d0);
+}
+.portada-subtitulo {
+    display: block;
+    width: min(77%, 356px);
+    height: auto;
+    margin: 0 0 0 8%;
+}
+.portada-acciones { display: flex; flex-direction: column; align-items: flex-start; gap: 17px; margin-top: 28px; }
+.boton-caramelo {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: min(100%, 490px);
+    min-height: clamp(68px, 7vw, 94px);
+    padding: 15px 23px;
+    color: #fffcf7;
+    font-size: clamp(22px, 2.15vw, 36px);
+    font-weight: 400;
+    line-height: 1.25;
+    letter-spacing: .045em;
+    text-decoration: none;
+    text-align: center;
+    text-shadow: -2px -2px 0 #77445e, 2px -2px 0 #77445e,
+                 -2px 2px 0 #77445e, 2px 2px 0 #77445e, 0 3px 0 #77445e;
+    border-radius: 90px;
+    border: 4px solid #80516b;
+    box-shadow: inset 0 6px 0 #fffdf7ad, inset 0 -6px 0 #87544b32,
+                0 7px 0 #704967, 0 15px 18px #904c7738;
+    transition: filter .17s ease, scale .17s ease;
+}
+.boton-caramelo:before {
+    content: '';
+    position: absolute;
+    top: 17%;
+    left: 13%;
+    width: 22%;
+    height: 8px;
+    border-radius: 12px;
+    background: #ffffff9e;
+    transform: rotate(-7deg);
+    pointer-events: none;
+}
+.boton-caramelo-amarillo { background: linear-gradient(#fff5a5, #ffdc57 42%, #ffb338 78%, #f3a340); }
+.boton-caramelo-verde {
+    width: 82%;
+    align-self: center;
+    min-height: clamp(60px, 6vw, 76px);
+    font-size: clamp(19px, 1.85vw, 31px);
+    border-color: #456d53;
+    background: linear-gradient(#dff8ad, #a9df7b 43%, #75b96c);
+    box-shadow: inset 0 5px 0 #fffaf3ba, inset 0 -5px 0 #456b363d,
+                0 6px 0 #456c51, 0 14px 15px #69496436;
+}
+.boton-caramelo:hover { filter: brightness(1.05) saturate(1.04); scale: 1.035; }
+.boton-caramelo:active { scale: .97; }
+.boton-caramelo:focus-visible, .control-musica:focus-visible { outline: 3px solid #432750; outline-offset: 3px; }
+.portada-decoraciones { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.deco-portada { position: absolute; width: clamp(60px, 9vw, 137px); height: auto; pointer-events: none; }
+.deco-corazon { top: 14%; right: 35%; width: clamp(64px, 8vw, 120px); }
+.deco-amarillo { top: 14%; right: 9%; width: clamp(62px, 8vw, 122px); }
+.deco-celeste { bottom: 21%; right: 4%; width: clamp(55px, 6.5vw, 105px); }
+.deco-rosa { top: 39%; right: 2%; width: clamp(54px, 7vw, 105px); }
+.capa-entrada { animation: entrar-edit .95s cubic-bezier(.15,.82,.29,1.08) both; animation-delay: var(--demora, .22s); }
+@keyframes entrar-edit {
+    from { opacity: 0; transform: translateY(110px) scale(.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.corazon-click {
+    position: fixed;
+    z-index: 1000;
+    pointer-events: none;
+    font: 28px/1 'Nunito',sans-serif;
+    text-shadow: 1px 2px 0 #fffaf9;
+    animation: saltar-corazon .88s ease-out both;
+    animation-delay: var(--retraso,0ms);
+}
+@keyframes saltar-corazon {
+    from { opacity: 1; transform: translate(-50%,-50%) scale(.5) rotate(-18deg); }
+    65% { opacity: 1; }
+    to { opacity: 0; transform: translate(calc(-50% + var(--mover-x)),calc(-50% + var(--mover-y))) scale(1.14) rotate(17deg); }
+}
+.control-musica {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    min-width: 46px;
+    height: 46px;
+    border: 2px solid #df90b1;
+    border-radius: 50%;
+    background: linear-gradient(#fff5d9, #ffd3e1);
+    color: #513554;
+    font: 900 23px/1 'Nunito', sans-serif;
+    box-shadow: 0 4px 0 #d882a0;
+    transition: background .2s ease, transform .2s ease;
+}
+.control-musica:hover { background: #fce9ac; transform: translateY(-2px); }
+.control-musica.musica-activa { background: linear-gradient(#fff2b0,#aaddba); border-color: #8ab697; }
+@media (max-width: 1100px) and (min-width:691px) {
+    .portada-contenido { left: 5%; width: 41%; top: 22%; }
+    .portada-mascota { left: 43%; width: 93vw; bottom: 15%; }
+    .boton-caramelo { font-size: clamp(20px,2.4vw,30px); min-height: 72px; }
+    .boton-caramelo-verde { min-height: 62px; }
+}
+
+/* EDIT · Ajustes de entrega: portada y creador sin textos redundantes. */
+.pagina-portada .encabezado-portada {
+    top: 0;
+    left: 0;
+    right: 0;
+    min-height: 80px;
+    padding: 12px clamp(18px, 3vw, 54px);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+.pagina-portada .encabezado-portada .logo { width: clamp(87px, 7.2vw, 123px); }
+.pagina-portada .navegacion a {
+    background: #fffbf1c9;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px #7050781c;
+}
+.pagina-portada .portada-contenido {
+    top: clamp(127px, 17vh, 202px);
+    left: clamp(26px, 7.4vw, 137px);
+    width: min(36%, 580px);
+}
+.pagina-portada .portada-marca h1 img { width: min(100%, 480px); }
+.pagina-portada .portada-subtitulo { margin: 10px 0 0 13%; width: min(72%, 330px); }
+.pagina-portada .portada-acciones { margin-top: 43px; }
+.portada-nariz {
+    position: absolute;
+    z-index: 9;
+    left: 72.6%;
+    top: 84%;
+    width: clamp(34px, 4.8vw, 78px);
+    height: clamp(30px, 4.3vw, 70px);
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+}
+.portada-nariz:focus-visible { outline: 3px dashed #fff; outline-offset: 3px; }
+.deco-extra-uno { top: 33%; left: 6%; width: clamp(30px, 4vw, 63px); }
+.deco-extra-dos { bottom: 22%; left: 30%; width: clamp(38px, 4.3vw, 73px); }
+.deco-extra-tres { top: 25%; right: 42%; width: clamp(29px, 3vw, 50px); }
+/* Decoraciones de la portada. */
+.deco-flor-nueva-a { top: 22%; left: 2%; width: clamp(34px, 4vw, 61px); }
+.deco-flor-nueva-b { bottom: 9%; left: 22%; width: clamp(45px, 5vw, 88px); }
+.deco-corazon-nuevo-a { top: 29%; right: 27%; width: clamp(35px, 4.6vw, 73px); }
+.deco-corazon-nuevo-b { bottom: 11%; left: 5%; width: clamp(38px, 4.5vw, 80px); }
+.deco-flor-nueva-c { bottom: 21%; right: 2.5%; width: clamp(37px, 4.5vw, 78px); }
+
+
+/* El título del creador queda ARRIBA de las tres columnas. */
+.pagina-creador { width: 100%; }
+.titulo-creador {
+    max-width: 1450px;
+    margin: 0 auto;
+    padding: 5px 30px 12px;
+    font: 400 clamp(24px, 2.5vw, 38px)/1.25 'Butterpop', 'Trebuchet MS', sans-serif;
+    letter-spacing: .045em;
+    text-align: center;
+    color: #42304f;
+}
+.pagina-creador .layout { min-height: 0; align-items: stretch; padding-top: 0; }
+.pagina-creador .panel { padding: 17px 17px 20px; }
+.pagina-creador .categories nav { gap: 8px; }
+.pagina-creador .cat { min-height: 70px; }
+.pagina-creador .cat-imagen { width: 58px; height: 58px; }
+.pagina-creador .stage {
+    min-height: min(690px, calc(100dvh - 156px));
+    max-height: 740px;
+}
+.pagina-creador .canvas-wrap canvas { max-height: min(580px, calc(100dvh - 230px)); }
+.pagina-creador .stage-bottom { padding: 10px; }
+.pagina-creador .options h2,
+.pagina-creador .options h3,
+.pagina-creador .save-area label {
+    font-family: 'Butterpop', 'Trebuchet MS', sans-serif;
+}
+.pagina-creador .options .muted,
+.pagina-creador .choice,
+.pagina-creador .save-note,
+.pagina-creador #estado,
+.pagina-creador .save-area input {
+    font-family: 'Pulang', 'Trebuchet MS', sans-serif;
+}
+.pagina-creador .options .muted { margin-bottom: 10px; }
+.pagina-creador .save-area { margin-top: 12px; padding-top: 14px; }
+.pagina-creador #estado { min-height: 18px; margin: 7px 0 0; }
+.pagina-creador .save-note { margin: 10px 0 0; color: #806b83; }
+.pagina-creador .ghost.full { margin-top: 8px; }
+.pagina-creador .options { display: flex; flex-direction: column; }
+
+/* Flechas activas en escritorio y móvil, también permiten navegar sin teclado. */
+.pagina-juego.juego-activo .controles-tactiles {
+    position: absolute;
+    left: clamp(8px, 1.6vw, 24px);
+    bottom: clamp(10px, 3vh, 30px);
+    z-index: 5;
+    display: flex;
+    gap: 10px;
+    touch-action: none;
+}
+.controles-tactiles button {
+    width: 57px;
+    height: 57px;
+    border: 3px solid #705078;
+    border-radius: 18px;
+    background: linear-gradient(#fff7ba, #FAA4B5);
+    box-shadow: 0 4px 0 #835d84;
+    color: #42304f;
+    font: 900 26px/1 'Butterpop', sans-serif;
+    touch-action: none;
+}
+.modal-tele video { display: block; width: 100%; max-height: 56vh; border-radius: 14px; background: #312b40; }
+.modal-tele video[hidden] { display: none; }
+.modal-tele #mensajeTele { text-align: center; color: #735c7d; }
+
+@media (max-width:690px) {
+    .encabezado, .pagina-juego .encabezado { min-height: 65px; padding: 10px 12px; }
+    .encabezado .logo { width: 97px; min-width: 82px; }
+    .navegacion { gap: 3px; }
+    .navegacion a { padding: 7px 7px; font-size: 11px; }
+    .control-musica { width: 36px; min-width: 36px; height: 36px; font-size: 19px; }
+    .pagina-portada .encabezado-portada {
+        min-height: 60px;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 7px 10px;
+        border: none;
+        background: transparent;
+        box-shadow: none;
+    }
+    .pagina-portada .encabezado-portada .logo { width: 88px; }
+    .pagina-portada .navegacion a { font-size: 11px; padding: 7px 7px; }
+    .portada { min-height: 735px; }
+    .pagina-portada .portada-contenido { top: 15%; left: 5%; width: 90%; }
+    .portada-marca { align-items: center; }
+    .portada-marca h1 img { width: min(68vw, 275px); }
+    .portada-subtitulo { width: min(64vw, 247px); margin: 0 auto; }
+    .pagina-portada .portada-acciones { margin-top: 28px; gap: 12px; align-items: center; }
+    .boton-caramelo { width: min(93%,380px); min-height: 60px; padding: 10px 12px; font-size: clamp(20px,5.3vw,27px); border-width: 3px; }
+    .boton-caramelo-verde { min-height: 52px; width: min(80%,305px); font-size: clamp(18px,4.6vw,24px); }
+    .portada-mascota { width: 170vw; left: -34%; bottom: 8%; }
+    .deco-corazon { top: 31%; left: 3%; width: 60px; }
+    .deco-amarillo { top: 28%; right: 5%; width: 58px; }
+    .deco-celeste { bottom: 18%; right: 2%; width: 55px; }
+    .deco-rosa { display: none; }
+    .deco-extra-uno { top: 29%; left: 3%; width: 33px; }
+    .deco-extra-dos { bottom: 21%; left: 3%; width: 36px; }
+    .deco-extra-tres { top: 41%; right: 6%; width: 27px; }
+    .portada-nariz { left: 47%; top: 85%; width: 48px; height: 43px; }
+    .titulo-creador { padding: 9px 14px 10px; font-size: 27px; }
+    .pagina-creador .stage { min-height: 410px; max-height: 500px; }
+    .pagina-creador .canvas-wrap canvas { max-height: 385px; }
+    .pagina-juego.juego-activo .controles-tactiles { left: 10px; bottom: 12px; }
+    .controles-tactiles button { width: 48px; height: 48px; font-size: 23px; }
+    .cat-imagen { width: 56px; height: 56px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .capa-entrada, .corazon-click { animation: none !important; }
+    *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
+
+/* Entrega 23/11: separación entre marca y acciones de portada. */
+@media (min-width: 691px) {
+    .pagina-portada .portada-contenido {
+        top: clamp(158px, 20vh, 228px);
+    }
+    .pagina-portada .portada-subtitulo {
+        margin-top: 20px;
+    }
+    .pagina-portada .portada-acciones {
+        margin-top: clamp(65px, 10vh, 108px);
+    }
+}
+@media (max-width: 690px) {
+    .pagina-portada .portada-acciones { margin-top: clamp(26px, 4.5vh, 49px); }
+    .deco-flor-nueva-a { top: 30%; left: 3%; width: 29px; }
+    .deco-flor-nueva-b { bottom: 23%; left: 2%; width: 35px; }
+    .deco-corazon-nuevo-a { top: 58%; right: 4%; width: 34px; }
+    .deco-corazon-nuevo-b { display: none; }
+    .deco-flor-nueva-c { bottom: 13%; right: 7%; width: 30px; }
+}
+/* El botón de silencio del televisor se integra con los controles de EDIT. */
+.control-volumen-tv {
+    border: 2px solid #c988aa;
+    border-radius: 15px;
+    min-height: 42px;
+    padding: 7px 15px;
+    background: #fff2bb;
+    color: #47334f;
+    font: 800 16px 'Butterpop', 'Trebuchet MS', sans-serif;
+    cursor: pointer;
+}
+.control-volumen-tv:focus-visible { outline: 3px solid #70c1e1; outline-offset: 2px; }
+.modal-tele .tv-controles { display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.modal-tele video { display: block; width: 100%; max-height: min(52vh,430px); border-radius: 12px; background: #292836; }
+
+.solo-lectores {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+.solo-lectores:focus-visible {
+    position: fixed;
+    top: 7rem;
+    right: 1rem;
+    width: auto;
+    height: auto;
+    margin: 0;
+    clip: auto;
+    padding: 12px 18px;
+    background: #fff7d6;
+    border: 2px solid #bd83a9;
+    border-radius: 12px;
+    z-index: 25;
+}
+
+
+/* Componentes de los minijuegos. */
+.mini-mezclas {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.mini-mezclas .muestra-objetivo {
+    grid-column: 1 / 3;
+}
+
+.mini-mezclas .zona-mezcla {
+    grid-column: 3 / 5;
+}
+
+.mini-mezclas .mishi-laboratorio {
+    grid-column: 1 / -1;
+}
+
+
+.mini-mezclas .muestra-objetivo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 18px;
+    background: #fffaf0;
+}
+
+.mini-mezclas .tinte-mini {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 6px;
+    background: #fffaf0;
+}
+
+
+.mini-formas .mishi-laboratorio {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 130px;
+}
+
+.mini-formas .mishi-laboratorio canvas {
+    width: 145px !important;
+    height: auto !important;
+}
+
+.frasco-mini {
+    position: relative;
+    display: block;
+    width: 46px;
+    height: 110px;
+    margin: 12px auto 0;
+    border: 3px solid #423451;
+    border-radius: 0 0 23px 23px;
+    background: #e8f8ff;
+}
+
+.frasco-mini::before {
+    content: "";
+    position: absolute;
+    top: -7px;
+    left: -5px;
+    width: 50px;
+    height: 9px;
+    border: 3px solid #423451;
+    border-radius: 50%;
+    background: #d6eaf8;
+    box-sizing: border-box;
+    z-index: 2;
+}
+
+.liquido-mini {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 62%;
+    border-radius: 0 0 20px 20px;
+    background: var(--color-liquido);
+}
+
+.liquido-mini::after {
+    content: "";
+    position: absolute;
+    top: 12px;
+    right: 8px;
+    width: 6px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.45);
+}
+
+.muestra-objetivo {
+    grid-column: 1 / -1;
+    display: grid;
+    min-height: 92px;
+    place-items: center;
+    border-radius: 16px;
+    color: #493d46;
+    font-size: 17px;
+    font-weight: 900;
+    text-align: center;
+}
+
+.mini-mezclas .tinte-mini {
+    font-size: 17px;
+    text-transform: capitalize;
+}
+
+.mini-progreso {
+    margin-bottom: 0;
+    color: #765e80;
+    text-align: center;
+}
+
+.mini-exito {
+    grid-column: 1 / -1;
+    font-size: 24px;
+    text-align: center;
+    color: #468452;
+    font-weight: 900;
+}
+
+.mini-tablero .boton-vamos-jugar {
+    grid-column: 1 / -1;
+}
+
+
+.mini-memoria .pieza-mini {
+    font-size: 14px;
+    overflow-wrap: anywhere;
+    text-align: center;
+    padding: 8px;
+}
+
+.mini-memoria .mishi-laboratorio {
+    grid-column: 1 / -1;
+}
+
+.zona-mezcla {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border: 2px dashed #423451;
+    border-radius: 18px;
+    background: #fffaf0;
+    color: #423451;
+    font-weight: bold;
+}
+
+
+.tubo-mezcla .liquido-mini {
+    height: 0;
+    transition:
+        height 0.7s ease,
+        background-color 0.7s ease;
+}
+
+.ayuda-mishi {
+    grid-column: 1 / -1;
+    padding: 12px 16px;
+    border: 2px solid #faa4b5;
+    border-radius: 16px;
+    background: #fff3f6;
+    color: #423451;
+    text-align: center;
+    font-weight: 800;
+}
+
+.ayuda-mishi p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+
+.trivia-regreso {
+    padding: 16px 20px 0;
+    text-align: center;
+}
+
+
+.mishi-laboratorio {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    min-height: 150px;
+    padding: 12px 18px;
+    border: 2px solid #faa4b5;
+    border-radius: 20px;
+    background: #fff3f6;
+}
+
+.mishi-laboratorio canvas {
+    display: block;
+    width: clamp(120px, 11vw, 160px) !important;
+    height: auto !important;
+    flex-shrink: 0;
+    object-fit: contain;
+    object-position: center;
+}
+
+.mishi-laboratorio p {
+    flex: 1;
+    max-width: 280px;
+    margin: 0;
+    color: #423451;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.5;
+}
+
+
+.mishi-laboratorio.mishi-acierto canvas {
+    animation: mishi-festejo 0.6s ease;
+}
+
+.mishi-laboratorio.mishi-error canvas {
+    animation: mishi-duda 0.5s ease;
+}
+
+@keyframes mishi-festejo {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+@keyframes mishi-duda {
+
+    0%,
+    100% {
+        transform: rotate(0);
+    }
+
+    25% {
+        transform: rotate(-6deg);
+    }
+
+    75% {
+        transform: rotate(6deg);
+    }
+}
+
+@media (max-width: 690px) {
+    .modal-edificio {
+        padding: 18px;
+        border-radius: 20px;
+    }
+
+    .modal-edificio h2 {
+        font-size: 23px;
+    }
+
+    .mini-tablero {
+        gap: 7px;
+        padding: 9px;
+    }
+
+    .pieza-mini {
+        min-height: 63px;
+        font-size: 23px;
+    }
+}
+
+
+/* La carrera de Daract II sólo necesita un botón táctil; en PC se juega con teclado. */
+.boton-salto {
+    display: none;
+    position: absolute;
+    z-index: 25;
+    right: 22px;
+    bottom: 22px;
+    min-width: 110px;
+    min-height: 58px;
+    padding: 12px 18px;
+    border: 3px solid #78506d;
+    border-radius: 24px;
+    background: #fff183;
+    color: #493d46;
+    font: 20px 'Butterpop', 'Trebuchet MS', sans-serif;
+    cursor: pointer;
+}
+@media (max-width: 690px) {
+    .mini-mezclas .muestra-objetivo { grid-column: 1 / 3; }
+    .mini-mezclas .zona-mezcla { grid-column: 3 / 5; }
+    .mini-mezclas .tinte-mini { padding: 10px 3px; }
+    .mishi-laboratorio { padding: 8px; min-height: 95px; gap: 8px; }
+    .mishi-laboratorio img { width: 65px; height: 90px; }
+}
+
+
+.pagina-minijuego, .pagina-trivia {
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
+.contenido-minijuego {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    max-width: 1200px;
+    width: 100%;
+    min-height: calc(100dvh - 100px);
+    margin: 0 auto;
+    padding: 20px 24px 40px;
+}
+
+.regreso-minijuego {
+    align-self: flex-start;
+    text-decoration: none;
+}
+
+#panelMinijuego[hidden],
+#panelTrivia[hidden] {
+    display: none;
+}
+
+.minijuego-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: min(760px, calc(100dvh - 185px));
+    width: 100%;
+    max-width: 1090px;
+    padding: clamp(16px, 2.5vw, 30px);
+    border: 3px solid #cf9ebc;
+    border-radius: 28px;
+    background: #fffaf5;
+    box-shadow: 0 12px 25px #63456223;
+    text-align: center;
+}
+
+.minijuego-panel h1 {
+    margin: 4px 0 9px;
+    font-family: 'Butterpop', 'Pulang', sans-serif;
+    color: #493d46;
+    font-size: clamp(24px, 3vw, 37px);
+}
+
+.minijuego-mensaje {
+    margin: 7px auto 17px;
+    color: #695675;
+    font-size: clamp(15px, 1.5vw, 19px);
+}
+
+.pagina-minijuego .mini-tablero {
+    flex: 1;
+    max-width: 100%;
+    min-height: 0;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(8px, 1.4vw, 14px);
+    padding: clamp(10px, 1.6vw, 19px);
+}
+
+.pagina-minijuego .mini-formas {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.pagina-minijuego .mini-memoria {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(165px, .85fr);
+    align-content: center;
+}
+
+.pagina-minijuego .mini-memoria .mishi-laboratorio {
+    grid-column: 5;
+    grid-row: 1 / span 4;
+    flex-direction: column;
+    padding: 12px 10px;
+}
+
+.pagina-minijuego .mini-memoria .mishi-laboratorio canvas {
+    width: clamp(112px, 10vw, 145px) !important;
+}
+
+.pagina-minijuego .mini-memoria .mishi-laboratorio p {
+    max-width: 185px;
+    text-align: center;
+}
+
+.pagina-minijuego .mini-memoria .pieza-mini {
+    min-height: clamp(52px, 6.3vh, 78px);
+}
+
+.pagina-minijuego .mini-mezclas {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.pagina-minijuego .mini-formas .pieza-mini {
+    min-height: 80px;
+}
+
+.pagina-minijuego .mini-mezclas .tinte-mini {
+    min-height: 135px;
+    padding: 10px 5px;
+}
+
+.pagina-minijuego .mini-mezclas .frasco-mini {
+    margin-top: 0;
+}
+
+.pagina-minijuego .mini-progreso {
+    margin-top: 16px;
+    font-size: 18px;
+}
+
+.fuente-mishi {
+    position: absolute;
+    width: 240px;
+    height: 300px;
+    top: -9999px;
+    left: -9999px;
+    pointer-events: none;
+}
+
+.pantalla-carrera {
+    position: relative;
+    width: min(100%, calc((100dvh - 410px) * 900 / 550));
+    max-width: 100%;
+    margin-inline: auto;
+    overflow: hidden;
+    border: 3px solid #78506d;
+    border-radius: 20px;
+}
+
+.pantalla-carrera canvas {
+    display: block;
+    width: 100% !important;
+    height: auto !important;
+}
+
+.minijuego-carrera {
+    max-width: 1140px;
+    min-height: 0;
+}
+
+.minijuego-carrera .boton-salto {
+    display: none;
+}
+
+.botones-carrera {
+    display: flex;
+    justify-content: center;
+    padding: 12px;
+    background: #f8eff4;
+}
+
+.pagina-trivia .trivia-regreso {
+    max-width: 1130px;
+    margin: auto;
+}
+
+.pagina-trivia .trivia {
+    display: flex;
+    flex-direction: column;
+    min-height: min(760px, calc(100dvh - 185px));
+    width: 100%;
+    max-width: 1090px;
+    padding: clamp(16px, 2.5vw, 30px);
+    border: 3px solid #cf9ebc;
+    border-radius: 28px;
+    background: #fffaf5;
+    box-shadow: 0 12px 25px #63456223;
+}
+
+.pagina-trivia .trivia-juego {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    max-width: 100%;
+    width: 100%;
+    padding: clamp(16px, 2.4vw, 28px);
+    border: 0;
+    border-radius: 20px;
+    background: #fffaf5;
+    box-shadow: none;
+}
+
+.pagina-trivia .trivia-contenido {
+    width: 100%;
+}
+
+@media (max-width: 850px) {
+    .pagina-minijuego .mini-memoria {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .pagina-minijuego .mini-memoria .mishi-laboratorio {
+        grid-column: 1 / -1;
+        grid-row: auto;
+        flex-direction: row;
+    }
+
+    .pagina-minijuego .mini-memoria .mishi-laboratorio p {
+        text-align: left;
+    }
+}
+
+@media (pointer: coarse) {
+    .minijuego-carrera .boton-salto {
+        display: block;
+    }
+}
+
+@media (max-width: 690px) {
+    .contenido-minijuego {
+        padding: 12px 12px 24px;
+    }
+    .minijuego-panel {
+        padding: 14px 10px;
+        border-radius: 19px;
+    }
+    .pagina-minijuego .mini-tablero {
+        padding: 9px;
+        gap: 7px;
+    }
+    .pagina-minijuego .mini-formas .pieza-mini {
+        min-height: 60px;
+    }
+    .pagina-minijuego .mini-mezclas .tinte-mini {
+        min-height: 110px;
+    }
+    .pagina-minijuego .mini-mezclas .frasco-mini {
+        transform: scale(.75);
+        margin: -9px auto;
+    }
+    .pagina-minijuego .mini-mezclas .tinte-mini span:last-child {
+        font-size: 13px;
+    }
+    .minijuego-carrera .boton-salto {
+        right: 8px;
+        bottom: 70px;
+        min-width: 85px;
+        min-height: 45px;
+        font-size: 15px;
+    }
+}
+
+
+.pagina-app {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    overflow: hidden;
+}
+
+#editContenido {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
 }
