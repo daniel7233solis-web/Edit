@@ -48,7 +48,7 @@
     const dlg = document.getElementById('dialogoJuego');
     const ficha = document.getElementById('dialogoEdificio');
     if (esJuego && (dlg?.open || ficha?.open ||
-        (typeof lugarActual !== 'undefined' && lugarActual === 'mapa'))) {
+        (typeof lugarActual !== 'undefined' && (lugarActual === 'mapa' || lugarActual === 'esquivar')))) {
       return 'minijuego';
     }
     return inicial;

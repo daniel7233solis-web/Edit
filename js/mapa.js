@@ -3,10 +3,10 @@
  * Las posiciones mantienen Dorrego al noroeste, Daract I/II y laboratorios al
  * este, y el Edificio Histórico en el centro-sur del campus. */
 const EDIFICIOS_UNM = [
-    { id: 'dorrego', nombre: 'Dorrego', juego: 'Memoria de colores', descripcion: 'Descubrí cuatro parejas escondidas.', color: '#eac6fa', techo: '#a37ac6', x: 233, y: 191, icono: '✿' },
-    { id: 'daract1', nombre: 'Daract I', juego: 'Ordená las formas', descripcion: 'Repetí una secuencia de figuras.', color: '#b8e5ff', techo: '#77b4d3', x: 753, y: 188, icono: '◆' },
-    { id: 'daract2', nombre: 'Daract II', juego: 'Camino de estrellas', descripcion: 'Seguí el camino de estrellas en orden.', color: '#ffe0a7', techo: '#e9a470', x: 898, y: 304, icono: '★' },
-    { id: 'laboratorios', nombre: 'Laboratorios', juego: 'Laboratorio cromático', descripcion: 'Combiná colores para encontrar la mezcla.', color: '#c9edd9', techo: '#86bb9c', x: 975, y: 486, icono: '✦' },
+    { id: 'dorrego', nombre: 'Dorrego', juego: 'Memoria de programación', descripcion: 'Encontrá ocho parejas de HTML, CSS y p5.js.', color: '#eac6fa', techo: '#a37ac6', x: 233, y: 191, icono: '✿' },
+    { id: 'daract1', nombre: 'Daract I', juego: 'Ordená las formas', descripcion: 'Respondé diez desafíos de figuras y secuencias.', color: '#b8e5ff', techo: '#77b4d3', x: 753, y: 188, icono: '◆' },
+    { id: 'daract2', nombre: 'Daract II', juego: '¡Esquivá las malas notas!', descripcion: 'Corré y saltá las notas con ESPACIO o ↑. Tenés cinco vidas y conseguís puntos al esquivarlas.', color: '#ffe0a7', techo: '#e9a470', x: 898, y: 304, icono: '★' },
+    { id: 'laboratorios', nombre: 'Laboratorios', juego: 'Laboratorio cromático', descripcion: 'Prepará diez mezclas distintas combinando los colores correctos.', color: '#c9edd9', techo: '#86bb9c', x: 975, y: 486, icono: '✦' },
     { id: 'historico', nombre: 'Edificio Histórico', juego: 'Trivia de diseño', descripcion: 'Poné a prueba tus conocimientos.', color: '#ffcfdf', techo: '#e29ab1', x: 487, y: 404, icono: '♡' }
 ];
 let vistaMapa = { escala: 1, offsetX: 0, offsetY: 0, modoMovil: false };
