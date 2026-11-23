@@ -2,7 +2,28 @@
  * Todos los minijuegos mantienen al usuario en el mismo recorrido.
  * La trivia original se conserva en trivia.html. */
 let minijuegoActual = null;
+function reaccionMishi(estado, textoPersonalizado = '') {
+    const avatar = document.getElementById('miniMishiAvatar');
+    const texto = document.getElementById('miniMishiTexto');
 
+    if (!avatar || !texto) {
+        return;
+    }
+
+    if (estado === 'inicio') {
+        avatar.textContent = '🐱';
+        texto.textContent = textoPersonalizado || '¡Vamos! Encontrá las parejas.';
+    } else if (estado === 'bien') {
+        avatar.textContent = '😺';
+        texto.textContent = textoPersonalizado || '¡Muy bien! Seguís re bien.';
+    } else if (estado === 'mal') {
+        avatar.textContent = '😿';
+        texto.textContent = textoPersonalizado || 'No pasa nada, probá otra vez.';
+    } else if (estado === 'final') {
+        avatar.textContent = '🎉';
+        texto.textContent = textoPersonalizado || '¡Lo lograste! Estoy muy orgulloso.';
+    }
+}
 function abrirMinijuegoActual() {
     const id = modalEdificioId;
     const ficha = document.getElementById('dialogoEdificio');
@@ -39,7 +60,33 @@ function botonJuego(label, accion, clase = '') {
 }
 function finalizarJuego() {
     minijuegoActual.terminado = true;
-    tableroJuego().replaceChildren();
+
+    const board = tableroJuego();
+
+    // Conservar a Mishi cuando termina el juego de memoria.
+    const mishi = minijuegoActual.id === 'dorrego'
+        ? board.querySelector('.mishi-laboratorio')
+        : null;
+
+    board.replaceChildren();
+
+
+    if (mishi) {
+        const mensajeMishi = mishi.querySelector('p');
+
+        if (mensajeMishi) {
+            mensajeMishi.textContent =
+                '¡Lo logramos! ¡Encontraste todas las parejas!';
+        }
+
+        mishi.classList.remove('mishi-error', 'mishi-acierto');
+
+        // Reiniciar la animación de festejo.
+        void mishi.offsetWidth;
+        mishi.classList.add('mishi-acierto');
+
+        board.append(mishi);
+    }
     const final = document.createElement('div'); final.className = 'mini-exito';
     final.textContent = '✦ ¡Lo lograste! ✦';
     tableroJuego().append(final);
@@ -62,14 +109,31 @@ function iniciarParejas() {
     const estado = minijuegoActual;
 
     // Grupos de tarjetas disponibles
+
     const grupos = [
-        ['🌷', '⭐', '🍀', '🌙'],
-        ['❤️', '💙', '💛', '💚'],
-        ['🎨', '✏️', '📷', '🎬']
+        ['div', 'header', 'section', 'footer'],
+        ['color', 'margin', 'padding', 'display'],
+        ['createCanvas', 'background', 'ellipse', 'rect']
     ];
 
-    // Elegimos un grupo aleatoriamente
-    const grupoElegido = grupos[Math.floor(Math.random() * grupos.length)];
+    // Elegimos palabras de HTML, CSS y p5.js.
+    const grupoElegido = [
+        grupos[0][Math.floor(Math.random() * grupos[0].length)],
+        grupos[1][Math.floor(Math.random() * grupos[1].length)],
+        grupos[2][Math.floor(Math.random() * grupos[2].length)]
+    ];
+
+    // La cuarta palabra se elige entre las restantes.
+    const restantes = grupos.flat().filter(
+        palabra => !grupoElegido.includes(palabra)
+    );
+
+    grupoElegido.push(
+        restantes[Math.floor(Math.random() * restantes.length)]
+    );
+
+
+
 
     // Duplicamos los símbolos para formar las parejas
     estado.cartas = [...grupoElegido, ...grupoElegido];
@@ -78,31 +142,71 @@ function iniciarParejas() {
     estado.cartas.sort(() => Math.random() - 0.5);
 
     estado.vistas = []; estado.acertadas = new Set();
-    const board = tableroJuego(); board.className = 'mini-tablero mini-memoria'; board.replaceChildren();
-    mensajeJuego('Encontrá las cuatro parejas iguales.'); progresoJuego(0, 4);
+
+    const board = tableroJuego();
+    board.className = 'mini-tablero mini-memoria';
+    board.replaceChildren();
+
+    mensajeJuego('Encontrá las cuatro parejas iguales.');
+    progresoJuego(0, 4);
+
+    // Mostrar al Mishi personalizado.
+    const mishi = crearMishiLaboratorio();
+
+    mishi.mensaje.textContent =
+        '¡Vamos! Encontrá las parejas de HTML, CSS y p5.js.';
+
+
+    board.append(mishi.elemento);
+
+    // Guardamos los botones de las tarjetas.
+    const botones = [];
+
     estado.cartas.forEach((simbolo, i) => {
+
         const b = botonJuego('?', () => {
             if (minijuegoActual !== estado || estado.bloqueado || estado.acertadas.has(i) || estado.vistas.includes(i)) return;
             b.textContent = simbolo; b.classList.add('abierta'); estado.vistas.push(i);
             if (estado.vistas.length === 2) {
                 const [a, z] = estado.vistas;
                 if (estado.cartas[a] === estado.cartas[z]) {
+
+                    mishi.mensaje.textContent = '¡Excelente! Encontraste una pareja.';
+
+                    mishi.elemento.classList.remove('mishi-error');
+                    mishi.elemento.classList.add('mishi-acierto');
+
                     estado.acertadas.add(a); estado.acertadas.add(z);
                     estado.vistas = [];
                     progresoJuego(estado.acertadas.size / 2, 4);
                     if (estado.acertadas.size === 8) finalizarJuego();
                 } else {
+                    mishi.mensaje.textContent =
+                        '¡Ups! Esas palabras no coinciden. ¡Intentá otra vez!';
+
+                    mishi.elemento.classList.remove('mishi-acierto');
+                    mishi.elemento.classList.remove('mishi-error');
+
+                    void mishi.elemento.offsetWidth;
+
+                    mishi.elemento.classList.add('mishi-error');
+
                     estado.bloqueado = true;
                     window.setTimeout(() => {
                         if (minijuegoActual !== estado) return;
-                        const buttons = Array.from(board.children);
-                        buttons[a].textContent = '?'; buttons[z].textContent = '?';
-                        buttons[a].classList.remove('abierta'); buttons[z].classList.remove('abierta');
+
+                        botones[a].textContent = '?';
+                        botones[z].textContent = '?';
+
+                        botones[a].classList.remove('abierta');
+                        botones[z].classList.remove('abierta');
+
                         estado.vistas = []; estado.bloqueado = false;
                     }, 650);
                 }
             }
-        }); board.appendChild(b);
+        }); botones.push(b);
+        board.appendChild(b);
     });
 }
 
@@ -229,7 +333,7 @@ function iniciarFormas() {
             '¡Vamos! Observá las figuras y elegí la respuesta.';
 
         board.append(mishi.elemento);
-
+        const botones = [];
         mensajeJuego(desafio.consigna);
 
         // Mezclar posiciones de las respuestas

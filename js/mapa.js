@@ -3,7 +3,12 @@
  * Las posiciones mantienen Dorrego al noroeste, Daract I/II y laboratorios al
  * este, y el Edificio Histórico en el centro-sur del campus. */
 const EDIFICIOS_UNM = [
-    { id: 'dorrego', nombre: 'Dorrego', juego: 'Memoria de colores', descripcion: 'Descubrí cuatro parejas escondidas.', color: '#eac6fa', techo: '#a37ac6', x: 233, y: 191, icono: '✿' },
+    {
+        id: 'dorrego', nombre: 'Dorrego',
+        juego: 'Memoria de programación',
+        descripcion: 'Encontrá las parejas de palabras relacionadas con HTML, CSS y p5.js.',
+        color: '#eac6fa', techo: '#a37ac6', x: 233, y: 191, icono: '✿'
+    },
     { id: 'daract1', nombre: 'Daract I', juego: 'Ordená las formas', descripcion: 'Repetí una secuencia de figuras.', color: '#b8e5ff', techo: '#77b4d3', x: 753, y: 188, icono: '◆' },
 
     {
