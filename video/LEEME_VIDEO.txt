@@ -1,4 +1,0 @@
-El video original de Iris ya está incluido como `television.mp4`.
-Hacé clic en la pantalla de la TV desde el living para reproducirlo.
-El ícono de parlante que aparece sobre el borde superior de la pantalla activa/silencia
-el sonido y, cuando está activo, pausa la música de EDIT.
