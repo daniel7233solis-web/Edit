@@ -635,10 +635,14 @@ function dibujarPersonaje() {
     // Un solapamiento leve con el piso evita la sensación de que flota.
     const basePies = estadoMascota.calzado === 'ninguno' ? 1182 : 1191;
     translate(-ANCHO / 2, -basePies);
+
     dibujarMascota({
         caminando: personaje.caminando,
-        intensidad: personaje.intensidad, fase: personaje.fase
+        intensidad: personaje.intensidad,
+        fase: personaje.fase,
+        mirando: personaje.mirando
     });
+
     pop();
     if (millis() < (personaje.saltoHasta || 0)) {
         noStroke(); fill('#e981a9'); textSize(18); textAlign(CENTER, CENTER);

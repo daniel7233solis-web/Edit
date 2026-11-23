@@ -283,6 +283,18 @@ function dibujarArticulacion(tipo, angulo, intensidad = 0) {
   pop();
 }
 
+function dibujarExtremidadPerspectiva(tipo, angulo, intensidad, desplazamientoX) {
+  push();
+
+  // Desplazamos suavemente la extremidad hacia el centro.
+  translate(desplazamientoX * intensidad, 0);
+
+  // Conservamos el dibujo original y su ropa.
+  dibujarArticulacion(tipo, angulo, intensidad);
+
+  pop();
+}
+
 // Dibujo interno de la cintura. Se conserva el nombre para compatibilidad
 // con las otras pantallas, pero ahora se llama ANTES de la ropa superior.
 function dibujarPantaloncito() {
@@ -309,96 +321,189 @@ function dibujarUnionCintura() {
     recurso.width, alto, 0, yInicio, recurso.width, alto);
 }
 
+
 function dibujarMascota(movimiento = false) {
   const andando = typeof movimiento === 'object'
-    ? Boolean(movimiento.caminando) : Boolean(movimiento);
+    ? Boolean(movimiento.caminando)
+    : Boolean(movimiento);
+
   const intensidad = typeof movimiento === 'object'
     ? Math.max(0, Math.min(1, movimiento.intensidad ?? (andando ? 1 : 0)))
     : (andando ? 1 : 0);
+
   const fase = typeof movimiento === 'object' && Number.isFinite(movimiento.fase)
-    ? movimiento.fase : frameCount * 0.1;
+    ? movimiento.fase
+    : frameCount * 0.1;
+
   const pisada = Math.sin(fase);
   const t = millis() / 1000;
-  const reposo = estadoMascota.animar && intensidad < .05;
+
+  const reposo = estadoMascota.animar && intensidad < 0.05;
   const respiracion = reposo ? Math.sin(t * 1.25) * 0.9 : 0;
 
-  // Saludo: se anima sólo el brazo, nunca la silueta de la cabeza.
+  // Animación de saludo
   let saludo = 0;
+
   if (estadoMascota.saludo > 0) {
     const progreso = 1 - estadoMascota.saludo;
     const entrada = Math.min(1, progreso * 7, estadoMascota.saludo * 7);
-    saludo = entrada * (1.12 + Math.sin(progreso * Math.PI * 6) * .11);
-    estadoMascota.saludo = Math.max(0, estadoMascota.saludo - deltaTime / 1350);
+
+    saludo = entrada * (
+      1.12 + Math.sin(progreso * Math.PI * 6) * 0.11
+    );
+
+    estadoMascota.saludo = Math.max(
+      0,
+      estadoMascota.saludo - deltaTime / 1350
+    );
   }
 
-  // Pasos suaves y medidos. Los pies permanecen cerca del piso fijo y no
-  // hay rebote de cuerpo entero ni escala horizontal dependiente de caminar.
-
+  // Movimiento de brazos, piernas y torso
   const anguloPierna = pisada * 0.22 * intensidad;
   const anguloBrazo = pisada * 0.32 * intensidad;
   const oscilacionTorso = pisada * 3.2 * intensidad;
 
+  const mirando = typeof movimiento === 'object'
+    ? (movimiento.mirando || 1)
+    : 1;
+
+  const caminando = intensidad > 0.04;
+
+  // Perspectiva corregida.
+  // Los nombres L y R corresponden a los archivos originales.
+  const brazoCercano = mirando === 1 ? 'armL' : 'armR';
+  const brazoLejano = mirando === 1 ? 'armR' : 'armL';
+
+  const piernaCercana = mirando === 1 ? 'legL' : 'legR';
+  const piernaLejana = mirando === 1 ? 'legR' : 'legL';
+
+  // Acercamos las extremidades al centro del cuerpo.
+  const desplazamientoCercano = mirando === 1 ? 28 : -28;
+  const desplazamientoLejano = mirando === 1 ? -16 : 16;
+
   const prendaSuperior = estadoMascota.conjunto !== 'ninguno'
-    ? 'remeraBlanca' : estadoMascota.ropaSuperior;
+    ? 'remeraBlanca'
+    : estadoMascota.ropaSuperior;
 
-  // 1. Piernas -> zapatos -> tela de perneras. Las zapatillas no pueden
-  //    tapar los ruedos. Los PNG de la pierna rotan junto con su pantalón.
-  dibujarArticulacion('legL', anguloPierna, intensidad);
-  dibujarArticulacion('legR', -anguloPierna, intensidad);
+  // 1. Piernas
+  if (caminando) {
+    const anguloCercano = mirando === 1
+      ? anguloPierna
+      : -anguloPierna;
 
-  // 2. Un brazo va por detrás de la silueta cuando camina.
-  //    El derecho queda atrás al mirar a la derecha; al espejarse cambia lado.
-  const caminando = intensidad > .04;
-  if (caminando && saludo === 0) {
-    push();
-    translate(-12 * intensidad, 0);
-    dibujarArticulacion('armR', anguloBrazo, intensidad);
-    pop();
+    const anguloLejano = -anguloCercano;
+
+    // Pierna lejana
+    dibujarExtremidadPerspectiva(
+      piernaLejana,
+      anguloLejano,
+      intensidad,
+      desplazamientoLejano * 0.6
+    );
+
+    // Pierna cercana
+    dibujarExtremidadPerspectiva(
+      piernaCercana,
+      anguloCercano,
+      intensidad,
+      desplazamientoCercano * 0.6
+    );
+  } else {
+    dibujarArticulacion('legL', anguloPierna, intensidad);
+    dibujarArticulacion('legR', -anguloPierna, intensidad);
   }
 
-  // 3. Piel del torso, DETRÁS de ambas prendas. Dibujar el torso por
-  //    encima de la pollera generaba los parches visibles de piel en cintura.
+  // 2. Brazo lejano, detrás del torso
+  if (caminando && saludo === 0) {
+    const anguloLejano = mirando === 1
+      ? -anguloBrazo
+      : anguloBrazo;
+
+    dibujarExtremidadPerspectiva(
+      brazoLejano,
+      anguloLejano,
+      intensidad,
+      desplazamientoLejano
+    );
+  }
+
+  // 3. Torso
   push();
   translate(oscilacionTorso, -respiracion);
   dibujarPieza('torso', 1, POSICIONES.torso.x, POSICIONES.torso.y);
   pop();
 
-  // 4. Capa inferior sobre la piel, sin huecos al flexionar las piernas.
+  // 4. Ropa inferior
   dibujarUnionCintura();
   dibujarPantaloncito();
-  if (estadoMascota.conjunto === 'ninguno' && estadoMascota.ropaInferior === 'pollera') {
+
+  if (
+    estadoMascota.conjunto === 'ninguno' &&
+    estadoMascota.ropaInferior === 'pollera'
+  ) {
     dibujarPrenda('pollera', 'completa');
   }
 
-  // 5. Prenda superior EN PRIMER PLANO sobre la capa inferior. Así el
-  //    ruedo tapa el borde de pollera/short y no quedan cortes en la cintura.
+  // 5. Ropa superior
   push();
   translate(oscilacionTorso, -respiracion);
+
   dibujarPrenda(prendaSuperior, 'torso');
+
   if (estadoMascota.conjunto === 'enterizo') {
     dibujarPrenda('enterizo', 'torso');
   } else if (estadoMascota.conjunto === 'vestido') {
     dibujarPrenda('vestido', 'completa');
   }
+
   pop();
 
-  // 6. Brazo delantero, con manga unida al mismo pivote.
-  dibujarArticulacion('armL', -anguloBrazo, intensidad);
-  if (!caminando || saludo > 0) {
+  // 6. Brazo cercano, delante del torso
+  if (caminando && saludo === 0) {
+    const anguloCercano = mirando === 1
+      ? anguloBrazo
+      : -anguloBrazo;
+
+    dibujarExtremidadPerspectiva(
+      brazoCercano,
+      anguloCercano,
+      intensidad,
+      desplazamientoCercano
+    );
+  } else {
+    // Posición frontal o saludo
+    dibujarArticulacion('armL', -anguloBrazo, intensidad);
     dibujarArticulacion('armR', anguloBrazo - saludo, intensidad);
   }
 
-  // 7. Cabeza + orejas + facciones + peluca: conjunto completamente rígido.
-  //    No hereda rebote, rotación, escala ni oscilación del torso al caminar.
-  dibujarPieza('ears', estadoMascota.ears, POSICIONES.ears.x, POSICIONES.ears.y);
-  dibujarPieza('head', 1, POSICIONES.head.x, POSICIONES.head.y);
+  // 7. Cabeza, facciones y pelo
+  // Nunca invertimos horizontalmente estas ilustraciones.
+  dibujarPieza(
+    'ears',
+    estadoMascota.ears,
+    POSICIONES.ears.x,
+    POSICIONES.ears.y
+  );
+
+  dibujarPieza(
+    'head',
+    1,
+    POSICIONES.head.x,
+    POSICIONES.head.y
+  );
+
   dibujarCentrada('brows', estadoMascota.brows);
   dibujarCentrada('eyes', estadoMascota.eyes);
   dibujarCentrada('nose', estadoMascota.nose);
   dibujarCentrada('mouth', estadoMascota.mouth);
+
   const pelo = POSICIONES.hair[estadoMascota.hair - 1];
-  if (pelo) dibujarPieza('hair', estadoMascota.hair, pelo.x, pelo.y);
+
+  if (pelo) {
+    dibujarPieza('hair', estadoMascota.hair, pelo.x, pelo.y);
+  }
 }
+
 
 function drawMascota() {
   clear();
