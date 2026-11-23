@@ -354,6 +354,25 @@ const preguntas = [
 
 ];
 
+let preguntasPartida = [];
+
+function elegirPreguntas() {
+    const mezcladas = [...preguntas];
+
+    for (let i = mezcladas.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+
+        const temporal = mezcladas[i];
+        mezcladas[i] = mezcladas[j];
+        mezcladas[j] = temporal;
+    }
+
+    preguntasPartida = mezcladas.slice(0, 10);
+}
+
+elegirPreguntas();
+
+
 let preguntaActual = 0;
 let puntos = 0;
 let respondida = false;
@@ -366,13 +385,13 @@ const resultado = document.getElementById('resultado');
 const botonSiguiente = document.getElementById('siguiente');
 
 function mostrarPregunta() {
-    const datos = preguntas[preguntaActual];
+    const datos = preguntasPartida[preguntaActual];
     document.querySelector('.trivia-juego')
         .classList.remove('terminada');
     respondida = false;
 
     progreso.textContent =
-        `Pregunta ${preguntaActual + 1} de ${preguntas.length}`;
+        `Pregunta ${preguntaActual + 1} de ${preguntasPartida.length}`;
 
     textoPregunta.textContent = datos.pregunta;
     resultado.textContent = '';
@@ -440,22 +459,25 @@ function finalizarTrivia() {
 
     contenedorOpciones.replaceChildren();
 
+
+    const total = preguntasPartida.length;
+
     const estrellas =
         '★'.repeat(puntos) +
-        '☆'.repeat(preguntas.length - puntos);
+        '☆'.repeat(total - puntos);
 
     let mensaje = '';
 
-    if (puntos === preguntas.length) {
+    if (puntos === total) {
         mensaje = '¡Excelente! ¡Respondiste todo correctamente!';
-    } else if (puntos >= 3) {
+    } else if (puntos >= 7) {
         mensaje = '¡Muy bien! Tenés grandes conocimientos.';
     } else {
         mensaje = '¡Buen intento! Podés volver a jugar.';
     }
 
     resultado.textContent =
-        `${estrellas}\n${puntos} de ${preguntas.length} puntos\n${mensaje}`;
+        `${estrellas}\n${puntos} de ${total} puntos\n${mensaje}`;
 
     document.querySelector('.trivia-juego')
         .classList.add('terminada');
@@ -466,23 +488,31 @@ function finalizarTrivia() {
 }
 
 
+
 botonSiguiente.addEventListener('click', () => {
     if (juegoTerminado) {
         preguntaActual = 0;
         puntos = 0;
+        respondida = false;
         juegoTerminado = false;
 
+        elegirPreguntas();
         mostrarPregunta();
         return;
     }
 
-    preguntaActual++;
-
-    if (preguntaActual < preguntas.length) {
-        mostrarPregunta();
-    } else {
-        finalizarTrivia();
+    if (!respondida) {
+        return;
     }
+
+    if (preguntaActual + 1 >= preguntasPartida.length) {
+        finalizarTrivia();
+        return;
+    }
+
+    preguntaActual++;
+    mostrarPregunta();
 });
+
 
 mostrarPregunta();

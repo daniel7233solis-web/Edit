@@ -54,11 +54,11 @@ let objetoArrastrado = null;
 const burbujasCasa = [];
 let animacionEstrellasHasta = 0;
 const OBJETO_COORDS = {
-    jabon: {x:1167,y:327},
-    manzana: {x:1340,y:324},
-    cama: {x:370,y:327},
-    tele: {x:2219,y:315},
-    puerta: {x:2590,y:260}
+    jabon: { x: 1167, y: 327 },
+    manzana: { x: 1340, y: 324 },
+    cama: { x: 370, y: 327 },
+    tele: { x: 2219, y: 315 },
+    puerta: { x: 2590, y: 260 }
 };
 
 const controlTactil = { izquierda: false, derecha: false };
@@ -103,7 +103,7 @@ function windowResized() {
 
 function configurarControlesTactiles() {
     for (const [selector, direccion] of [['#caminarIzquierda', 'izquierda'],
-        ['#caminarDerecha', 'derecha']]) {
+    ['#caminarDerecha', 'derecha']]) {
         const boton = document.querySelector(selector);
         if (!boton) continue;
         boton.addEventListener('pointerdown', evento => {
@@ -567,105 +567,107 @@ function dibujarPersonaje() {
         rotate(-HALF_PI);
         scale(.195);
         translate(-ANCHO / 2, -995);
-        dibujarMascota({caminando:false,intensidad:0,fase:0});
+        dibujarMascota({ caminando: false, intensidad: 0, fase: 0 });
         pop();
-        push();noStroke();fill('#78649a');textAlign(CENTER,CENTER);
-        textSize(22);text('Z z z ♡',430,252 + sin(frameCount*.035)*4);pop();
+        push(); noStroke(); fill('#78649a'); textAlign(CENTER, CENTER);
+        textSize(22); text('Z z z ♡', 430, 252 + sin(frameCount * .035) * 4); pop();
         return;
     }
     push();
-    noStroke();fill('#4d405126');
+    noStroke(); fill('#4d405126');
     ellipse(personaje.x, CASA.suelo + 3, 88, 12);
     let salto = 0;
     // Sólo salta al alimentarse, no durante la caminata normal.
     if (millis() < (personaje.saltoHasta || 0)) {
         const progreso = 1 - (personaje.saltoHasta - millis()) / 850;
-        salto = -19 * Math.sin(Math.PI * Math.max(0,Math.min(1,progreso)));
+        salto = -19 * Math.sin(Math.PI * Math.max(0, Math.min(1, progreso)));
     }
     translate(personaje.x, personaje.y + salto);
-    scale(personaje.mirando,1);
-    const escalaMishi = .28 * Math.min(1,Math.max(.64,width/750));
+    scale(personaje.mirando, 1);
+    const escalaMishi = .28 * Math.min(1, Math.max(.64, width / 750));
     scale(escalaMishi);
     // Los zapatos terminan cerca de Y=1198 y los pies descalzos en Y=1187.
     // Un solapamiento leve con el piso evita la sensación de que flota.
     const basePies = estadoMascota.calzado === 'ninguno' ? 1182 : 1191;
-    translate(-ANCHO / 2,-basePies);
-    dibujarMascota({caminando:personaje.caminando,
-        intensidad:personaje.intensidad,fase:personaje.fase});
+    translate(-ANCHO / 2, -basePies);
+    dibujarMascota({
+        caminando: personaje.caminando,
+        intensidad: personaje.intensidad, fase: personaje.fase
+    });
     pop();
     if (millis() < (personaje.saltoHasta || 0)) {
-        noStroke();fill('#e981a9');textSize(18);textAlign(CENTER,CENTER);
-        text('♡',personaje.x+45,personaje.y-230+sin(frameCount*.09)*6);
+        noStroke(); fill('#e981a9'); textSize(18); textAlign(CENTER, CENTER);
+        text('♡', personaje.x + 45, personaje.y - 230 + sin(frameCount * .09) * 6);
     }
 }
 
 function dibujarIconosObjetos() {
-    const pulso=1+sin(frameCount*.055)*.06;
-    for (const [id,p] of Object.entries(OBJETO_COORDS)) {
-        if (id==='cama' && millis()<(personaje.durmiendoHasta||0)) continue;
-        push();translate(p.x,p.y);scale(pulso);
-        noStroke();fill('#fff7b0a8');circle(0,0,62);
-        fill('#fff9f0');stroke('#997997');strokeWeight(2);
-        circle(0,0,46);noStroke();
-        if(id==='jabon') {
-            fill('#8bdce5');rect(-15,-9,30,20,8);
-            fill('#fff');circle(-4,-3,6);circle(7,-5,5);
-        } else if(id==='manzana') {
-            fill('#ed6b79');circle(0,5,27);
-            fill('#81b582');ellipse(8,-10,15,8);stroke('#826757');strokeWeight(2);line(0,-7,2,-15);
+    const pulso = 1 + sin(frameCount * .055) * .06;
+    for (const [id, p] of Object.entries(OBJETO_COORDS)) {
+        if (id === 'cama' && millis() < (personaje.durmiendoHasta || 0)) continue;
+        push(); translate(p.x, p.y); scale(pulso);
+        noStroke(); fill('#fff7b0a8'); circle(0, 0, 62);
+        fill('#fff9f0'); stroke('#997997'); strokeWeight(2);
+        circle(0, 0, 46); noStroke();
+        if (id === 'jabon') {
+            fill('#8bdce5'); rect(-15, -9, 30, 20, 8);
+            fill('#fff'); circle(-4, -3, 6); circle(7, -5, 5);
+        } else if (id === 'manzana') {
+            fill('#ed6b79'); circle(0, 5, 27);
+            fill('#81b582'); ellipse(8, -10, 15, 8); stroke('#826757'); strokeWeight(2); line(0, -7, 2, -15);
         } else {
-            fill('#725878');textAlign(CENTER,CENTER);textStyle(BOLD);textSize(25);
-            text(id==='cama'?'☾':id==='tele'?'✦':'➜',0,-2);
+            fill('#725878'); textAlign(CENTER, CENTER); textStyle(BOLD); textSize(25);
+            text(id === 'cama' ? '☾' : id === 'tele' ? '✦' : '➜', 0, -2);
         }
         pop();
     }
-    for(let i=burbujasCasa.length-1;i>=0;i--){
-        const b=burbujasCasa[i];
-        if(millis()>b.hasta){burbujasCasa.splice(i,1);continue;}
-        push();noFill();stroke('#a8eff6a5');strokeWeight(3);
-        circle(b.x,b.y-(b.hasta-millis())*.015,b.r);
+    for (let i = burbujasCasa.length - 1; i >= 0; i--) {
+        const b = burbujasCasa[i];
+        if (millis() > b.hasta) { burbujasCasa.splice(i, 1); continue; }
+        push(); noFill(); stroke('#a8eff6a5'); strokeWeight(3);
+        circle(b.x, b.y - (b.hasta - millis()) * .015, b.r);
         pop();
     }
 }
 function dibujarObjetoArrastrado() {
-    if(!objetoArrastrado)return;
-    push();noStroke();
-    const x=mouseX,y=mouseY;
-    fill('#fff9f0ea');stroke('#95749a');strokeWeight(2);
-    circle(x,y,50);noStroke();
-    if(objetoArrastrado.tipo==='jabon') {
-        fill('#7cd2df');rect(x-15,y-10,30,21,7);
-        fill('#fff');circle(x-7,y-4,6);
-    }else{
-        fill('#e86275');circle(x,y+3,28);
-        stroke('#659c76');strokeWeight(3);line(x,y-12,x+5,y-19);
+    if (!objetoArrastrado) return;
+    push(); noStroke();
+    const x = mouseX, y = mouseY;
+    fill('#fff9f0ea'); stroke('#95749a'); strokeWeight(2);
+    circle(x, y, 50); noStroke();
+    if (objetoArrastrado.tipo === 'jabon') {
+        fill('#7cd2df'); rect(x - 15, y - 10, 30, 21, 7);
+        fill('#fff'); circle(x - 7, y - 4, 6);
+    } else {
+        fill('#e86275'); circle(x, y + 3, 28);
+        stroke('#659c76'); strokeWeight(3); line(x, y - 12, x + 5, y - 19);
     }
     pop();
 }
-function coordenadasMundo(x=mouseX,y=mouseY) {
-    return {x:x/escalaMundo+camaraX,y:y/escalaMundo};
+function coordenadasMundo(x = mouseX, y = mouseY) {
+    return { x: x / escalaMundo + camaraX, y: y / escalaMundo };
 }
 function estaSobreMishi(p) {
-    return Math.abs(p.x-personaje.x)<64 && p.y>235 && p.y<490;
+    return Math.abs(p.x - personaje.x) < 64 && p.y > 235 && p.y < 490;
 }
 function objetoEnPunto(p) {
-    for(const id of ['jabon','manzana']){
-        const pos=OBJETO_COORDS[id];
-        if(Math.hypot(p.x-pos.x,p.y-pos.y)<37)return id;
+    for (const id of ['jabon', 'manzana']) {
+        const pos = OBJETO_COORDS[id];
+        if (Math.hypot(p.x - pos.x, p.y - pos.y) < 37) return id;
     }
     return null;
 }
 function dibujarTooltipPuerta() {
-    const p=coordenadasMundo();
-    const sobrePuerta=p.x>=2515&&p.x<=2670&&p.y>=175&&p.y<=480;
-    const iconos=Object.values(OBJETO_COORDS).some(o=>Math.hypot(p.x-o.x,p.y-o.y)<37);
-    cursor(sobrePuerta||iconos?HAND:ARROW);
-    if(!sobrePuerta)return;
-    const px=Math.min(width-165,Math.max(12,mouseX-80));
-    const py=Math.max(13,mouseY-58);
-    noStroke();fill('#fffaf2f5');rect(px,py,164,38,11);
-    fill(C.tinta);textAlign(CENTER,CENTER);textSize(14);
-    text('Ir a la universidad',px+82,py+19);
+    const p = coordenadasMundo();
+    const sobrePuerta = p.x >= 2515 && p.x <= 2670 && p.y >= 175 && p.y <= 480;
+    const iconos = Object.values(OBJETO_COORDS).some(o => Math.hypot(p.x - o.x, p.y - o.y) < 37);
+    cursor(sobrePuerta || iconos ? HAND : ARROW);
+    if (!sobrePuerta) return;
+    const px = Math.min(width - 165, Math.max(12, mouseX - 80));
+    const py = Math.max(13, mouseY - 58);
+    noStroke(); fill('#fffaf2f5'); rect(px, py, 164, 38, 11);
+    fill(C.tinta); textAlign(CENTER, CENTER); textSize(14);
+    text('Ir a la universidad', px + 82, py + 19);
 }
 
 
@@ -706,8 +708,10 @@ function dibujarPortada() {
     text('Caminá con A/D o las flechas.', width / 2, y + h * .56);
     text('Usá el mouse para jugar con los objetos de la casa.', width / 2, y + h * .65);
 
-    botones.play = { x: width / 2 - Math.min(105, w * .25),
-        y: y + h * .76, w: Math.min(210, w * .5), h: Math.min(54, h * .18) };
+    botones.play = {
+        x: width / 2 - Math.min(105, w * .25),
+        y: y + h * .76, w: Math.min(210, w * .5), h: Math.min(54, h * .18)
+    };
     boton(botones.play, '▶  JUGAR', C.azul);
 }
 
@@ -733,25 +737,25 @@ function boton(b, t, color) {
 // ==========================================
 
 function dibujarInterfaz() {
-    noStroke();fill('#fff9efe8');rect(13,13,Math.min(286,width*.62),47,15);
-    fill(C.tinta);textAlign(LEFT,CENTER);textStyle(BOLD);
-    textSize(Math.min(16,width/25));text('♡  La casa de Mishi',27,37);
-    botones.salir={x:width-135,y:15,w:120,h:42};
-    boton(botones.salir,'Inicio',C.amarillo);
-    if(millis()<mensajeHasta){
-        fill('#fff9eff5');noStroke();
-        const ancho=Math.min(width-24,450);
-        rect((width-ancho)/2,74,ancho,45,13);
-        fill(C.tinta);textAlign(CENTER,CENTER);textSize(14);
-        text(mensaje,width/2,96);
+    noStroke(); fill('#fff9efe8'); rect(13, 13, Math.min(286, width * .62), 47, 15);
+    fill(C.tinta); textAlign(LEFT, CENTER); textStyle(BOLD);
+    textSize(Math.min(16, width / 25)); text('♡  La casa de Mishi', 27, 37);
+    botones.salir = { x: width - 135, y: 15, w: 120, h: 42 };
+    boton(botones.salir, 'Inicio', C.amarillo);
+    if (millis() < mensajeHasta) {
+        fill('#fff9eff5'); noStroke();
+        const ancho = Math.min(width - 24, 450);
+        rect((width - ancho) / 2, 74, ancho, 45, 13);
+        fill(C.tinta); textAlign(CENTER, CENTER); textSize(14);
+        text(mensaje, width / 2, 96);
     }
-    if(!objetoArrastrado && millis()>(personaje.durmiendoHasta||0)){
-        fill('#fff9efde');noStroke();
-        const ancho=Math.min(width-26,480);
-        rect((width-ancho)/2,height-62,ancho,46,13);
-        fill(C.tinta);textAlign(CENTER,CENTER);
-        textSize(Math.min(14,width/30));
-        text('Arrastrá el jabón o la manzana · Tocá la cama, TV o puerta',width/2,height-39);
+    if (!objetoArrastrado && millis() > (personaje.durmiendoHasta || 0)) {
+        fill('#fff9efde'); noStroke();
+        const ancho = Math.min(width - 26, 480);
+        rect((width - ancho) / 2, height - 62, ancho, 46, 13);
+        fill(C.tinta); textAlign(CENTER, CENTER);
+        textSize(Math.min(14, width / 30));
+        text('Arrastrá el jabón o la manzana · Tocá la cama, TV o puerta', width / 2, height - 39);
     }
 }
 
@@ -760,77 +764,88 @@ function dibujarInterfaz() {
 // ==========================================
 
 function mousePressed() {
+
+    // Evitar interacciones con el escenario mientras hay un modal abierto
+    const modalJuego = document.getElementById('dialogoJuego');
+    const modalEdificio = document.getElementById('dialogoEdificio');
+
+    if (modalJuego?.open || modalEdificio?.open) {
+        return;
+    }
+
     if (!jugando) {
-        if(enBoton(botones.play)) jugando=true;
+        if (enBoton(botones.play)) jugando = true;
         return;
     }
-    if(lugarActual==='mapa') {
-        presionarMapa(mouseX,mouseY);
+    if (lugarActual === 'mapa') {
+        presionarMapa(mouseX, mouseY);
         return;
     }
-    if(enBoton(botones.salir)) {jugando=false;return;}
-    const p=coordenadasMundo();
-    if(p.x>=2515 && p.x<=2670 && p.y>=175 && p.y<=480) {
-        lugarActual='mapa';
-        personaje.velocidad=0;personaje.intensidad=0;
+    if (enBoton(botones.salir)) { jugando = false; return; }
+    const p = coordenadasMundo();
+    if (p.x >= 2515 && p.x <= 2670 && p.y >= 175 && p.y <= 480) {
+        lugarActual = 'mapa';
+        personaje.velocidad = 0; personaje.intensidad = 0;
         return;
     }
-    const objeto=objetoEnPunto(p);
-    if(objeto){
-        if(Math.abs(personaje.x-p.x)>300){
-            avisar('Acercá a Mishi al objeto para usarlo.');return;
+    const objeto = objetoEnPunto(p);
+    if (objeto) {
+        if (Math.abs(personaje.x - p.x) > 300) {
+            avisar('Acercá a Mishi al objeto para usarlo.'); return;
         }
-        objetoArrastrado={tipo:objeto,pasadas:0,ultimaPasada:0};
+        objetoArrastrado = { tipo: objeto, pasadas: 0, ultimaPasada: 0 };
         return false;
     }
-    if(p.x>=225&&p.x<=515 && p.y>=265&&p.y<=467){
-        if(Math.abs(personaje.x-380)>320){
-            avisar('Acercate a la cama para descansar.');return;
+    if (p.x >= 225 && p.x <= 515 && p.y >= 265 && p.y <= 467) {
+        if (Math.abs(personaje.x - 380) > 320) {
+            avisar('Acercate a la cama para descansar.'); return;
         }
-        personaje.durmiendoHasta=millis()+4200;
-        personaje.caminando=false;personaje.velocidad=0;personaje.intensidad=0;
+        personaje.durmiendoHasta = millis() + 4200;
+        personaje.caminando = false; personaje.velocidad = 0; personaje.intensidad = 0;
         avisar('Mishi se acurrucó en su cama... Zzz');
         return false;
     }
-    if(p.x>=2090&&p.x<=2345&&p.y>=257&&p.y<=398){
-        tvEncendida=!tvEncendida;
-        avisar(tvEncendida?'¡Mishi encendió la tele!':'Televisor apagado');
+    if (p.x >= 2090 && p.x <= 2345 && p.y >= 257 && p.y <= 398) {
+        tvEncendida = !tvEncendida;
+        avisar(tvEncendida ? '¡Mishi encendió la tele!' : 'Televisor apagado');
         return false;
     }
 }
 function mouseDragged() {
-    if(!objetoArrastrado)return;
-    const p=coordenadasMundo();
-    if(objetoArrastrado.tipo==='jabon' && estaSobreMishi(p)){
-        if(millis()-objetoArrastrado.ultimaPasada>125){
+    if (!objetoArrastrado) return;
+    const p = coordenadasMundo();
+    if (objetoArrastrado.tipo === 'jabon' && estaSobreMishi(p)) {
+        if (millis() - objetoArrastrado.ultimaPasada > 125) {
             objetoArrastrado.pasadas++;
-            objetoArrastrado.ultimaPasada=millis();
-            for(let i=0;i<4;i++)burbujasCasa.push({x:p.x+random(-35,35),
-                y:p.y+random(-35,35),r:random(14,28),hasta:millis()+1200});
-            if(objetoArrastrado.pasadas>=6){
+            objetoArrastrado.ultimaPasada = millis();
+            for (let i = 0; i < 4; i++)burbujasCasa.push({
+                x: p.x + random(-35, 35),
+                y: p.y + random(-35, 35), r: random(14, 28), hasta: millis() + 1200
+            });
+            if (objetoArrastrado.pasadas >= 6) {
                 avisar('¡Mishi quedó reluciente! ✦');
-                estadoMascota.saludo=1;
-                objetoArrastrado=null;
+                estadoMascota.saludo = 1;
+                objetoArrastrado = null;
             }
         }
     }
     return false;
 }
 function mouseReleased() {
-    if(!objetoArrastrado)return;
-    const p=coordenadasMundo();
-    if(objetoArrastrado.tipo==='manzana' && estaSobreMishi(p)){
-        personaje.saltoHasta=millis()+850;
-        estadoMascota.saludo=1;
+    if (!objetoArrastrado) return;
+    const p = coordenadasMundo();
+    if (objetoArrastrado.tipo === 'manzana' && estaSobreMishi(p)) {
+        personaje.saltoHasta = millis() + 850;
+        estadoMascota.saludo = 1;
         avisar('¡Qué rica manzana! ♡');
-    }else if(objetoArrastrado.tipo==='jabon' && objetoArrastrado.pasadas>0){
+    } else if (objetoArrastrado.tipo === 'jabon' && objetoArrastrado.pasadas > 0) {
         avisar('¡Seguí pasando el jabón sobre Mishi!');
     }
-    objetoArrastrado=null;
+    objetoArrastrado = null;
     return false;
 }
-function touchMoved(){return mouseDragged();}
-function touchEnded(){return mouseReleased();}
+function touchMoved() { return mouseDragged(); }
+function touchEnded() { return mouseReleased(); }
 
 function enBoton(b) {
     return b && mouseX >= b.x && mouseX <= b.x + b.w &&
